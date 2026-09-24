@@ -15,6 +15,7 @@ Papers behind the design decisions in this project, grouped by pipeline stage.
 | Desai et al., *ASL Citizen*, NeurIPS 2023 ([arXiv](https://arxiv.org/abs/2304.05934)) | In repo: `pdf/desai2023_asl-citizen.pdf` | Primary dataset: 83,399 videos, 2,731 signs, 52 signers, with an official split by signer. The best baseline (I3D on video) gets 63.1% top-1. The pose-based ST-GCN is a few points lower. Our ≥75% target on 100–250 signs is realistic by comparison. |
 | Li et al., *WLASL*, WACV 2020 ([arXiv](https://arxiv.org/abs/1910.11006)) | Script | Benchmark dataset. |
 | Sohn, *Google ISLR 1st place: 1D-CNN + Transformer*, Kaggle 2023 ([writeup](https://www.kaggle.com/competitions/asl-signs/writeups/hoyeol-sohn-1st-place-solution-1dcnn-combined-with), [code](https://github.com/hoyso48/Google---Isolated-Sign-Language-Recognition-1st-place-solution)) | Manual (Kaggle) | Reference architecture for our recognition model. It runs on MediaPipe landmarks, the same input our pipeline produces, and the competition limited model size and speed. The dataset has 250 signs from 21 Deaf signers, chosen for the PopSign app (parents learning to sign with young Deaf children), so that vocabulary may not fit our use case. The leaderboard score is still to be verified. |
+| *kaggle-asl-signs-1st-place*, Hugging Face ([model](https://huggingface.co/sign/kaggle-asl-signs-1st-place)) | Model download (MIT license) | A LiteRT (TFLite) export of the winning ISLR model, released under MIT. It gives us a ready-made baseline to benchmark on the Jetson before we train our own model. |
 | Shi, *Toward ASL Processing in the Real World*, PhD thesis 2023 ([arXiv](https://arxiv.org/abs/2308.12419)) | Script | Covers real-world ASL data, fingerspelling and translation. Useful background. |
 
 ## 2. Segmentation (where a sign starts and ends)
@@ -41,8 +42,60 @@ Papers behind the design decisions in this project, grouped by pipeline stage.
 | Paper | Access | Why it matters |
 |---|---|---|
 | Bragg et al., *Sign Language Recognition, Generation, and Translation: An Interdisciplinary Perspective*, ASSETS 2019 ([arXiv](https://arxiv.org/abs/1908.08597)) | Script | The most-cited overview. It says to target specific real-world use cases and to bring in Deaf culture and linguistics expertise. |
-| *U.S. Deaf Community Perspectives on Automatic Sign Language Translation*, ASSETS 2023 ([ACM](https://dl.acm.org/doi/10.1145/3597638.3614507), [MSR](https://www.microsoft.com/en-us/research/publication/u-s-deaf-community-perspectives-on-automatic-sign-language-translation/)) | Manual (NJIT library) | U.S. Deaf users on where they'd use sign translation, the accuracy they expect, interface preferences and harms. Needed for choosing the use case. |
+| Tran, Ladner & Bragg, *U.S. Deaf Community Perspectives on Automatic Sign Language Translation*, ASSETS 2023 ([ACM](https://dl.acm.org/doi/10.1145/3597638.3614507), [MSR](https://www.microsoft.com/en-us/research/publication/u-s-deaf-community-perspectives-on-automatic-sign-language-translation/)) | Manual (NJIT library) | Survey of 32 U.S. Deaf and hard-of-hearing ASL users. Findings are summarized in [the section below](#tran-et-al-2023-findings). This is our main evidence for choosing the use case. |
 | Atwell et al., *"Nothing about us without us"*, 2025 ([arXiv](https://arxiv.org/abs/2512.08839)) | In repo: `pdf/atwell2025_nothing-about-us.pdf` | Concerns about translation accuracy and cultural erosion, and a strong call for Deaf-led design. |
+
+### Tran et al. 2023 findings
+
+The survey had 32 participants. All were Deaf or hard of hearing, and ASL was the primary language for 81% of them. Participants took an ASL check to confirm they sign. The survey covered U.S. users only, and the sample is small.
+
+**Unmet need.** "Wanted an interpreter but couldn't get one" was most frequent in medical settings, then professional, then education.
+
+**Willingness to use automatic translation:**
+- Highest: *going into a business*. Every participant showed at least some willingness here.
+- Next: self-service kiosks and informal education.
+- Lowest: mental healthcare, education settings and formal personal events.
+- Medical and mental healthcare split sharply. Most participants answered either 1 or 5.
+
+**Where developers should focus.** *Going into a business* ranked top (mean 3.94 out of 5), then professional settings and social media. The differences between scenarios were small.
+
+**Performance expectations:**
+- Accuracy expectations were highest for medical settings (4.9 out of 5) and lowest for self-service kiosks (3.6).
+- Participants rated smooth, natural flow (cadence) as more important for automatic translation than for human interpreters, and the difference was statistically significant. Required accuracy and speed didn't differ between the two.
+
+**Hardware:**
+
+| Form factor | Participants comfortable using it |
+|---|---|
+| Phone app | 91% |
+| Stand-alone system (e.g. a computer on a coffee-shop counter) | 69% |
+| Wearable | 38% |
+| Implant | 6% |
+
+Our device falls in the stand-alone category.
+
+**Top concerns** (reported by more than 80% of participants):
+
+| Concern | Share |
+|---|---|
+| Hearing people profiting from ASL | 91% |
+| Missing ASL grammatical features | 91% |
+| Accessibility of the system itself | 88% |
+| Automatic translation weakening legal rights to other accommodations | 88% |
+| Ignoring the Deaf community's values and needs | 84% |
+| Content quality issues | 84% |
+| Poorer performance for some users than others | 81% |
+| Not recognizing references to the surroundings when describing spatial information | 81% |
+| Limited Deaf involvement in leadership or as contributors | 81% |
+
+**Top benefit.** Access in more places or at the last minute (91%).
+
+**What this means for us:**
+- A service counter or business setting has the highest willingness, the top developer priority, lower accuracy expectations and a naturally limited vocabulary. That makes it the best fit for a 100–250-sign system.
+- Medical settings have the greatest need but the highest accuracy bar and the most divided attitudes. That's risky for a system targeting about 75% top-1.
+- "Missing ASL grammatical features" and "weakening legal rights to accommodations" match our scope note. We should keep stating that the device is not a replacement for an interpreter.
+- "Poorer performance for some users" means we should report accuracy separately for each signer, not only the average.
+- "Limited Deaf involvement" means we should involve Deaf ASL users in choosing the vocabulary and in testing.
 
 ## 6. Pipeline components
 
@@ -61,6 +114,6 @@ These showed up in the search but haven't been read or vetted yet:
 
 ## To do
 
-- [ ] Get the ASSETS 2023 paper through the NJIT library and fill in its authors in `references.bib`.
+- [x] Get the ASSETS 2023 paper through the NJIT library and fill in its authors in `references.bib`.
 - [ ] Record the ISLR 1st-place leaderboard score from the Kaggle writeup.
 - [ ] Find the published versions of arXiv entries (venue and pages) for the final report.

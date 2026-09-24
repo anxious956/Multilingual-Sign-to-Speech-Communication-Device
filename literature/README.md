@@ -105,6 +105,17 @@ Our device falls in the stand-alone category.
 | NLLB Team, *No Language Left Behind*, 2022 ([arXiv](https://arxiv.org/abs/2207.04672)) | Script (about 190 pages, so not stored here) | EN → TR/ES translation |
 | Radford et al., *Whisper*, 2022 ([arXiv](https://arxiv.org/abs/2212.04356)) | Script | Speech recognition for the reply channel |
 
+## 7. Patents (course requires at least 3)
+
+The ECE 414 outline asks the literature review to compare against existing products, with at least 3 patents and 1 paper. Summaries below are from Google Patents. Confirm legal status on each page before submission.
+
+| Patent | Holder | Input → output | How we differ |
+|---|---|---|---|
+| [US 10,489,639 B2](https://patents.google.com/patent/US10489639B2/en), *Automated sign language translation and communication using multiple input and output modalities* (granted 2019; continuations US 10,956,725 and US 12,183,123) | Avodah | Several cameras plus a depth sensor (structured light or time-of-flight), 3D reconstruction, neural network. Outputs text, speech or an avatar. Two-way. Processing is partly local and partly in the cloud. | We use one RGB camera and no depth sensor, run fully offline, and speak several output languages. |
+| [US 2022/0327961 A1](https://patents.google.com/patent/US20220327961A1/en), *Realtime AI Sign Language Recognition* (filed 2021; Google Patents lists a grant as US 12,518,653 B2, not yet verified) | Sign-Speak | Any single camera, body and hand keypoints, a 1D-CNN to find sign boundaries, k-nearest-neighbours with dynamic time warping. **Needs WiFi, with cloud processing.** One embodiment shows the **three most likely translations as a menu** for the user to pick. | Closest prior art. It already covers showing top candidates for the user to pick, so our originality claim can't rest on that alone. Our differences: fully offline on an embedded GPU (no video leaves the device), speech in several languages, and speaking only when confidence passes a threshold or the user confirms. |
+| [US 2016/0307469 A1](https://patents.google.com/patent/US20160307469A1/en), *System and Method for Automated Sign Language Recognition* (filed 2016) | Bosch | Gloves with accelerometers and gyroscopes, Hidden Markov Models, a language model. Outputs text or audio in one or more languages. | We need no wearable. That matters because 62% of surveyed Deaf users didn't pick wearables, and sign-language gloves have been criticised by the Deaf community. |
+| [US 5,887,069](https://patents.google.com/patent/US5887069) (granted 1999, **expired**) | Hitachi | Data gloves or camera, dynamic-programming pattern matching, text or synthesized speech. Adds facial expression to add emotion to the speech. | Historical baseline. It's expired, so its methods are free to use. |
+
 ## Edge deployment (not yet reviewed)
 
 These showed up in the search but haven't been read or vetted yet:
@@ -116,4 +127,5 @@ These showed up in the search but haven't been read or vetted yet:
 
 - [x] Get the ASSETS 2023 paper through the NJIT library and fill in its authors in `references.bib`.
 - [ ] Record the ISLR 1st-place leaderboard score from the Kaggle writeup.
+- [ ] Check each patent's legal status on Google Patents or USPTO before citing it.
 - [ ] Find the published versions of arXiv entries (venue and pages) for the final report.

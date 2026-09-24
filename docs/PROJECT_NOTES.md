@@ -68,8 +68,8 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 ## To do
 
 - [ ] Get the team's approval of the introduction draft, ideally as a tracked-changes version on the teammate's original text.
-- [ ] Write the remaining introduction parts: c, d, e and f.
-- [ ] Make 3–4 figures, e.g. a block diagram, a pipeline flow chart, the confirmation UI and a comparison table.
+- [x] Write the remaining introduction parts: c, d, e and f (draft).
+- [x] Make 3–4 figures (draft: block diagram, decision flow, survey chart, comparison table).
 - [ ] Marketability and comparison with existing products (SignAll, Sign-Speak, Avodah).
 - [ ] Constraints: technical, legal (ADA and interpreter rights, privacy) and budget (Jetson and parts cost list).
 - [ ] Specification table, building on the targets table in `README.md`.
@@ -82,4 +82,5 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 
 - `literature/README.md`: papers and patents, with summaries.
 - `literature/references.bib`: BibTeX for all sources.
-- `docs/Introduction_Draft.docx`: draft of intro parts a and b.
+- `docs/Introduction_Draft.docx`: full introduction draft with figures 1–3 and table 1.
+- `docs/figures/`: figure images and the script that draws them (`make_figures.py`).

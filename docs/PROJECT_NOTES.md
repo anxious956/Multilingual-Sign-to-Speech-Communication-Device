@@ -1,12 +1,12 @@
 # Project Notes
 
-Working notes for the ECE 414 proposal. The course outline is `ECE 414_SLBS_ABET (1).pdf` on `main`.
+Working notes for the ECE 414 proposal. The course outline and lecture notes are in `lecture-notes/`.
 
 ## Course requirements (ECE 414, Prof. Leonid Tsybeskov)
 
 - **Grading:** proposal presentation 30%, approved proposal report 70%. Missing or late interim reports and insufficient information cost penalty points.
 - **Textbook:** Barry Hyman, *Fundamentals of Engineering Design*, 2nd ed.
-- **Honor code:** the NJIT Honor Code is enforced. Check the instructor's rules on AI tools before submitting any AI-drafted text. Treat AI drafts as notes and write the final text in the team's own words.
+- **Honor code:** the NJIT Honor Code is enforced. The team confirmed that AI use is allowed for the final project.
 
 ### Schedule
 
@@ -36,7 +36,7 @@ The introduction starts on page 3 and must include:
 - e) Current trends
 - f) Commercial systems, including research status, ethics, economics and sustainability
 - g) Formal citations to the reference list in section 12
-- 3–4 figures with captions
+- **At least 5 pages of text, 3–5 figures, 1–2 tables** and references (announcement, `lecture-notes/introduction/01_announcement_intro_requirements.jpeg`)
 
 Items a–g are a content checklist, not headings. The team chose to write the introduction as continuous prose without subheadings.
 
@@ -69,7 +69,8 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 
 - [ ] Get the team's approval of the introduction draft, ideally as a tracked-changes version on the teammate's original text.
 - [x] Write the remaining introduction parts: c, d, e and f (draft).
-- [x] Make 3–4 figures (draft: block diagram, decision flow, survey chart, comparison table).
+- [x] Replace the figures with sourced ones, following the sample: a survey chart redrawn from Tran et al. data, our service-counter drawing, the Sign-Speak patent drawing and the Atwell et al. concerns chart (CC BY). Tables use a classic three-line style.
+- [x] Expand the introduction to at least 5 pages of text (about 1,930 words at 1.5 line spacing) with 4 figures and 2 tables.
 - [ ] Marketability and comparison with existing products (SignAll, Sign-Speak, Avodah).
 - [ ] Constraints: technical, legal (ADA and interpreter rights, privacy) and budget (Jetson and parts cost list).
 - [ ] Specification table, building on the targets table in `README.md`.
@@ -82,5 +83,5 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 
 - `literature/README.md`: papers and patents, with summaries.
 - `literature/references.bib`: BibTeX for all sources.
-- `docs/Introduction_Draft.docx`: full introduction draft with figures 1–3 and table 1.
-- `docs/figures/`: figure images and the script that draws them (`make_figures.py`).
+- `docs/Introduction_Draft.docx`: introduction draft.
+- `docs/figures/`: figure images and the scripts that draw Figure 1 (`make_survey_chart.py`) and Figure 2 (`make_setup_sketch.py`).

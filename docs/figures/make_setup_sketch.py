@@ -7,7 +7,7 @@ from matplotlib.patches import Circle, Rectangle, Polygon, Arc, FancyBboxPatch
 OUT = "/home/user/Multilingual-Sign-to-Speech-Communication-Device/docs/figures/fig_setup_sketch.png"
 K = "#111111"
 LW = 1.6
-plt.rcParams.update({"font.family": "DejaVu Serif", "font.size": 9})
+plt.rcParams.update({"font.family": "Liberation Serif", "font.size": 9})
 
 fig, ax = plt.subplots(figsize=(7.2, 3.9))
 ax.set_xlim(0, 16); ax.set_ylim(-1.4, 8.2); ax.set_aspect("equal"); ax.axis("off")

@@ -6,7 +6,7 @@ Working notes for the ECE 414 proposal. The course outline is `ECE 414_SLBS_ABET
 
 - **Grading:** proposal presentation 30%, approved proposal report 70%. Missing or late interim reports and insufficient information cost penalty points.
 - **Textbook:** Barry Hyman, *Fundamentals of Engineering Design*, 2nd ed.
-- **Honor code:** the NJIT Honor Code is enforced. Check the instructor's rules on AI tools before submitting any AI-drafted text. Treat AI drafts as notes and write the final text in the team's own words.
+- **Honor code:** the NJIT Honor Code is enforced. The team confirmed that AI use is allowed for the final project.
 
 ### Schedule
 

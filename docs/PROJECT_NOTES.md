@@ -1,6 +1,6 @@
 # Project Notes
 
-Working notes for the ECE 414 proposal. The course outline is `ECE 414_SLBS_ABET (1).pdf` on `main`.
+Working notes for the ECE 414 proposal. The course outline and lecture notes are in `lecture-notes/`.
 
 ## Course requirements (ECE 414, Prof. Leonid Tsybeskov)
 
@@ -36,7 +36,7 @@ The introduction starts on page 3 and must include:
 - e) Current trends
 - f) Commercial systems, including research status, ethics, economics and sustainability
 - g) Formal citations to the reference list in section 12
-- 3–4 figures with captions
+- **At least 5 pages of text, 3–5 figures, 1–2 tables** and references (announcement, `lecture-notes/introduction/01_announcement_intro_requirements.jpeg`)
 
 Items a–g are a content checklist, not headings. The team chose to write the introduction as continuous prose without subheadings.
 
@@ -69,7 +69,8 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 
 - [ ] Get the team's approval of the introduction draft, ideally as a tracked-changes version on the teammate's original text.
 - [x] Write the remaining introduction parts: c, d, e and f (draft).
-- [x] Make 3–4 figures (draft: block diagram, decision flow, survey chart, comparison table).
+- [ ] Replace the figures: the first drafts look like generic AI diagrams. Follow the sample: real statistics, real products or prototypes, our own design.
+- [ ] Expand the introduction back to at least 5 pages of text (it was cut to about 1,090 words by mistake).
 - [ ] Marketability and comparison with existing products (SignAll, Sign-Speak, Avodah).
 - [ ] Constraints: technical, legal (ADA and interpreter rights, privacy) and budget (Jetson and parts cost list).
 - [ ] Specification table, building on the targets table in `README.md`.

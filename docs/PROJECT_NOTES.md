@@ -69,8 +69,8 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 
 - [ ] Get the team's approval of the introduction draft, ideally as a tracked-changes version on the teammate's original text.
 - [x] Write the remaining introduction parts: c, d, e and f (draft).
-- [ ] Replace the figures: the first drafts look like generic AI diagrams. Follow the sample: real statistics, real products or prototypes, our own design.
-- [ ] Expand the introduction back to at least 5 pages of text (it was cut to about 1,090 words by mistake).
+- [x] Replace the figures with sourced ones, following the sample: two Tran et al. survey charts (in the copy sent to the team only; not stored in this public repo), our service-counter drawing, the Sign-Speak patent drawing and the Atwell et al. concerns chart (CC BY).
+- [x] Expand the introduction to at least 5 pages of text (about 1,900 words at 1.5 line spacing) with 5 figures and 2 tables.
 - [ ] Marketability and comparison with existing products (SignAll, Sign-Speak, Avodah).
 - [ ] Constraints: technical, legal (ADA and interpreter rights, privacy) and budget (Jetson and parts cost list).
 - [ ] Specification table, building on the targets table in `README.md`.
@@ -83,5 +83,5 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 
 - `literature/README.md`: papers and patents, with summaries.
 - `literature/references.bib`: BibTeX for all sources.
-- `docs/Introduction_Draft.docx`: full introduction draft with figures 1–3 and table 1.
-- `docs/figures/`: figure images and the script that draws them (`make_figures.py`).
+- `docs/Introduction_Draft.docx`: introduction draft. Figures 1 and 2 (from Tran et al.) are placeholders in this public copy.
+- `docs/figures/`: figure images, plus the script that draws Figure 3 (`make_setup_sketch.py`).

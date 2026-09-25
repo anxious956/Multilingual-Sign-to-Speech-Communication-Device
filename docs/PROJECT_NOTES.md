@@ -38,7 +38,9 @@ The introduction starts on page 3 and must include:
 - g) Formal citations to the reference list in section 12
 - **At least 5 pages of text, 3–5 figures, 1–2 tables** and references (announcement, `lecture-notes/introduction/01_announcement_intro_requirements.jpeg`)
 
-Items a–g are a content checklist, not headings. The team chose to write the introduction as continuous prose without subheadings.
+Items a–g are a content checklist, not headings. Following Zeynep's review, the introduction uses subheadings 3.1 Background, 3.2 Problem Statement, 3.3 Objectives, 3.4 Proposed Approach, 3.5 Current Trends, 3.6 Existing Systems and 3.7 Ethics, Economics and Sustainability, so the instructor can find each item.
+
+Template rules (from `ECE_414_Proposal_Template_2026_2.docx`): references in the format "Authors. Title. Journal, volume(issue), pages, year.", numbered in order of appearance, with the number at the end of the sentence; figure captions below as "Fig. N."; table titles above tables; every number has units; every acronym spelled out at first use.
 
 ## Decisions so far
 

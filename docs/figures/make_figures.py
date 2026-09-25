@@ -27,62 +27,64 @@ def arrow(ax, p, q, color=MUTED, style="-|>", ls="-"):
 
 
 # ---------- Figure 1: system block diagram ----------
-fig, ax = plt.subplots(figsize=(7.6, 4.0))
-ax.set_xlim(0, 16.6); ax.set_ylim(-0.3, 8.1); ax.axis("off")
-w, h = 1.75, 1.15
-yt, yb = 6.2, 2.2
+# Even grid: every box is W wide, columns are STEP apart, so every
+# horizontal arrow has the same length.
+fig, ax = plt.subplots(figsize=(7.6, 3.3))
+W, H, STEP = 1.8, 1.3, 2.15
+col = lambda i: 0.95 + i * STEP
+yt, yb = 4.4, 1.6
+ax.set_xlim(0, col(7) + 0.95); ax.set_ylim(-0.35, 6.2); ax.axis("off")
 HW = dict(fill="white", edge=INK)
+FS = 7.2
+
+def harrow(i, j, y):
+    """Arrow between neighbouring columns i -> j on row y."""
+    d = 1 if j > i else -1
+    arrow(ax, (col(i) + d * W / 2, y), (col(j) - d * W / 2, y))
+
+# sign -> speech (top row, left to right)
+top = ["Camera", "Landmarks\n(MediaPipe)", "Sign\nrecognizer\n(top-5 +\nconfidence)",
+       "Sentence\nbuilder\n(English)", None, "Translation\nEN→TR/ES\n(NLLB-200)",
+       "Speech\nsynthesis\n(Piper)", "Speaker"]
+for i, t in enumerate(top):
+    if t is None:
+        continue
+    box(ax, col(i), yt, W, H, t, fs=FS, **(HW if i in (0, 7) else {}))
+for i in range(7):
+    harrow(i, i + 1, yt)
+
+# touchscreen spans both rows, same width as other boxes
+ts_h = (yt - yb) + H
+box(ax, col(4), (yt + yb) / 2, W, ts_h,
+    "Touchscreen\n(faces the\nDeaf user)\n\n• confirm\n   sentence\n• read\n   reply\n• choose\n   language",
+    fill=ACCENT_FILL, edge=ACCENT, fs=6.7)
+
+# reply path (bottom row, right to left)
+box(ax, col(7), yb, W, H, "Micro-\nphone", fs=FS, **HW)
+box(ax, col(6), yb, W, H, "Voice\ndetection\n(VAD)", fs=FS)
+box(ax, col(5), yb, W, H, "Speech\nrecognition\n→ English\n(Whisper)", fs=FS)
+for i in (7, 6, 5):
+    harrow(i, i - 1, yb)
 
 # people
-ax.text(1.0, 7.55, "Deaf user", ha="center", fontsize=8, fontweight="bold")
-ax.text(15.6, 4.2, "Hearing\nperson", ha="center", va="center", fontsize=8, fontweight="bold")
-arrow(ax, (1.0, 7.35), (1.0, yt + h / 2))                     # signs to camera
-arrow(ax, (15.6, yt - h / 2), (15.6, 4.2 + 0.45))              # hears speaker
-arrow(ax, (15.6, 4.2 - 0.45), (15.6, yb + h / 2))              # speaks into mic
+gap = yt - yb - H            # vertical space between the two rows
+mid = (yt + yb) / 2
+ax.text(col(0), yt + H / 2 + 0.6, "Deaf user", ha="center", va="center", fontsize=8, fontweight="bold")
+arrow(ax, (col(0), yt + H / 2 + 0.4), (col(0), yt + H / 2))
+ax.text(col(7), mid, "Hearing\nperson", ha="center", va="center", fontsize=8, fontweight="bold")
+arrow(ax, (col(7), yt - H / 2), (col(7), mid + 0.38))
+arrow(ax, (col(7), mid - 0.38), (col(7), yb + H / 2))
 
-# sign -> speech path (top, left to right)
-box(ax, 1.0, yt, 1.4, h, "Camera", **HW)
-top = [(3.0, "Landmarks\n(MediaPipe)"), (5.0, "Sign\nrecognizer\n(top-5 +\nconfidence)"),
-       (7.0, "Sentence\nbuilder\n(English)")]
-for x, t in top:
-    box(ax, x, yt, w, h + 0.3, t)
-arrow(ax, (1.7, yt), (3.0 - w / 2, yt))
-for a, b in zip(top, top[1:]):
-    arrow(ax, (a[0] + w / 2, yt), (b[0] - w / 2, yt))
-
-# touchscreen (hardware, shared by both paths)
-box(ax, 9.0, 4.2, 2.1, 6.1,
-    "Touchscreen\n(faces the\nDeaf user)\n\n\u2022 confirm or\n   edit the\n   sentence\n\n\u2022 read the\n   reply\n\n\u2022 choose\n   output\n   language",
-    fill=ACCENT_FILL, edge=ACCENT, fs=6.9)
-arrow(ax, (7.0 + w / 2, yt), (9.0 - 1.05, yt))
-
-right = [(11.6, "Translation\nEN\u2192TR/ES\n(NLLB-200)"), (13.6, "Speech\nsynthesis\n(Piper)")]
-for x, t in right:
-    box(ax, x, yt, w, h, t)
-arrow(ax, (9.0 + 1.05, yt), (11.6 - w / 2, yt))
-ax.text(11.6, yt - h / 2 - 0.3, "skipped for English", ha="center", fontsize=6.3, color=MUTED)
-arrow(ax, (11.6 + w / 2, yt), (13.6 - w / 2, yt))
-box(ax, 15.6, yt, 1.4, h, "Speaker", **HW)
-arrow(ax, (13.6 + w / 2, yt), (15.6 - 0.7, yt))
-
-# reply path (bottom, right to left)
-box(ax, 15.6, yb, 1.4, h, "Micro-\nphone", **HW)
-bot = [(13.6, "Voice\ndetection\n(VAD)"), (11.6, "Speech\nrecognition\n\u2192 English\n(Whisper)")]
-for x, t in bot:
-    box(ax, x, yb, w, h + 0.15, t)
-arrow(ax, (15.6 - 0.7, yb), (13.6 + w / 2, yb))
-arrow(ax, (13.6 - w / 2, yb), (11.6 + w / 2, yb))
-arrow(ax, (11.6 - w / 2, yb), (9.0 + 1.05, yb))
-
-# mic muted while the device speaks
-arrow(ax, (13.6, yt - h / 2), (13.6, yb + (h + 0.15) / 2), ls="--")
-ax.text(13.45, 4.2, "mic muted\nwhile device\nspeaks", fontsize=6.3, color=MUTED, va="center", ha="right")
+# notes
+arrow(ax, (col(6), yt - H / 2), (col(6), yb + H / 2), ls="--")
+ax.text(col(6) - 0.12, mid, "mic muted\nwhile device\nspeaks", ha="right", va="center", fontsize=6.3, color=MUTED)
+ax.text(col(5), yt + H / 2 + 0.2, "skipped for English", ha="center", fontsize=6.3, color=MUTED)
 
 # legend
-box(ax, 1.0, 0.45, 0.9, 0.5, "", **HW)
-ax.text(1.6, 0.45, "Hardware", va="center", fontsize=7)
-box(ax, 4.0, 0.45, 0.9, 0.5, "")
-ax.text(4.6, 0.45, "Software on the Jetson Orin Nano (fully offline)", va="center", fontsize=7)
+box(ax, 0.75, -0.05, 0.7, 0.42, "", **HW)
+ax.text(1.25, -0.05, "Hardware", va="center", fontsize=7)
+box(ax, 3.3, -0.05, 0.7, 0.42, "")
+ax.text(3.8, -0.05, "Software on the Jetson Orin Nano (fully offline)", va="center", fontsize=7)
 fig.savefig(f"{OUT}/fig1_block_diagram.png", dpi=220, bbox_inches="tight", facecolor="white")
 plt.close(fig)
 

@@ -75,8 +75,12 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 - [x] Write the remaining introduction parts: c, d, e and f (draft).
 - [x] Replace the figures with sourced ones, following the sample: a survey chart redrawn from Tran et al. data, our service-counter drawing, the Sign-Speak patent drawing and the Atwell et al. concerns chart (CC BY). Tables use a classic three-line style.
 - [x] Expand the introduction to at least 5 pages of text (about 1,930 words at 1.5 line spacing) with 4 figures and 2 tables.
-- [ ] Section 4: technical goals (at most 3) and each team member's responsibilities.
-- [ ] Section 5: projected community impact and ethical issues (cite the IEEE Code of Ethics).
+- [x] Section 4: three technical goals drafted (sign recognition, language and speech, offline embedded integration).
+- [ ] Section 4: fill in the lead and support names in Table 3 (currently "To be assigned").
+- [x] Section 5: community impact and ethical issues drafted, citing the ADA and the IEEE Code of Ethics.
+- [ ] Contact the ASL community at NJIT before choosing the vocabulary (promised in Section 5).
+- [ ] Buy the NVIDIA Jetson Orin Nano.
+- [ ] Decide on the power supply (battery or wall power) after measuring power draw.
 - [ ] Marketability and comparison with existing products (SignAll, Sign-Speak, Avodah).
 - [ ] Constraints: technical, legal (ADA and interpreter rights, privacy) and budget (Jetson and parts cost list).
 - [ ] Specification table, building on the targets table in `README.md`.
@@ -89,6 +93,5 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 
 - `literature/README.md`: papers and patents, with summaries.
 - `literature/references.bib`: BibTeX for all sources.
-- `docs/Introduction_Draft.docx`: introduction draft (Section 3 and Section 12 only).
-- `docs/ECE_414_Proposal_Draft.docx`: combined proposal (cover page, abstract, table of contents, Section 3 and Section 12). Student ID numbers are blanked out in this public copy.
+- `docs/ECE_414_Proposal_Draft.docx`: combined proposal (cover page, abstract, table of contents, Sections 3, 4, 5 and 12). This is the single source: it is built on the team's own latest Word file, with Sections 4 and 5 added. Student ID numbers are blanked out in this public copy.
 - `docs/figures/`: figure images and the scripts that draw Figure 1 (`make_survey_chart.py`) and Figure 2 (`make_setup_sketch.py`).

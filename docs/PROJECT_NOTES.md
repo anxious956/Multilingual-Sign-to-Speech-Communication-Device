@@ -50,13 +50,15 @@ Template rules (from `ECE_414_Proposal_Template_2026_2.docx`): references in the
 - **Pipeline order:** signs → English sentence → user confirms in English → translate → speak. The confirmation happens in English because that's the language the Deaf user can check.
 - **Sign segmentation:** one sign at a time, separated by a rest pose, with a button as backup. Moryossef et al. 2023 supports this.
 - **Abstract:** already submitted. It names Deaf users, hospitals, schools and public services.
+- **Use case:** a service counter or front desk (Tran et al. 2023: highest willingness, lower accuracy expectations). Hospitals stay as motivation, framed as front-desk use or use while waiting for an interpreter.
+- **Signs → sentence:** templates for common phrases, with a small language model as a fallback.
+- **Latency:** under 1.2 s, measured from the user's confirmation to the start of speech. The confirmation time itself is not counted.
+- **Fingerspelling:** a fallback for words outside the vocabulary, such as names.
+- **Connectivity:** fully offline. No video leaves the device, which avoids privacy risk and works without a network; this is also the main difference from Sign-Speak's cloud-based patent.
 
 ## Open decisions
 
-- **Use case and vocabulary.** The recommendation is a service counter or business setting (Tran et al. 2023: highest willingness, top developer priority, lower accuracy expectations). Hospitals stay as motivation, framed as front desk or check-in use, or use while waiting for an interpreter.
-- **Signs → sentence:** rules and templates, a small language model, or both.
-- **Latency definition:** where the 1.2 s clock starts and stops. It can't include the user's confirmation time.
-- **Fingerspelling:** core feature or stretch goal.
+- **Vocabulary list:** which 100–250 signs to cover for the service-counter setting, ideally chosen with Deaf ASL users.
 
 ## Originality (from the patent review)
 
@@ -73,17 +75,20 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 - [x] Write the remaining introduction parts: c, d, e and f (draft).
 - [x] Replace the figures with sourced ones, following the sample: a survey chart redrawn from Tran et al. data, our service-counter drawing, the Sign-Speak patent drawing and the Atwell et al. concerns chart (CC BY). Tables use a classic three-line style.
 - [x] Expand the introduction to at least 5 pages of text (about 1,930 words at 1.5 line spacing) with 4 figures and 2 tables.
+- [ ] Section 4: technical goals (at most 3) and each team member's responsibilities.
+- [ ] Section 5: projected community impact and ethical issues (cite the IEEE Code of Ethics).
 - [ ] Marketability and comparison with existing products (SignAll, Sign-Speak, Avodah).
 - [ ] Constraints: technical, legal (ADA and interpreter rights, privacy) and budget (Jetson and parts cost list).
 - [ ] Specification table, building on the targets table in `README.md`.
 - [ ] Environmental and economic factors: power use, e-waste, device cost versus interpreter cost.
 - [ ] Verify each patent's legal status on Google Patents or USPTO.
 - [ ] Get the ISLR 1st-place leaderboard score from Kaggle (needs a team member's login).
-- [ ] Move the reference list to section 12 in the final report.
+- [x] Move the reference list to Section 12 (done in the combined proposal file).
 
 ## Related files
 
 - `literature/README.md`: papers and patents, with summaries.
 - `literature/references.bib`: BibTeX for all sources.
-- `docs/Introduction_Draft.docx`: introduction draft.
+- `docs/Introduction_Draft.docx`: introduction draft (Section 3 and Section 12 only).
+- `docs/ECE_414_Proposal_Draft.docx`: combined proposal (cover page, abstract, table of contents, Section 3 and Section 12). Student ID numbers are blanked out in this public copy.
 - `docs/figures/`: figure images and the scripts that draw Figure 1 (`make_survey_chart.py`) and Figure 2 (`make_setup_sketch.py`).

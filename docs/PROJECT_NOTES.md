@@ -93,5 +93,5 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 
 - `literature/README.md`: papers and patents, with summaries.
 - `literature/references.bib`: BibTeX for all sources.
-- `docs/ECE_414_Proposal_Draft.docx`: combined proposal (cover page, abstract, table of contents, Sections 3, 4, 5 and 12). This is the single source: it is built on the team's own latest Word file, with Sections 4 and 5 added. Student ID numbers are blanked out in this public copy.
+- `docs/ECE_414_Proposal_Draft.docx`: combined proposal (cover page, abstract, table of contents, Sections 3, 4, 5 and 12). This is the single source: it is built on the team's own latest Word file, with Sections 4 and 5 added. Includes student ID numbers (the team chose to publish them).
 - `docs/figures/`: figure images and the scripts that draw Figure 1 (`make_survey_chart.py`) and Figure 2 (`make_setup_sketch.py`).

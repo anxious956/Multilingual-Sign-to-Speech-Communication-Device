@@ -53,7 +53,7 @@ Template rules (from `ECE_414_Proposal_Template_2026_2.docx`): references in the
 - **Use case:** a service counter or front desk (Tran et al. 2023: highest willingness, lower accuracy expectations). Hospitals stay as motivation, framed as front-desk use or use while waiting for an interpreter.
 - **Signs → sentence:** templates for common phrases, with a small language model as a fallback.
 - **Latency:** under 1.2 s, measured from the user's confirmation to the start of speech. The confirmation time itself is not counted.
-- **Fingerspelling:** a fallback for words outside the vocabulary, such as names.
+- **Fingerspelling:** a fallback for words outside the vocabulary, such as names, treated as a stretch goal (Section 4.1, Table 3); it is not part of the accuracy targets.
 - **Connectivity:** fully offline. No video leaves the device, which avoids privacy risk and works without a network; this is also the main difference from Sign-Speak's cloud-based patent.
 
 ## Open decisions
@@ -76,7 +76,8 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 - [x] Replace the figures with sourced ones, following the sample: a survey chart redrawn from Tran et al. data, our service-counter drawing, the Sign-Speak patent drawing and the Atwell et al. concerns chart (CC BY). Tables use a classic three-line style.
 - [x] Expand the introduction to at least 5 pages of text (about 1,930 words at 1.5 line spacing) with 4 figures and 2 tables.
 - [x] Section 4: three technical goals drafted (sign recognition, language and speech, offline embedded integration).
-- [ ] Section 4: fill in the lead and support names in Table 3 (currently "To be assigned").
+- [x] Section 4: Table 4 names filled in (Goal 1: Asmar Hasanova; Goal 2: Dorukhan Cakir and Zeynep Hafsa Cakici; Goal 3: Merrick Simmons; project-wide tasks shared by the whole team).
+- [ ] Cover page: fill in the team number.
 - [x] Section 5: community impact and ethical issues drafted, citing the ADA and the IEEE Code of Ethics.
 - [ ] Contact the ASL community at NJIT before choosing the vocabulary (promised in Section 5).
 - [ ] Buy the NVIDIA Jetson Orin Nano.

@@ -57,12 +57,18 @@ print(f"{len(meta['label'])} signs, {N_CLASSES} classes, {N_POINTS} landmarks, d
 t0 = time.time()
 n = len(meta["label"])
 X = np.full((n, MAX_LEN, N_POINTS, 2), np.nan, np.float16)
+lengths_list = []
 for i, (o, l) in enumerate(zip(meta["offset"], meta["length"])):
     seq = landmarks[o:o + l, :, :2]
-    if l > MAX_LEN:
-        seq = seq[np.linspace(0, l - 1, MAX_LEN).round().astype(int)]
+    # about 40% of frames have no hand at all; drop them (unless the whole sign has none)
+    has_hand = ~np.isnan(seq[:, 40:61, 0]).all(1) | ~np.isnan(seq[:, 73:94, 0]).all(1)
+    if has_hand.any():
+        seq = seq[has_hand]
+    if len(seq) > MAX_LEN:
+        seq = seq[np.linspace(0, len(seq) - 1, MAX_LEN).round().astype(int)]
     X[i, :len(seq)] = seq
-lengths = np.minimum(meta["length"], MAX_LEN)
+    lengths_list.append(len(seq))
+lengths = np.array(lengths_list)
 y = meta["label"].astype(np.int64)
 print(f"arrays ready in {time.time() - t0:.0f} s, {X.nbytes / 1e9:.1f} GB")
 

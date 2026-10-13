@@ -1,0 +1,8 @@
+# local recordings and datasets (can be large; share them separately)
+data/
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+models/

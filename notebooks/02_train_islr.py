@@ -28,11 +28,12 @@
 # Kaggle: add the output of 01_preprocess_islr as input ("Add Input" -> Your
 # Work -> Notebooks), choose a GPU, paste this file and run.
 #
-# Three signers are held out for validation, so the accuracy printed is for
+# Signers are split about 70/15/15: 15 for training, 3 for validation (to pick
+# the best epoch) and 3 for the final test, so the accuracies printed are for
 # people the model has never seen. Outputs:
 #
 #   islr_model.pt        weights of the best epoch and the settings needed to rebuild the model
-#   islr_val_logits.npz  model outputs and true labels on the validation signers (for step 5, calibration)
+#   islr_val_logits.npz  model outputs and true labels on the validation and test signers (for step 5, calibration)
 #
 # The model is a small 1D-CNN + transformer, the same kind of model as the
 # winning Kaggle solution but much smaller, so it can run on the Jetson.
@@ -54,6 +55,7 @@ EPOCHS = int(os.environ.get("EPOCHS", 40))
 BATCH = 128
 LR = 2e-3
 VAL_SIGNERS = 3
+TEST_SIGNERS = 3
 torch.manual_seed(SEED)
 rng = np.random.default_rng(SEED)
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -98,10 +100,14 @@ print(f"arrays ready in {time.time() - t0:.0f} s, {X.nbytes / 1e9:.1f} GB")
 
 # ---- hold out a few signers for validation ----
 signers = np.unique(meta["participant_id"])
-val_signers = rng.choice(signers, VAL_SIGNERS, replace=False)
+held_out = rng.choice(signers, VAL_SIGNERS + TEST_SIGNERS, replace=False)
+val_signers, test_signers = held_out[:VAL_SIGNERS], held_out[VAL_SIGNERS:]
 is_val = np.isin(meta["participant_id"], val_signers)
-train_idx, val_idx = np.where(~is_val)[0], np.where(is_val)[0]
-print(f"train {len(train_idx)} signs, validation {len(val_idx)} signs from signers {sorted(val_signers.tolist())}")
+is_test = np.isin(meta["participant_id"], test_signers)
+train_idx = np.where(~is_val & ~is_test)[0]
+val_idx, test_idx = np.where(is_val)[0], np.where(is_test)[0]
+print(f"train {len(train_idx)} signs from {len(signers) - len(held_out)} signers, "
+      f"validation {len(val_idx)} from {sorted(val_signers.tolist())}, test {len(test_idx)} from {sorted(test_signers.tolist())}")
 
 # mirror image: swap the hands and the left/right body points
 FLIP = np.arange(N_POINTS)
@@ -189,11 +195,11 @@ sched = torch.optim.lr_scheduler.OneCycleLR(opt, LR, total_steps=steps, pct_star
 scaler = torch.amp.GradScaler(enabled=device == "cuda")
 
 
-def evaluate():
+def evaluate(idx):
     model.eval()
     logits, labels = [], []
     with torch.no_grad(), torch.autocast(device, enabled=device == "cuda"):
-        for x, mask, t in batches(val_idx, shuffle=False):
+        for x, mask, t in batches(idx, shuffle=False):
             logits.append(model(features(x), mask).float())
             labels.append(t)
     logits, labels = torch.cat(logits), torch.cat(labels)
@@ -219,7 +225,7 @@ for epoch in range(1, EPOCHS + 1):
         total += loss.item() * len(t)
         correct += (out.argmax(1) == t).sum().item()
         seen += len(t)
-    logits, labels, top1, top5 = evaluate()
+    logits, labels, top1, top5 = evaluate(val_idx)
     print(f"epoch {epoch:2d}  loss {total / seen:.3f}  train acc {correct / seen:.1%}  "
           f"val top-1 {top1:.1%}  top-5 {top5:.1%}  {time.time() - t0:.0f} s")
     if top1 > best:
@@ -227,5 +233,13 @@ for epoch in range(1, EPOCHS + 1):
         torch.save({"state_dict": model.state_dict(), "n_in": N_POINTS * 4, "n_classes": N_CLASSES, "dim": DIM,
                     "max_len": MAX_LEN, "keep": info["keep"], "signs": info["signs"], "val_top1": top1},
                    os.path.join(OUT, "islr_model.pt"))
-        np.savez(os.path.join(OUT, "islr_val_logits.npz"), logits=logits.cpu().numpy(), labels=labels.cpu().numpy())
-print(f"best validation top-1: {best:.1%} (signers not seen in training)")
+        best_state = {k: v.clone() for k, v in model.state_dict().items()}
+        val_logits, val_labels = logits.cpu().numpy(), labels.cpu().numpy()
+
+# final test on the 3 test signers, with the best epoch's weights; these signers were never used to choose anything
+model.load_state_dict(best_state)
+test_logits, test_labels, test_top1, test_top5 = evaluate(test_idx)
+np.savez(os.path.join(OUT, "islr_val_logits.npz"), val_logits=val_logits, val_labels=val_labels,
+         test_logits=test_logits.cpu().numpy(), test_labels=test_labels.cpu().numpy())
+print(f"best validation top-1: {best:.1%}")
+print(f"TEST top-1: {test_top1:.1%}  top-5: {test_top5:.1%}  (3 signers never seen in training or validation)")

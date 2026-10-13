@@ -1,11 +1,35 @@
 # Goal 1, step 3b: train a first sign classifier on the shrunk Kaggle Google ISLR data.
 #
-# Run this in a Kaggle Notebook with a GPU (Settings -> Accelerator -> GPU T4 x2 or P100).
-# Add the output of 01_preprocess_islr as input: "Add Input" -> Your Work -> Notebooks.
-# Paste the whole file into one cell, then "Save Version -> Save & Run All".
+# Runs on Colab (Runtime -> Change runtime type -> T4 GPU) or on Kaggle.
+#
+# Colab: first run this setup cell once. It copies the output of
+# 01_preprocess_islr (about 2 GB) from Kaggle to Google Drive the first time,
+# and from Drive to the Colab disk every time. It needs your kaggle.json
+# (Kaggle -> Settings -> API -> Create New Token) only for the first download.
+# Replace USER/NOTEBOOK with the end of your preprocessing notebook's URL,
+# kaggle.com/code/USER/NOTEBOOK.
+#
+#   from google.colab import drive, files
+#   import os
+#   drive.mount("/content/drive")
+#   DRIVE = "/content/drive/MyDrive/sign2speech"
+#   os.makedirs(DRIVE, exist_ok=True)
+#   if not os.path.exists(f"{DRIVE}/islr_landmarks.npy"):
+#       files.upload()  # choose kaggle.json
+#       !mkdir -p ~/.kaggle && mv kaggle.json ~/.kaggle/ && chmod 600 ~/.kaggle/kaggle.json
+#       !kaggle kernels output USER/NOTEBOOK -p {DRIVE}
+#   !cp {DRIVE}/islr_* /content/
+#   os.environ["DATA"] = "/content"
+#   os.environ["OUT"] = DRIVE
+#
+# Then paste this whole file into the next cell and run it. The model is
+# saved to Drive (sign2speech folder) after every epoch that improves.
+#
+# Kaggle: add the output of 01_preprocess_islr as input ("Add Input" -> Your
+# Work -> Notebooks), choose a GPU, paste this file and run.
 #
 # Three signers are held out for validation, so the accuracy printed is for
-# people the model has never seen. Outputs (in the Output tab):
+# people the model has never seen. Outputs:
 #
 #   islr_model.pt        weights of the best epoch and the settings needed to rebuild the model
 #   islr_val_logits.npz  model outputs and true labels on the validation signers (for step 5, calibration)
@@ -33,7 +57,7 @@ VAL_SIGNERS = 3
 torch.manual_seed(SEED)
 rng = np.random.default_rng(SEED)
 device = "cuda" if torch.cuda.is_available() else "cpu"
-OUT = os.environ.get("OUT", "/kaggle/working")
+OUT = os.environ.get("OUT", "/kaggle/working" if os.path.isdir("/kaggle/working") else ".")
 
 
 def find(name):

@@ -8,11 +8,27 @@
 
 Use Python 3.9–3.12; MediaPipe 0.10.14 does not support Python 3.13. Check with `python --version`. If you have several versions installed, `py -0` lists them and `py -3.12` picks one.
 
+Put everything on drive D: (repo, virtual environment, pip downloads and recordings):
+
 ```powershell
+D:
+cd \
+git clone https://github.com/anxious956/Multilingual-Sign-to-Speech-Communication-Device.git
 cd Multilingual-Sign-to-Speech-Communication-Device
+git checkout claude/great-hamilton-9vy4ph
 py -3.12 -m venv .venv
 .venv\Scripts\activate
+$env:PIP_CACHE_DIR = "D:\pip-cache"
 pip install -r requirements.txt
+```
+
+Without Git: on GitHub choose the branch `claude/great-hamilton-9vy4ph`, then **Code → Download ZIP**, and extract it to `D:\`.
+
+Next time, only open PowerShell and run:
+
+```powershell
+cd D:\Multilingual-Sign-to-Speech-Communication-Device
+.venv\Scripts\activate
 ```
 
 ### Run
@@ -25,7 +41,7 @@ python src\capture_landmarks.py --label HELLO
 - **Q** quits.
 - The top line shows frames per second, how many hands are detected, the label and how many signs were saved.
 
-Recordings are saved to `data\recordings\<LABEL>\<LABEL>_<date>_<time>.npy`. The `data/` folder is not committed to Git.
+Recordings are saved inside the repo folder, e.g. `D:\Multilingual-Sign-to-Speech-Communication-Device\data\recordings\<LABEL>\<LABEL>_<date>_<time>.npy`, from wherever the script is run. Use `--out D:\some\folder` to save elsewhere. The `data/` folder is not committed to Git.
 
 To process an existing video file instead of the webcam:
 

@@ -31,6 +31,8 @@ import numpy as np
 
 N_FACE, N_HAND, N_POSE = 468, 21, 33
 N_LANDMARKS = N_FACE + N_HAND + N_POSE + N_HAND  # 543
+# recordings go inside the repo folder (e.g. D:\Multilingual-...\data\recordings), wherever it is run from
+DEFAULT_OUT = Path(__file__).resolve().parent.parent / "data" / "recordings"
 
 
 def to_array(landmarks, n):
@@ -74,7 +76,7 @@ def draw(image, results):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--label", default="UNLABELED", help="sign name used for the output folder, e.g. HELLO")
-    parser.add_argument("--out", default="data/recordings", help="output folder (default: data/recordings)")
+    parser.add_argument("--out", default=DEFAULT_OUT, help="output folder (default: data/recordings in the repo)")
     parser.add_argument("--camera", type=int, default=0, help="webcam index (default: 0)")
     parser.add_argument("--video", help="process this video file instead of the webcam; the whole file is saved as one recording")
     parser.add_argument("--no-display", action="store_true", help="do not open a window (only with --video)")

@@ -62,3 +62,13 @@ python src\view_recording.py data\recordings\HELLO
 ```
 
 Shows each recording as a moving skeleton (orange = left hand, blue = right hand) and prints how many frames had a hand detected. **SPACE** pauses, **N** goes to the next recording, **Q** quits.
+
+## Goal 1, step 2: find where each sign starts and ends
+
+`segment_signs.py` marks the frames where at least one hand is raised above a rest line below the shoulders; lowered hands (or hands out of the frame) separate signs. Short flickers are smoothed out.
+
+```powershell
+python src\segment_signs.py data\recordings\HELLO
+```
+
+For each recording it prints the signs found as frame ranges and a timeline (`#` = hand raised, `.` = at rest). Add `--trim` to save each sign on its own to `data\segments\<LABEL>\`. If signs are cut too early or a resting hand counts as raised, change `--rest-line` (default 1.0 shoulder width below the shoulders; larger = lower line).

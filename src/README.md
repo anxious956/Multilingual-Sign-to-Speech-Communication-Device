@@ -54,3 +54,11 @@ python src\capture_landmarks.py --video clip.mp4 --label HELLO
 - Sit so that your head, shoulders and both hands are in the frame. Holistic finds the body first and locates the hands from it, so hands alone are not detected.
 - Good, even lighting helps. Avoid a bright window behind you.
 - If the wrong camera opens, try `--camera 1`.
+
+### Play back recordings
+
+```powershell
+python src\view_recording.py data\recordings\HELLO
+```
+
+Shows each recording as a moving skeleton (orange = left hand, blue = right hand) and prints how many frames had a hand detected. **SPACE** pauses, **N** goes to the next recording, **Q** quits.

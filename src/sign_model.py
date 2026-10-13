@@ -87,10 +87,21 @@ class SignClassifier:
         mask = torch.arange(self.max_len)[None] < len(seq)
         return torch.from_numpy(x), mask
 
+    def limit_to(self, words):
+        """Only consider these signs (e.g. the service-counter vocabulary); the rest are never predicted."""
+        unknown = [w for w in words if w not in self.signs]
+        if unknown:
+            raise SystemExit(f"not among the model's signs: {unknown}\navailable: {' '.join(sorted(self.signs))}")
+        self.allowed = torch.tensor([s in words for s in self.signs])
+
     @torch.no_grad()
     def predict(self, frames, top=3):
         """Return the top signs as [(sign, probability), ...]."""
         x, mask = self.prepare(frames)
-        probs = self.model(features(x), mask).softmax(-1)[0]
+        logits = self.model(features(x), mask)[0]
+        if getattr(self, "allowed", None) is not None:
+            logits = logits.masked_fill(~self.allowed, -torch.inf)
+        probs = logits.softmax(-1)
+        top = min(top, int(torch.isfinite(logits).sum()))
         p, i = probs.topk(top)
         return [(self.signs[k], float(v)) for v, k in zip(p, i)]

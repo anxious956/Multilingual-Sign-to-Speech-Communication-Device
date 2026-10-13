@@ -30,13 +30,19 @@ def main():
     parser.add_argument("--x-scale", type=float, default=2.08,
                         help="stretch x to the Kaggle videos' proportions; 2.08 measured for a 4:3 laptop webcam "
                              "with check_aspect.py (Kaggle 3.25 / ours 1.56); 1 = no change")
+    parser.add_argument("--vocab", help="only these signs, comma separated, e.g. hello,bye,yes,no; "
+                                        "--vocab list prints all 250")
     parser.add_argument("--rest-line", type=float, default=1.0, help="see segment_signs.py (default: 1.0)")
     parser.add_argument("--min-frames", type=int, default=8, help="shortest sign, in frames (default: 8)")
     parser.add_argument("--rest-frames", type=int, default=6, help="frames at rest that end a sign (default: 6)")
     args = parser.parse_args()
 
     classifier = SignClassifier(args.model, args.x_scale)
-    print(f"model loaded: {len(classifier.signs)} signs")
+    if args.vocab == "list":
+        raise SystemExit(" ".join(sorted(classifier.signs)))
+    if args.vocab:
+        classifier.limit_to([w.strip() for w in args.vocab.split(",")])
+    print(f"model loaded: {len(classifier.signs)} signs" + (f", limited to {args.vocab}" if args.vocab else ""))
     cap = cv2.VideoCapture(args.video if args.video else args.camera)
     if not cap.isOpened():
         raise SystemExit("Could not open the camera or video")

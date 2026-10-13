@@ -41,13 +41,13 @@ class ConvBlock(nn.Module):
 
 
 class SignModel(nn.Module):
-    def __init__(self, n_in, n_classes, dim=192, blocks=2, drop=0.1):
+    def __init__(self, n_in, n_classes, dim=192, blocks=2, drop=0.2):
         super().__init__()
         self.stem = nn.Sequential(nn.Linear(n_in, dim), nn.LayerNorm(dim))
         self.convs = nn.ModuleList([ConvBlock(dim, drop=drop) for _ in range(3 * blocks)])
         self.attn = nn.ModuleList([nn.TransformerEncoderLayer(dim, 4, 2 * dim, drop, batch_first=True, norm_first=True)
                                    for _ in range(blocks)])
-        self.head = nn.Sequential(nn.LayerNorm(dim), nn.Dropout(0.3), nn.Linear(dim, n_classes))
+        self.head = nn.Sequential(nn.LayerNorm(dim), nn.Dropout(0.4), nn.Linear(dim, n_classes))
 
     def forward(self, x, mask):
         x = self.stem(x)

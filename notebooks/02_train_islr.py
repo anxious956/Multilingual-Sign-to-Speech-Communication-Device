@@ -51,7 +51,7 @@ import torch.nn.functional as F
 SEED = 42
 MAX_LEN = 64          # longer signs are resampled to 64 frames
 DIM = 192             # model width
-EPOCHS = int(os.environ.get("EPOCHS", 40))
+EPOCHS = int(os.environ.get("EPOCHS", 60))
 BATCH = 128
 LR = 2e-3
 VAL_SIGNERS = 3
@@ -116,9 +116,11 @@ FLIP[61:73] = np.arange(61, 73).reshape(-1, 2)[:, ::-1].ravel()  # pose 11<->12,
 FLIP = torch.tensor(FLIP, device=device)
 
 
-def augment(x):
-    """Random mirror, rotation and stretch of a batch (B, T, P, 2) of raw coordinates."""
-    b = x.shape[0]
+def augment(x, mask):
+    """Random changes to a training batch (B, T, P, 2) so the model cannot memorise the signers:
+    mirror, rotation and stretch; faster or slower signing; missing frames, hands and lips."""
+    b, t = x.shape[:2]
+    # mirror image, rotation, stretch
     flip = torch.rand(b, device=device) < 0.5
     x = torch.where(flip[:, None, None, None], x[:, :, FLIP], x)
     x = torch.stack([torch.where(flip[:, None, None], 1 - x[..., 0], x[..., 0]), x[..., 1]], -1)
@@ -126,7 +128,22 @@ def augment(x):
     sx, sy = 1 + (torch.rand(2, b, device=device) - 0.5) * 0.3
     cos, sin = torch.cos(angle), torch.sin(angle)
     rot = torch.stack([torch.stack([cos * sx, -sin * sx], -1), torch.stack([sin * sy, cos * sy], -1)], -2)
-    return torch.einsum("bij,btpj->btpi", rot, x - 0.5) + 0.5
+    x = torch.einsum("bij,btpj->btpi", rot, x - 0.5) + 0.5
+    # signing speed 0.7x - 1.3x: resample each sign to a new number of frames
+    length = mask.sum(1)
+    new_length = (length * (0.7 + 0.6 * torch.rand(b, device=device))).round().clamp(2, t).long()
+    j = torch.arange(t, device=device)[None]
+    src = (j * length[:, None] / new_length[:, None]).floor().long().clamp(max=t - 1)
+    src = torch.minimum(src, (length[:, None] - 1).clamp(min=0))
+    x = torch.gather(x, 1, src[:, :, None, None].expand_as(x))
+    mask = j < new_length[:, None]
+    x = torch.where(mask[:, :, None, None], x, torch.nan)
+    # missing data, as when MediaPipe loses something for a moment
+    x = torch.where((torch.rand(b, t, 1, 1, device=device) < 0.1), torch.nan, x)          # 10% of frames
+    for hand in (slice(40, 61), slice(73, 94)):                                              # 5% of hands
+        x[:, :, hand] = torch.where(torch.rand(b, t, 1, 1, device=device) < 0.05, torch.nan, x[:, :, hand])
+    x[:, :, :40] = torch.where(torch.rand(b, 1, 1, 1, device=device) < 0.2, torch.nan, x[:, :, :40])  # lips, 20% of signs
+    return x, mask
 
 
 def features(x):
@@ -159,13 +176,13 @@ class ConvBlock(nn.Module):
 
 
 class SignModel(nn.Module):
-    def __init__(self, n_in, n_classes, dim=DIM, blocks=2, drop=0.1):
+    def __init__(self, n_in, n_classes, dim=DIM, blocks=2, drop=0.2):
         super().__init__()
         self.stem = nn.Sequential(nn.Linear(n_in, dim), nn.LayerNorm(dim))
         self.convs = nn.ModuleList([ConvBlock(dim, drop=drop) for _ in range(3 * blocks)])
         self.attn = nn.ModuleList([nn.TransformerEncoderLayer(dim, 4, 2 * dim, drop, batch_first=True, norm_first=True)
                                    for _ in range(blocks)])
-        self.head = nn.Sequential(nn.LayerNorm(dim), nn.Dropout(0.3), nn.Linear(dim, n_classes))
+        self.head = nn.Sequential(nn.LayerNorm(dim), nn.Dropout(0.4), nn.Linear(dim, n_classes))
 
     def forward(self, x, mask):
         x = self.stem(x)
@@ -213,7 +230,8 @@ for epoch in range(1, EPOCHS + 1):
     t0, total, correct, seen = time.time(), 0.0, 0, 0
     for x, mask, t in batches(train_idx, shuffle=True):
         with torch.autocast(device, enabled=device == "cuda"):
-            out = model(features(augment(x)), mask)
+            xa, ma = augment(x, mask)
+            out = model(features(xa), ma)
             loss = F.cross_entropy(out.float(), t, label_smoothing=0.1)
         opt.zero_grad(set_to_none=True)
         scaler.scale(loss).backward()

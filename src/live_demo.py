@@ -27,12 +27,15 @@ def main():
     parser.add_argument("--model", default="models/islr_model.pt", help="trained model (islr_model.pt from Colab)")
     parser.add_argument("--camera", type=int, default=0, help="webcam index (default: 0)")
     parser.add_argument("--video", help="run on a video file instead of the webcam")
+    parser.add_argument("--x-scale", type=float, default=2.08,
+                        help="stretch x to the Kaggle videos' proportions; 2.08 measured for a 4:3 laptop webcam "
+                             "with check_aspect.py (Kaggle 3.25 / ours 1.56); 1 = no change")
     parser.add_argument("--rest-line", type=float, default=1.0, help="see segment_signs.py (default: 1.0)")
     parser.add_argument("--min-frames", type=int, default=8, help="shortest sign, in frames (default: 8)")
     parser.add_argument("--rest-frames", type=int, default=6, help="frames at rest that end a sign (default: 6)")
     args = parser.parse_args()
 
-    classifier = SignClassifier(args.model)
+    classifier = SignClassifier(args.model, args.x_scale)
     print(f"model loaded: {len(classifier.signs)} signs")
     cap = cv2.VideoCapture(args.video if args.video else args.camera)
     if not cap.isOpened():

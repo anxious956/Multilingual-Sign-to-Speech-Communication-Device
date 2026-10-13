@@ -62,7 +62,9 @@ class SignModel(nn.Module):
 class SignClassifier:
     """Loads islr_model.pt and classifies one sign given as (frames, 543, 3) landmarks."""
 
-    def __init__(self, path):
+    def __init__(self, path, x_scale=1.0):
+        """x_scale stretches x to match the Kaggle videos' proportions (see check_aspect.py)."""
+        self.x_scale = x_scale
         ckpt = torch.load(path, map_location="cpu", weights_only=False)
         self.model = SignModel(ckpt["n_in"], ckpt["n_classes"], ckpt["dim"])
         self.model.load_state_dict(ckpt["state_dict"])
@@ -71,7 +73,8 @@ class SignClassifier:
 
     def prepare(self, frames):
         """Same steps as the training notebook: keep 94 landmarks (x, y), drop frames without hands, resample."""
-        seq = np.asarray(frames, np.float32)[:, self.keep, :2]
+        seq = np.asarray(frames, np.float32)[:, self.keep, :2].copy()
+        seq[..., 0] *= self.x_scale  # only proportions matter: each sign is centred and scaled later
         has_hand = np.zeros(len(seq), bool)
         for h in HANDS:
             has_hand |= ~np.isnan(seq[:, h, 0]).all(1)

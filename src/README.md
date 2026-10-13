@@ -72,3 +72,14 @@ python src\segment_signs.py data\recordings\HELLO
 ```
 
 For each recording it prints the signs found as frame ranges and a timeline (`#` = hand raised, `.` = at rest). Add `--trim` to save each sign on its own to `data\segments\<LABEL>\`. If signs are cut too early or a resting hand counts as raised, change `--rest-line` (default 1.0 shoulder width below the shoulders; larger = lower line).
+
+## Goal 1, step 4: live recognition
+
+`live_demo.py` runs the webcam, finds each sign with the rest-pose rule from step 2 and shows the model's top three guesses with probabilities. It needs the trained model from Colab (`islr_model.pt` in the Drive `sign2speech` folder) copied to `models\islr_model.pt`, and PyTorch (CPU version is enough):
+
+```powershell
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+python src\live_demo.py --model models\islr_model.pt
+```
+
+`sign_model.py` holds the model and its input preparation; it must stay identical to `notebooks/02_train_islr.py`.

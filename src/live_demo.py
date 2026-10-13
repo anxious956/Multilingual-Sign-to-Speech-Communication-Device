@@ -11,6 +11,7 @@ Usage:
 Keys: Q quits.
 """
 import argparse
+import time
 
 import cv2
 import mediapipe as mp
@@ -40,11 +41,19 @@ def main():
     sign, rest = [], 0           # frames of the sign in progress, frames at rest since the hands went down
     before = []                  # a few frames before the sign starts, kept as padding
     result = []                  # last prediction
+    failed = 0
     with mp.solutions.holistic.Holistic(model_complexity=1) as holistic:
         while True:
             ok, frame = cap.read()
             if not ok:
-                break
+                failed += 1
+                if args.video or failed > 50:  # end of the video, or the camera gives no image
+                    print("no more frames" if args.video else
+                          "The camera gives no image. Close other apps using it (Zoom, Teams, browser) or try --camera 1.")
+                    break
+                time.sleep(0.1)
+                continue
+            failed = 0
             results = holistic.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             lm = frame_landmarks(results)
             up = raised(lm[None], args.rest_line)[0]

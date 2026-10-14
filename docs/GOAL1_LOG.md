@@ -88,6 +88,11 @@ Out-of-vocabulary: for the 30-sign list, AUROC 0.975 between correct in-vocabula
 - **v3's raw probabilities are too low** (T < 1, from label smoothing and late dropout): ECE 13% raw, 1–2% after temperature scaling. With v3 the live demo must use the fitted temperature (`--temperature 0.79` for the 30-sign list), otherwise the threshold means something else.
 - v3 is worse at rejecting signs outside the vocabulary (28% accepted vs 15%), so an "other" class or negative examples matter more.
 
+**Confusions** (`src/confusions.py`, 30-sign list, test signers):
+- THANKYOU and FOOD are never confused in the Kaggle test data (0% both ways, v2 and v3), although v3 often read Asmar's THANKYOU as FOOD live. So that confusion comes from our camera or signing style, not from the model in general: our own test recordings are needed.
+- Weakest signs with v3: PLEASE 62%, GO 66%, TOMORROW 73%, LIKE 73%. PLEASE ↔ MINE/MY (both on the chest) and WAIT → THANKYOU recur in both models.
+- **v3 has a "sink" class: TIME** is the wrong answer for LATER (17%), GO, WHERE, STORE, THIRSTY, YES and WHO. v2 did not do this. Worth checking in v4.
+
 What this shows (v2):
 - **The raw confidence of v2 is already close to calibrated on average** (ECE 3–6%; temperature scaling changes little).
 - **Signers differ a lot.** One test signer gets 41% where another gets 75%. A threshold chosen on other signers gives that signer about twice the intended error. This is the "works worse for some users" concern of Tran et al. 2023, measured.

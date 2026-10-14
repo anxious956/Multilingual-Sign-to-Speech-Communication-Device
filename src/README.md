@@ -104,3 +104,7 @@ python src\calibrate.py --logits models\islr_val_logits.npz --meta models\islr_m
 ```
 
 It writes `docs\figures\calib_v2_report.md` and the reliability and risk–coverage figures.
+
+### Confidence threshold and output for Goal 2
+
+`live_demo.py --threshold 0.45` (the default) shows signs below that confidence as "not sure - please repeat" (or in orange with "?" inside a sentence). 0.45 is the threshold `calibrate.py` found for about 5% error on the 30-sign list with v2. `--jsonl results.jsonl` appends every result in the hand-off format of `docs/TASKS.md`, for Goal 2.

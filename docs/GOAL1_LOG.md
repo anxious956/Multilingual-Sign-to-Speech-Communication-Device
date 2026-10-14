@@ -100,6 +100,18 @@ What this shows (v2):
 - **A usable operating point exists for the demo vocabulary**: answer about 82% of signs at about 6% error, ask to repeat the rest.
 - **Signs outside the vocabulary are a real risk** (15% accepted): needs an "other" class or negative examples.
 
+## Dataset roles (decided 14 Oct 2026, after the second review)
+
+| Dataset | Role | Why | Licence / ethics |
+|---|---|---|---|
+| Kaggle ISLR (PopSign subset) | Pretraining and fast experiments only; reported final results do not come from it | Child vocabulary, 21 signers, phone portrait video, landmarks only (tied to MediaPipe) | Competition rules: no redistribution |
+| PopSign ASL v1.0 | Optional: more signers (47) for the Kaggle signs, plus labelled variants | Same vocabulary as Kaggle; videos, 1.1 TB | CC BY 4.0, consent-based |
+| **ASL Citizen** | **Main dataset: target vocabulary, fine-tuning and reported results** | 52 signers (35 train / 6 val / 11 test), webcam at home, 2,731 signs, about 30 videos from about 29 signers per sign, videos (any keypoint model) | Microsoft Research licence: non-commercial research only, **data and derived data may not be redistributed** (keep landmarks and models in the team Drive, not in this public repo) |
+| WLASL | Dropped (cited only) | Scraped without consent, dead links, noisy labels; ASL Citizen paper: on shared signs a WLASL-trained model reaches 8.5% top-1 vs 74.2% for ASL Citizen | — |
+| Our own recordings | Device test set, calibration (temperature, threshold) for our camera, light fine-tuning | Team recordings only for debugging; reported accuracy from Deaf / fluent NJIT signers | Consent form; ask whether NJIT IRB approval is needed; add timestamps |
+
+ASL Citizen's split files and single videos can be read straight from Microsoft's zip without downloading the 42.8 GB (`remotezip`). `tools/vocab_candidates.py` uses this to compare a draft service-counter list with ASL Citizen and the Kaggle 250: `docs/VOCAB_CANDIDATES.md` (38 words in both, 97 only in ASL Citizen, 6 in neither: how much, return, receipt, restroom, emergency, question; some may exist under other glosses).
+
 ## Next steps
 
 In this order:

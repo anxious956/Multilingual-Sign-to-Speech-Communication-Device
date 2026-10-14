@@ -13,6 +13,7 @@ Keys: Q quits.
 import argparse
 import json
 import time
+import warnings
 from pathlib import Path
 
 import cv2
@@ -25,6 +26,7 @@ from segment_signs import hand_speed, raised
 from sign_model import SignClassifier
 
 REPO = Path(__file__).resolve().parent.parent
+warnings.filterwarnings("ignore", message=".*GetPrototype.*")  # harmless protobuf warning printed on every frame
 
 
 def main():

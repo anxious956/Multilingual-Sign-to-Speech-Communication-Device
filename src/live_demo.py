@@ -18,7 +18,8 @@ import mediapipe as mp
 import numpy as np
 
 from capture_landmarks import draw, frame_landmarks
-from segment_signs import raised
+from fluent_segment import best_split, candidate_cuts, merge_repeats
+from segment_signs import hand_speed, raised
 from sign_model import SignClassifier
 
 
@@ -32,6 +33,9 @@ def main():
                              "with check_aspect.py (Kaggle 3.25 / ours 1.56); 1 = no change")
     parser.add_argument("--vocab", help="only these signs, comma separated, e.g. hello,bye,yes,no; "
                                         "--vocab list prints all 250")
+    parser.add_argument("--single", action="store_true",
+                        help="one sign per raise of the hands (default: several signs may be made without "
+                             "lowering the hands; they are split with fluent_segment.py)")
     parser.add_argument("--rest-line", type=float, default=1.0, help="see segment_signs.py (default: 1.0)")
     parser.add_argument("--min-frames", type=int, default=8, help="shortest sign, in frames (default: 8)")
     parser.add_argument("--rest-frames", type=int, default=6, help="frames at rest that end a sign (default: 6)")
@@ -49,7 +53,8 @@ def main():
 
     sign, rest = [], 0           # frames of the sign in progress, frames at rest since the hands went down
     before = []                  # a few frames before the sign starts, kept as padding
-    result = []                  # last prediction
+    result = []                  # last prediction: top 3 for one sign
+    sentence = []                # last prediction: signs in order when several were made in one go
     failed = 0
     with mp.solutions.holistic.Holistic(model_complexity=1) as holistic:
         while True:
@@ -77,8 +82,15 @@ def main():
                 rest += 1
                 if rest >= args.rest_frames:  # hands back at rest: the sign is over
                     if len(sign) - rest >= args.min_frames:
-                        result = classifier.predict(sign)
-                        print("  ".join(f"{s} {p:.0%}" for s, p in result))
+                        frames = np.stack(sign)
+                        pieces = [] if args.single else merge_repeats(
+                            best_split(frames, classifier, candidate_cuts(hand_speed(frames))))
+                        if len(pieces) > 1:
+                            sentence, result = [(s, p) for _, _, s, p in pieces], []
+                            print(" | ".join(f"{s} {p:.0%}" for s, p in sentence))
+                        else:
+                            result, sentence = classifier.predict(frames), []
+                            print("  ".join(f"{s} {p:.0%}" for s, p in result))
                     sign, rest = [], 0
             before = (before + [lm])[-3:]
 
@@ -89,6 +101,11 @@ def main():
             for k, (s, p) in enumerate(result):
                 cv2.putText(view, f"{s}  {p:.0%}", (10, 70 + 35 * k), cv2.FONT_HERSHEY_SIMPLEX,
                             1.0 if k == 0 else 0.7, (0, 255, 0) if k == 0 else (200, 200, 200), 2)
+            if sentence:
+                cv2.putText(view, "  ".join(s for s, _ in sentence), (10, 70), cv2.FONT_HERSHEY_SIMPLEX,
+                            1.0, (0, 255, 0), 2)
+                cv2.putText(view, "  ".join(f"{p:.0%}" for _, p in sentence), (10, 105),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 2)
             cv2.imshow("Live sign recognition (Q: quit)", view)
             if cv2.waitKey(1) & 0xFF in (ord("q"), ord("Q")):
                 break

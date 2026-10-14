@@ -38,10 +38,28 @@ hello, bye, please, thankyou, yes, no, fine, minemy, yourself, where, who, why, 
 
 Missing for a service counter: want, need, help, pay, how much… These come with ASL Citizen (step 7). The final list is decided with NJIT ASL (step 6).
 
+## 14 Oct 2026: several signs without lowering the hands
+
+Fluent signing has little or no pause between signs (Moryossef et al. 2023), so the rest-pose rule of step 2 sees several signs as one.
+
+**What Moryossef et al. 2023 do.** MediaPipe Holistic poses, normalised to shoulder width 1; a bidirectional LSTM (4 layers, 256) tags every frame B (beginning), I (inside) or O (outside) a sign; a segment starts where P(B) passes a threshold. BIO instead of in/out is what lets two signs touch. Hand speed mainly marks phrase boundaries, and a change of hand shape often marks a sign boundary (only 17% of neighbouring signs share a hand shape). Trained on German Sign Language (DGS); code and models are public (github.com/sign-language-processing/transcription).
+
+**What we tried** on 3 recordings by Asmar of HELLO, WATER, PLEASE without lowering the hands (`data/recordings/FLUENT`):
+
+| Method | Result |
+|---|---|
+| Hand speed only (`segment_signs.py --pauses`): cut where the hands nearly stop | 3–4 pieces per recording, mostly wrong. The hands also stop inside a sign (HELLO at the forehead, WATER at the chin), so signs were cut in half and real boundaries missed. |
+| **Speed + sign model** (`fluent_segment.py`): slow-downs are only candidate cuts; dynamic programming keeps the cuts whose pieces the model recognises most confidently; neighbouring pieces with the same sign are merged | **hello · water · please in all 3 recordings** (30-sign vocabulary). |
+
+Only 3 recordings by one person, so not yet a result to report. A deliberate repetition ("no no") would be merged into one sign.
+
+The live demo now does this by default: make several signs, lower the hands, and the signs appear in order (`--single` for the old one-sign behaviour).
+
 ## Next steps
 
 In this order:
 
+0. **Test fluent splitting more:** 5–10 more recordings with other sign combinations, and recordings by another team member; count correct signs. Then try the Moryossef et al. pretrained model on the same recordings for comparison.
 1. **Per-signer accuracy** in the training output (Tran et al. 2023: 81% worry the system works worse for some people).
 2. **v3:** add each hand's own coordinates (normalised to its wrist) so hand shape counts more (HELLO vs SUN); train 150 epochs.
 3. **Step 5, calibration and abstention:** temperature scaling on the validation outputs, then a confidence threshold; evaluate with a risk–coverage curve (Traub et al. 2024). Below the threshold the device asks to repeat instead of speaking.

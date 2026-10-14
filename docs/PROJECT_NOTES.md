@@ -48,7 +48,7 @@ Template rules (from `ECE_414_Proposal_Template_2026_2.docx`): references in the
 - **Spoken output:** English, Turkish and Spanish.
 - **Reply channel:** the hearing person speaks EN, TR or ES, and the Deaf user reads English text.
 - **Pipeline order:** signs → English sentence → user confirms in English → translate → speak. The confirmation happens in English because that's the language the Deaf user can check.
-- **Sign segmentation:** one sign at a time, separated by a rest pose, with a button as backup. Moryossef et al. 2023 supports this.
+- **Sign segmentation:** one sign at a time, separated by a rest pose, with a button as backup. Moryossef et al. 2023 supports this. Since October 2026 the prototype can also split a few signs made without lowering the hands (hand slow-downs as candidate cuts, chosen by the sign model; see `docs/GOAL1_LOG.md`), still being tested.
 - **Abstract:** already submitted. It names Deaf users, hospitals, schools and public services.
 - **Use case:** a service counter or front desk (Tran et al. 2023: highest willingness, lower accuracy expectations). Hospitals stay as motivation, framed as front-desk use or use while waiting for an interpreter.
 - **Signs → sentence:** templates for common phrases, with a small language model as a fallback.

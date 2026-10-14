@@ -26,6 +26,16 @@ Camera → MediaPipe Holistic (94 of its 543 landmarks: lips, hands, upper body)
 Microphone → Whisper → on-screen text (reverse channel)
 ```
 
+## Technical goals
+
+| Goal | What | Owner |
+|---|---|---|
+| 1. Sign recognition | Webcam → landmarks → signs with a calibrated confidence | Asmar Hasanova |
+| 2. Language and speech | Signs → English sentence, translation (NLLB-200), speech (Piper), reply channel (Whisper) | Dorukhan Cakir, Zeynep Hafsa Cakici |
+| 3. Offline embedded system | Everything running on the Jetson Orin Nano, latency and power | Merrick Simmons |
+
+Project-wide tasks (vocabulary with Deaf ASL users, testing, report) are shared by the whole team. Detailed task split (draft): [`docs/TASKS.md`](docs/TASKS.md).
+
 ## Target specifications
 
 | Metric | Target |
@@ -67,14 +77,30 @@ Python · PyTorch · MediaPipe · ONNX Runtime / TensorRT · NLLB-200 · Piper T
 
 Test = 3 signers never seen in training. v3 (the Kaggle 1st-place recipe) is training. Details: [`docs/GOAL1_LOG.md`](docs/GOAL1_LOG.md).
 
+## Quick start: live demo on a laptop (Windows)
+
+Needs Python 3.9–3.12 and a webcam. Full instructions: [`src/README.md`](src/README.md).
+
+```cmd
+git clone https://github.com/anxious956/Multilingual-Sign-to-Speech-Communication-Device.git
+cd Multilingual-Sign-to-Speech-Communication-Device
+py -3.12 -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+python src\live_demo.py --model models\islr_model_v2.pt --vocab hello,bye,please,thankyou,yes,no,water
+```
+
+The trained model (`islr_model_v2.pt`) is not in Git; copy it from the team Drive folder `sign2speech` to `models/`. Raise a hand to sign, lower it when done; several signs can be made without lowering the hands in between.
+
 ## Repository layout
 
 | Folder | Contents |
 |---|---|
 | `src/` | Laptop scripts: capture, segmentation, live demo ([setup](src/README.md)) |
 | `notebooks/` | Data preparation (Kaggle) and training (Colab) ([how to run](notebooks/README.md)) |
-| `docs/` | Proposal, project notes, Goal 1 log |
-| `literature/` | Papers, patents and their summaries |
+| `docs/` | Proposal ([PDF](docs/ECE_414_Proposal_Draft.pdf)), [project notes and decisions](docs/PROJECT_NOTES.md), [Goal 1 log](docs/GOAL1_LOG.md) |
+| `literature/` | Papers, patents and their summaries ([overview](literature/README.md)) |
 | `lecture-notes/` | ECE 414 course material |
 
 ## Team
@@ -83,4 +109,4 @@ Zeynep Hafsa Cakici · Dorukhan Cakir · Merrick Simmons · Asmar Hasanova
 
 ## Note on scope
 
-This system performs isolated-sign recognition and produces word-level output. It does **not** translate continuous ASL and does not model non-manual grammatical markers such as facial expression. It is an assistive communication aid, not a replacement for a qualified human interpreter.
+This system recognises signs from a fixed vocabulary, one at a time or a few in a row, and produces word-level output. It does **not** translate continuous ASL and does not model non-manual grammatical markers such as facial expression. It is an assistive communication aid, not a replacement for a qualified human interpreter.

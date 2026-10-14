@@ -7,6 +7,7 @@ Code to paste into Kaggle or Colab notebooks. Each file is one cell; the comment
 | `01_preprocess_islr.py` | Kaggle notebook created from the [competition page](https://www.kaggle.com/competitions/asl-signs) (the data is attached there) | Shrinks the 56 GB Kaggle ISLR data to 2 GB: 94 landmarks, x/y/z, float16. About 10 minutes. |
 | `02_train_islr.py` | Colab (GPU) | v1 / v2 model: 1D-CNN + transformer, 60 epochs, about 15 minutes on an L4. |
 | `03_train_islr_v3.py` | Colab (GPU) | v3: the Kaggle 1st-place recipe (late dropout, AWP, stronger augmentation), 300 epochs, about 3 hours on an L4, resumable. |
+| `04_train_islr_v4.py` | Colab (GPU) | v4: v3 plus the review fixes (lip mirroring, weight decay) and new input: body coordinates with the camera's aspect ratio removed, each hand relative to its wrist, hand-found flags. Same time as v3. |
 
 ## Data on Google Drive
 

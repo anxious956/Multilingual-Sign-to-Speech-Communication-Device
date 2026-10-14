@@ -81,6 +81,8 @@ What this shows:
 
 In this order:
 
+- **v4 (code ready, `notebooks/04_train_islr_v4.py`), from the Goal 1 review of 14 Oct:** fixes lip mirroring (v1–v3 mirrored the lip points without swapping left and right) and weight decay (v3's was about 200x the 1st-place value); body coordinates (origin between the shoulders, 1 = shoulder width, x rescaled per sign so the camera's aspect ratio drops out, replacing the fixed x 2.08 of the live demo); each hand relative to its wrist; hand-found flags; x-stretch augmentation. All changes in one run because of compute; separate short runs later show which change helped. Compare with v3 on validation only; the body-coordinate change mainly shows on our own camera, so it needs the device test set.
+
 0. **Test fluent splitting more:** 5–10 more recordings with other sign combinations, and recordings by another team member; count correct signs. Then try the Moryossef et al. pretrained model on the same recordings for comparison.
 1. **Per-signer accuracy** in the training output (Tran et al. 2023: 81% worry the system works worse for some people).
 2. **v3 (code ready, `notebooks/03_train_islr_v3.py`):** the Kaggle 1st-place recipe, read from its code: causal depthwise-conv blocks with channel attention, whole-branch dropout, x/y + 1- and 2-frame motion, speed 0.5–1.5x, shear/rotate/scale/shift, time and space masking, late dropout 0.8 and AWP after epoch 15, RAdam with weight decay 0.1, 300 epochs, early stop after 60 epochs without improvement, resumable after a Colab disconnect, per-signer test accuracy. Same data and signer split as v2. **v4:** add each hand's own coordinates (normalised to its wrist) so hand shape counts more (HELLO vs SUN, WATER).

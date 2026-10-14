@@ -67,6 +67,17 @@ def best_split(frames, classifier, cuts, min_len=8, max_len=60, word_bonus=0.5):
     return out[::-1]
 
 
+def merge_repeats(pieces):
+    """Join neighbouring pieces given the same sign: one sign cut in two (e.g. at its own hold)."""
+    out = []
+    for a, b, sign, p in pieces:
+        if out and out[-1][2] == sign:
+            out[-1] = (out[-1][0], b, sign, max(out[-1][3], p))
+        else:
+            out.append((a, b, sign, p))
+    return out
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("path", help="a .npy recording or a folder of them")
@@ -92,7 +103,7 @@ def main():
             stretch = rec[s:e]
             cuts = candidate_cuts(speed[s:e], args.pause)
             whole = classifier.predict(stretch, top=1)[0]
-            pieces = best_split(stretch, classifier, cuts, word_bonus=args.word_bonus)
+            pieces = merge_repeats(best_split(stretch, classifier, cuts, word_bonus=args.word_bonus))
             print(f"  frames {s}-{e}: {len(cuts)} candidate cuts; as one sign: {whole[0]} {whole[1]:.0%}")
             print("    -> " + "  |  ".join(f"{sign} {p:.0%} ({s + a}-{s + b})" for a, b, sign, p in pieces))
 

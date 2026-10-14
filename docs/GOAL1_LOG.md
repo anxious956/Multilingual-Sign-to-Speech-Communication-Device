@@ -73,7 +73,22 @@ Fitted on the 3 validation signers, reported on the 3 test signers (12,888 test 
 
 Out-of-vocabulary: for the 30-sign list, AUROC 0.975 between correct in-vocabulary signs and the other 220 classes, but at the threshold that keeps 95% of correct in-vocabulary signs, 14.7% of outside signs are still accepted.
 
-What this shows:
+**v3, same analysis** (`docs/figures/calib_v3_report.md`):
+
+| | v2, 250 signs | v3, 250 signs | v2, 30 signs | v3, 30 signs |
+|---|---|---|---|---|
+| Top-1 / top-5 | 62.3 / 79.5 | 66.4 / 83.0 | 81.5 / 90.5 | 84.0 / 93.0 |
+| Worst test signer top-1 | 41.2 | 44.4 | 60.2 | 64.3 |
+| T; ECE raw → scaled | 0.98; 6.1 → 7.2 | 0.76; 13.3 → 1.1 | 0.91; 3.0 → 2.1 | 0.79; 6.3 → 2.0 |
+| Coverage at the 5% threshold (test error) | 19.7% (5.4%) | 44.9% (5.1%) | 82.1% (6.4%) | 86.4% (6.4%) |
+| AURC | 0.151 | 0.104 | 0.029 | 0.022 |
+| Outside-vocabulary signs accepted (95% of correct kept) | — | — | 14.7% | 27.7% |
+
+- v3 answers far more signs at the same error (250 signs: 45% instead of 20% at 5% error).
+- **v3's raw probabilities are too low** (T < 1, from label smoothing and late dropout): ECE 13% raw, 1–2% after temperature scaling. With v3 the live demo must use the fitted temperature (`--temperature 0.79` for the 30-sign list), otherwise the threshold means something else.
+- v3 is worse at rejecting signs outside the vocabulary (28% accepted vs 15%), so an "other" class or negative examples matter more.
+
+What this shows (v2):
 - **The raw confidence of v2 is already close to calibrated on average** (ECE 3–6%; temperature scaling changes little).
 - **Signers differ a lot.** One test signer gets 41% where another gets 75%. A threshold chosen on other signers gives that signer about twice the intended error. This is the "works worse for some users" concern of Tran et al. 2023, measured.
 - **Guarantees fitted on one group of signers do not carry over to new signers**: the conformal list aims at 90% and reaches 82–83%; the 5% threshold gives 5.4–6.4%. The threshold has to be calibrated on data from many signers, ideally from our own camera.

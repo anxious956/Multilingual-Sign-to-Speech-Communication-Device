@@ -211,9 +211,10 @@ def features_v4(x):
 class SignClassifier:
     """Loads islr_model.pt and classifies one sign given as (frames, 543, 3) landmarks."""
 
-    def __init__(self, path, x_scale=1.0):
+    def __init__(self, path, x_scale=1.0, temperature=1.0):
         """x_scale stretches x to match the Kaggle videos' proportions (see check_aspect.py); v4 models
         correct the aspect ratio themselves and ignore it."""
+        self.temperature = temperature  # from calibrate.py; probabilities = softmax(logits / T)
         ckpt = torch.load(path, map_location="cpu", weights_only=False)
         self.body = ckpt.get("preprocess", {}).get("coords") == "body"
         self.x_scale = 1.0 if self.body else x_scale
@@ -257,7 +258,7 @@ class SignClassifier:
         logits = self.model(self.features(x), mask)[0]
         if getattr(self, "allowed", None) is not None:
             logits = logits.masked_fill(~self.allowed, -torch.inf)
-        probs = logits.softmax(-1)
+        probs = (logits / self.temperature).softmax(-1)
         top = min(top, int(torch.isfinite(logits).sum()))
         p, i = probs.topk(top)
         return [(self.signs[k], float(v)) for v, k in zip(p, i)]

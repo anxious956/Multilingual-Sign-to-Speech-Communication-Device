@@ -52,6 +52,9 @@ def main():
     parser.add_argument("--threshold", type=float, default=0.45,
                         help="below this confidence a sign is not accepted and the user is asked to repeat; 0.45 kept "
                              "the error of accepted signs near 5%% for the 30-sign list with v2 (docs/GOAL1_LOG.md)")
+    parser.add_argument("--temperature", type=float, default=1.0,
+                        help="temperature T from calibrate.py for this model and vocabulary (v3 with the 30-sign list: "
+                             "0.79); the threshold refers to these calibrated probabilities")
     parser.add_argument("--jsonl", help="append every result to this file, one JSON line per stretch of signing "
                                         "(the Goal 1 -> Goal 2 hand-off format in docs/TASKS.md)")
     parser.add_argument("--rest-line", type=float, default=1.0, help="see segment_signs.py (default: 1.0)")
@@ -59,7 +62,7 @@ def main():
     parser.add_argument("--rest-frames", type=int, default=6, help="frames at rest that end a sign (default: 6)")
     args = parser.parse_args()
 
-    classifier = SignClassifier(args.model, args.x_scale)
+    classifier = SignClassifier(args.model, args.x_scale, args.temperature)
     if args.vocab == "list":
         raise SystemExit(" ".join(sorted(classifier.signs)))
     if args.vocab:

@@ -34,7 +34,7 @@ Microphone → Whisper → on-screen text (reverse channel)
 | 2. Language and speech | Signs → English sentence, translation (NLLB-200), speech (Piper), reply channel (Whisper) | Dorukhan Cakir, Zeynep Hafsa Cakici |
 | 3. Offline embedded system | Everything running on the Jetson Orin Nano, latency and power | Merrick Simmons |
 
-Project-wide tasks (vocabulary with Deaf ASL users, testing, report) are shared by the whole team.
+Project-wide tasks (vocabulary with Deaf ASL users, testing, report) are shared by the whole team. Detailed task split (draft): [`docs/TASKS.md`](docs/TASKS.md).
 
 ## Target specifications
 

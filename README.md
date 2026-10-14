@@ -75,8 +75,9 @@ Python · PyTorch · MediaPipe · ONNX Runtime / TensorRT · NLLB-200 · Piper T
 |---|---|---|
 | v2 | 62.3% | 79.5% |
 | v3 (Kaggle 1st-place recipe) | 66.4% | 83.0% |
+| v4 (review fixes, camera-independent input) | 67.2% | 83.9% |
 
-Test = 3 signers never seen in training. With the 30-sign demo vocabulary, v2 already reaches 81.5% top-1; v4 (review fixes, camera-independent input) is next. Details: [`docs/GOAL1_LOG.md`](docs/GOAL1_LOG.md).
+Test = 3 signers never seen in training. With the 30-sign demo vocabulary, v2 already reaches 81.5% top-1; Next: ASL Citizen (52 signers, webcam) for the service-counter vocabulary. Details: [`docs/GOAL1_LOG.md`](docs/GOAL1_LOG.md).
 
 ## Quick start: live demo on a laptop (Windows)
 

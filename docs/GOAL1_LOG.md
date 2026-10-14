@@ -22,6 +22,10 @@ Owner: Asmar Hasanova. Code is in `src/` (runs on the laptop) and `notebooks/` (
 | v2 | 60 epochs, plus speed change, dropped frames / hands / lips, more dropout | 70.9% | 62.3% | 79.5% | 94.4% |
 | **v3** | Kaggle 1st-place recipe: late dropout + AWP, stronger augmentation, 300 epochs (best epoch 272) | **75.8%** | **66.4%** | **83.0%** | 79.5% |
 
+| **v4** | v3 + review fixes (lip mirroring, weight decay), body coordinates without camera aspect, hand-local features, hand-found flags (best epoch 258) | 75.8% | **67.2%** | **83.9%** | 83.8% |
+
+v4 per test signer: 46.2% / 71.1% / 78.7%. On Kaggle v4 is only slightly better than v3 (+0.8 top-1, +0.9 top-5, worst signer +1.8); it led by 1–2 points until about epoch 150, then both reached the same validation ceiling. Its main purpose, independence from the camera's aspect ratio and better hand-shape input, cannot show on Kaggle data (one camera type) and has to be checked live and on our own recordings.
+
 v3 per test signer (4718 / 28656 / 55372): 44.4% / 71.4% / 77.8% (v2: 41.2% / 65.4% / 74.8%). v3 never overfit (train accuracy stayed below validation until about epoch 150) and kept improving until epoch 272, so stopping early at 60 epochs without improvement would have lost about 3 points.
 
 Both models overfit (train accuracy far above validation). v2 overfits less and is slightly better on test. Files: `islr_model_v1.pt`, `islr_model_v2.pt` in Drive `sign2speech`, and copied to `models/` on the laptop (not in Git). Each run also saves validation and test model outputs (`islr_val_logits.npz`) for calibration.

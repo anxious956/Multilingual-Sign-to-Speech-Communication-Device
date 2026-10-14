@@ -33,6 +33,9 @@ from pathlib import Path
 
 import numpy as np
 
+# Colab sets MPLBACKEND to its notebook backend, which the separate venv's matplotlib (imported by mediapipe) rejects
+os.environ["MPLBACKEND"] = "Agg"
+
 URL = "https://download.microsoft.com/download/b/8/8/b88c0bae-e6c1-43e1-8726-98cf5af36ca4/ASL_Citizen.zip"
 SPLITS = {"train": 0, "val": 1, "test": 2}
 LIPS = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 146, 91, 181, 84, 17, 314, 405, 321, 375,

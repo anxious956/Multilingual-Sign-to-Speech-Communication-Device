@@ -19,7 +19,10 @@ Owner: Asmar Hasanova. Code is in `src/` (runs on the laptop) and `notebooks/` (
 | Model | Change | Val top-1 | Test top-1 | Test top-5 | Train acc at end |
 |---|---|---|---|---|---|
 | v1 | 40 epochs, mirror / rotate / stretch augmentation | 70.9% | 61.0% | 77.6% | 99.1% |
-| **v2** (in use) | 60 epochs, plus speed change, dropped frames / hands / lips, more dropout | 70.9% | **62.3%** | **79.5%** | 94.4% |
+| v2 | 60 epochs, plus speed change, dropped frames / hands / lips, more dropout | 70.9% | 62.3% | 79.5% | 94.4% |
+| **v3** | Kaggle 1st-place recipe: late dropout + AWP, stronger augmentation, 300 epochs (best epoch 272) | **75.8%** | **66.4%** | **83.0%** | 79.5% |
+
+v3 per test signer (4718 / 28656 / 55372): 44.4% / 71.4% / 77.8% (v2: 41.2% / 65.4% / 74.8%). v3 never overfit (train accuracy stayed below validation until about epoch 150) and kept improving until epoch 272, so stopping early at 60 epochs without improvement would have lost about 3 points.
 
 Both models overfit (train accuracy far above validation). v2 overfits less and is slightly better on test. Files: `islr_model_v1.pt`, `islr_model_v2.pt` in Drive `sign2speech`, and copied to `models/` on the laptop (not in Git). Each run also saves validation and test model outputs (`islr_val_logits.npz`) for calibration.
 

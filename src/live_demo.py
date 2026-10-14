@@ -12,15 +12,18 @@ Keys: Q quits.
 """
 import argparse
 import time
+from pathlib import Path
 
 import cv2
 import mediapipe as mp
 import numpy as np
 
-from capture_landmarks import draw, frame_landmarks
+from capture_landmarks import draw, frame_landmarks, save
 from fluent_segment import best_split, candidate_cuts, merge_repeats
 from segment_signs import hand_speed, raised
 from sign_model import SignClassifier
+
+REPO = Path(__file__).resolve().parent.parent
 
 
 def main():
@@ -36,6 +39,13 @@ def main():
     parser.add_argument("--single", action="store_true",
                         help="one sign per raise of the hands (default: several signs may be made without "
                              "lowering the hands; they are split with fluent_segment.py)")
+    parser.add_argument("--word-bonus", type=float, default=0.5,
+                        help="see fluent_segment.py; larger = more, shorter signs (default: 0.5)")
+    parser.add_argument("--pause", type=float, default=0.6,
+                        help="see fluent_segment.py; larger = more candidate cuts (default: 0.6)")
+    parser.add_argument("--save", action="store_true",
+                        help="save every stretch of signing to data/recordings/LIVE to check it later "
+                             "with fluent_segment.py")
     parser.add_argument("--rest-line", type=float, default=1.0, help="see segment_signs.py (default: 1.0)")
     parser.add_argument("--min-frames", type=int, default=8, help="shortest sign, in frames (default: 8)")
     parser.add_argument("--rest-frames", type=int, default=6, help="frames at rest that end a sign (default: 6)")
@@ -83,8 +93,11 @@ def main():
                 if rest >= args.rest_frames:  # hands back at rest: the sign is over
                     if len(sign) - rest >= args.min_frames:
                         frames = np.stack(sign)
-                        pieces = [] if args.single else merge_repeats(
-                            best_split(frames, classifier, candidate_cuts(hand_speed(frames))))
+                        if args.save:
+                            print("saved", save(sign, "LIVE", REPO / "data" / "recordings"))
+                        pieces = [] if args.single else merge_repeats(best_split(
+                            frames, classifier, candidate_cuts(hand_speed(frames), args.pause),
+                            word_bonus=args.word_bonus))
                         if len(pieces) > 1:
                             sentence, result = [(s, p) for _, _, s, p in pieces], []
                             print(" | ".join(f"{s} {p:.0%}" for s, p in sentence))

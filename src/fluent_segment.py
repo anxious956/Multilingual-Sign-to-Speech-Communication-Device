@@ -105,6 +105,7 @@ def main():
             whole = classifier.predict(stretch, top=1)[0]
             pieces = merge_repeats(best_split(stretch, classifier, cuts, word_bonus=args.word_bonus))
             print(f"  frames {s}-{e}: {len(cuts)} candidate cuts; as one sign: {whole[0]} {whole[1]:.0%}")
+            print(f"    candidate cuts at frames {[s + c for c in cuts]}")
             print("    -> " + "  |  ".join(f"{sign} {p:.0%} ({s + a}-{s + b})" for a, b, sign, p in pieces))
 
 

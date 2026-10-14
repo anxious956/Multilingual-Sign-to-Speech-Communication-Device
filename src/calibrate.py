@@ -222,7 +222,7 @@ def main():
     report = "\n".join(lines)
     print(report)
     if args.out:
-        Path(f"{args.out}_report.md").write_text(report + "\n")
+        Path(f"{args.out}_report.md").write_text(report + "\n", encoding="utf-8")
         print(f"\nsaved {args.out}_report.md")
 
 

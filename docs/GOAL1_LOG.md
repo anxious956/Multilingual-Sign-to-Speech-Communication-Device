@@ -55,6 +55,28 @@ Only 3 recordings by one person, so not yet a result to report. A deliberate rep
 
 The live demo now does this by default: make several signs, lower the hands, and the signs appear in order (`--single` for the old one-sign behaviour).
 
+## 14 Oct 2026: calibration of v2 (`src/calibrate.py`)
+
+Fitted on the 3 validation signers, reported on the 3 test signers (12,888 test signs). The 30-sign vocabulary is the demo list.
+
+| | All 250 signs | 30-sign vocabulary |
+|---|---|---|
+| Top-1 / top-5 (all test signs) | 62.3% / 79.5% | 81.5% / 90.5% |
+| Top-1 per test signer (4718 / 28656 / 55372) | 41.2% / 65.4% / 74.8% | 60.2% / 85.5% / 93.3% |
+| Temperature T; ECE raw → scaled | 0.98; 6.1% → 7.2% | 0.91; 3.0% → 2.1% |
+| Threshold for 5% error (chosen on validation) → test coverage, test error | 0.94 → 19.7%, 5.4% | 0.45 → 82.1%, 6.4% |
+| Same threshold, worst signer (4718): coverage, error | 12.3%, 8.1% | 61.2%, 12.2% |
+| Split-conformal list, 90% target → test coverage | 83.3% (mean size 7.3) | 81.9% |
+
+Out-of-vocabulary: for the 30-sign list, AUROC 0.975 between correct in-vocabulary signs and the other 220 classes, but at the threshold that keeps 95% of correct in-vocabulary signs, 14.7% of outside signs are still accepted.
+
+What this shows:
+- **The raw confidence of v2 is already close to calibrated on average** (ECE 3–6%; temperature scaling changes little).
+- **Signers differ a lot.** One test signer gets 41% where another gets 75%. A threshold chosen on other signers gives that signer about twice the intended error. This is the "works worse for some users" concern of Tran et al. 2023, measured.
+- **Guarantees fitted on one group of signers do not carry over to new signers**: the conformal list aims at 90% and reaches 82–83%; the 5% threshold gives 5.4–6.4%. The threshold has to be calibrated on data from many signers, ideally from our own camera.
+- **A usable operating point exists for the demo vocabulary**: answer about 82% of signs at about 6% error, ask to repeat the rest.
+- **Signs outside the vocabulary are a real risk** (15% accepted): needs an "other" class or negative examples.
+
 ## Next steps
 
 In this order:

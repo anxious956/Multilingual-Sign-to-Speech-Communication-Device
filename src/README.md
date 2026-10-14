@@ -83,3 +83,13 @@ python src\live_demo.py --model models\islr_model.pt
 ```
 
 `sign_model.py` holds the model and its input preparation; it must stay identical to `notebooks/02_train_islr.py`.
+
+## Several signs without lowering the hands
+
+`fluent_segment.py` splits a stretch of signing with the hands up into separate signs: places where the hands slow down are candidate cuts, and the sign model picks the cuts whose pieces it recognises most confidently. The live demo uses it by default (`--single` turns it off).
+
+```powershell
+python src\fluent_segment.py data\recordings\FLUENT --model models\islr_model_v2.pt --vocab hello,water,please
+```
+
+`segment_signs.py --pauses` is the speed-only rule; it cuts signs in half where the hands stop inside a sign, so it is kept only for comparison.

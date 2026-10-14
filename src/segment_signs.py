@@ -15,6 +15,7 @@ Usage:
     python src/segment_signs.py data/recordings/HELLO --trim    # also save each sign to data/segments/<LABEL>/
 """
 import argparse
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -51,6 +52,53 @@ def raised(frames, rest_line=1.0):
     return up
 
 
+def shoulder_width(frames):
+    """Shoulder width per frame, carried over frames where the body is lost."""
+    w = np.linalg.norm(frames[:, L_SHOULDER, :2] - frames[:, R_SHOULDER, :2], axis=1)
+    ok = ~np.isnan(w)
+    if not ok.any():
+        return np.ones(len(w))
+    idx = np.where(ok, np.arange(len(w)), 0)
+    np.maximum.accumulate(idx, out=idx)
+    w = w[idx]
+    w[: ok.argmax()] = w[ok.argmax()]
+    return w
+
+
+def hand_speed(frames, smooth=3):
+    """Per frame: how fast the faster hand moves, in shoulder widths per frame (0 if no hand)."""
+    speed = np.zeros(len(frames))
+    for start in (LEFT, RIGHT):
+        hand = frames[:, start:start + 21, :2]
+        step = np.linalg.norm(np.diff(hand, axis=0), axis=2)  # (T-1, 21)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)  # frames without this hand
+            s = np.nanmean(step, axis=1)
+        speed[1:] = np.fmax(speed[1:], np.nan_to_num(s))
+    speed /= shoulder_width(frames)
+    return np.convolve(speed, np.ones(smooth) / smooth, mode="same")
+
+
+def split_at_pauses(segs, speed, min_frames=8, pause=0.35):
+    """Split each segment where the hands almost stop between two signs (fluent signing, no rest).
+
+    A cut is placed at a local minimum of the hand speed that is below `pause` times the
+    segment's median speed and at least min_frames from the segment ends and the previous cut.
+    """
+    out = []
+    for s, e in segs:
+        v = speed[s:e]
+        limit = pause * np.median(v)
+        cuts, last = [], 0
+        for i in range(min_frames, len(v) - min_frames):
+            if v[i] < limit and v[i] <= v[i - 1] and v[i] <= v[i + 1] and i - last >= min_frames:
+                cuts.append(i)
+                last = i
+        bounds = [0] + cuts + [len(v)]
+        out += [(s + a, s + b) for a, b in zip(bounds[:-1], bounds[1:])]
+    return out
+
+
 def segments(up, min_frames=8, rest_frames=6, pad=3):
     """Turn per-frame raised flags into (start, end) frame ranges, end exclusive."""
     found, start, rest = [], None, 0
@@ -77,6 +125,10 @@ def main():
     parser.add_argument("--min-frames", type=int, default=8, help="shortest sign, in frames (default: 8)")
     parser.add_argument("--rest-frames", type=int, default=6,
                         help="frames at rest that end a sign (default: 6)")
+    parser.add_argument("--pauses", action="store_true",
+                        help="also split where the hands almost stop, for signs made without lowering the hands")
+    parser.add_argument("--pause", type=float, default=0.35,
+                        help="with --pauses: a pause is slower than this times the median hand speed (default: 0.35)")
     parser.add_argument("--trim", action="store_true", help="save each sign found to data/segments/<LABEL>/")
     args = parser.parse_args()
 
@@ -89,7 +141,13 @@ def main():
         rec = np.load(f)
         up = raised(rec, args.rest_line)
         segs = segments(up, args.min_frames, args.rest_frames)
-        timeline = "".join("#" if u else "." for u in up)
+        timeline = ["#" if u else "." for u in up]
+        if args.pauses:
+            segs = split_at_pauses(segs, hand_speed(rec), args.min_frames, args.pause)
+            for s, _ in segs[1:]:
+                if timeline[s] == "#":
+                    timeline[s] = "|"  # a cut between two signs inside one raised stretch
+        timeline = "".join(timeline)
         print(f"{f.name}: {len(rec)} frames, {len(segs)} sign(s) {segs}")
         print(f"  {timeline}")
         if args.trim:

@@ -116,6 +116,8 @@ What this shows (v2):
 
 ASL Citizen's split files and single videos can be read straight from Microsoft's zip without downloading the 42.8 GB (`remotezip`). `tools/vocab_candidates.py` uses this to compare a draft service-counter list with ASL Citizen and the Kaggle 250: `docs/VOCAB_CANDIDATES.md` (38 words in both, 97 only in ASL Citizen, 6 in neither: how much, return, receipt, restroom, emergency, question; some may exist under other glosses).
 
+**ASL Citizen landmarks extracted (target vocabulary).** `tools/extract_asl_citizen.py --glosses tools/vocab_glosses_v0.txt` on a 12-core Colab runtime: 4,755 videos of the 155 target glosses, 12 chunks, merged into `asl_citizen_landmarks.npy` (207 MB, about 367k frames, same 94 landmarks as Kaggle), `asl_citizen_meta.npz` and `asl_citizen_info.json` in the team Drive (`sign2speech/asl_citizen`), not in this repo (licence). On Colab the venv needs `MPLBACKEND=Agg` (now set in the script). Next: fine-tune v4 on it (notebook 05).
+
 ## Next steps
 
 In this order:

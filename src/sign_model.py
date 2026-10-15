@@ -1,9 +1,12 @@
 """The sign classifier and its input preparation, for running a trained model.
 
 SignModel and features() are copied from notebooks/02_train_islr.py (v1, v2),
-SignModelV3 and features_v3() from notebooks/03_train_islr_v3.py; they must stay
+SignModelV3 and features_v3() from notebooks/03_train_islr_v3.py, canonical() and
+features_v4() from notebooks/04_train_islr_v4.py (v4 uses SignModelV3); they must stay
 identical to those files. SignClassifier picks the right one from the saved model.
 """
+import warnings
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -160,14 +163,64 @@ class SignModelV3(nn.Module):
         return self.head(pooled)
 
 
+# ---- v4 (04_train_islr_v4.py) ----
+
+R0 = 2.08
+SH_L, SH_R, LIP_ROWS = 61, 62, slice(0, 40)  # pose 11 and 12, and the 40 lip points, among the 94 kept
+
+
+def canonical(seq):
+    """(T, P, 2) raw MediaPipe x, y -> body coordinates: origin between the shoulders, 1 = shoulder width,
+    x rescaled so shoulder width / shoulder-to-mouth height = R0 (removes the camera's aspect ratio)."""
+    seq = np.array(seq, np.float32)
+    with np.errstate(all="ignore"), warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        w = np.abs(seq[:, SH_L, 0] - seq[:, SH_R, 0])
+        h = (seq[:, SH_L, 1] + seq[:, SH_R, 1]) / 2 - np.nanmean(seq[:, LIP_ROWS, 1], axis=1)
+        ratio = np.nanmedian(np.where(h > 0.02, w / h, np.nan))
+        if np.isfinite(ratio) and ratio > 0:
+            seq[..., 0] *= np.clip(R0 / ratio, 0.3, 3.0)
+        mid = np.nanmedian((seq[:, SH_L] + seq[:, SH_R]) / 2, axis=0)
+        width = np.nanmedian(np.linalg.norm(seq[:, SH_L] - seq[:, SH_R], axis=1))
+        if not (np.isfinite(mid).all() and np.isfinite(width) and width > 0):  # no body: use the sign's own spread
+            mid = np.nanmean(seq.reshape(-1, 2), axis=0)
+            width = 4 * np.nanstd(seq.reshape(-1, 2))
+            if not (np.isfinite(mid).all() and np.isfinite(width) and width > 0):
+                return seq
+    return (seq - mid) / width
+
+
+HANDS_V4 = ((40, 61), (73, 94))  # left and right hand rows; landmark 0 = wrist, 9 = middle finger base
+
+
+def features_v4(x):
+    """Body coordinates (B, T, P, 2) -> per frame: x, y, motion to the next frame and over two frames,
+    each hand relative to its wrist and size, and whether each hand was found. -> (B, T, P*6 + 84 + 2)."""
+    dx = torch.cat([x[:, 1:] - x[:, :-1], torch.zeros_like(x[:, :1])], 1)
+    dx2 = torch.cat([x[:, 2:] - x[:, :-2], torch.zeros_like(x[:, :2])], 1)
+    local, found = [], []
+    for a, b in HANDS_V4:
+        hand = x[:, :, a:b]
+        size = (hand[:, :, 9] - hand[:, :, 0]).norm(dim=-1, keepdim=True).clamp(min=1e-3)
+        local.append((hand - hand[:, :, :1]) / size[..., None])
+        found.append((~torch.isnan(hand[..., 0])).any(-1, keepdim=True).to(x.dtype))
+    feats = torch.cat([x, dx, dx2], -1).flatten(2)
+    return torch.cat([feats, torch.cat(local, 2).flatten(2)] + found, -1).nan_to_num(0)
+
+
 class SignClassifier:
     """Loads islr_model.pt and classifies one sign given as (frames, 543, 3) landmarks."""
 
-    def __init__(self, path, x_scale=1.0):
-        """x_scale stretches x to match the Kaggle videos' proportions (see check_aspect.py)."""
-        self.x_scale = x_scale
+    def __init__(self, path, x_scale=1.0, temperature=1.0):
+        """x_scale stretches x to match the Kaggle videos' proportions (see check_aspect.py); v4 models
+        correct the aspect ratio themselves and ignore it."""
+        self.temperature = temperature  # from calibrate.py; probabilities = softmax(logits / T)
         ckpt = torch.load(path, map_location="cpu", weights_only=False)
-        if ckpt.get("arch") == "v3":
+        self.body = ckpt.get("preprocess", {}).get("coords") == "body"
+        self.x_scale = 1.0 if self.body else x_scale
+        if ckpt.get("arch") == "v4":
+            self.model, self.features = SignModelV3(ckpt["n_in"], ckpt["n_classes"], ckpt["dim"]), features_v4
+        elif ckpt.get("arch") == "v3":
             self.model, self.features = SignModelV3(ckpt["n_in"], ckpt["n_classes"], ckpt["dim"]), features_v3
         else:
             self.model, self.features = SignModel(ckpt["n_in"], ckpt["n_classes"], ckpt["dim"]), features
@@ -187,7 +240,7 @@ class SignClassifier:
         if len(seq) > self.max_len:
             seq = seq[np.linspace(0, len(seq) - 1, self.max_len).round().astype(int)]
         x = np.full((1, self.max_len, len(self.keep), 2), np.nan, np.float32)
-        x[0, :len(seq)] = seq
+        x[0, :len(seq)] = canonical(seq) if self.body else seq
         mask = torch.arange(self.max_len)[None] < len(seq)
         return torch.from_numpy(x), mask
 
@@ -205,7 +258,7 @@ class SignClassifier:
         logits = self.model(self.features(x), mask)[0]
         if getattr(self, "allowed", None) is not None:
             logits = logits.masked_fill(~self.allowed, -torch.inf)
-        probs = logits.softmax(-1)
+        probs = (logits / self.temperature).softmax(-1)
         top = min(top, int(torch.isfinite(logits).sum()))
         p, i = probs.topk(top)
         return [(self.signs[k], float(v)) for v, k in zip(p, i)]

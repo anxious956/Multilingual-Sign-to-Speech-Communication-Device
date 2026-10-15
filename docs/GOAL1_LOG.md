@@ -19,7 +19,14 @@ Owner: Asmar Hasanova. Code is in `src/` (runs on the laptop) and `notebooks/` (
 | Model | Change | Val top-1 | Test top-1 | Test top-5 | Train acc at end |
 |---|---|---|---|---|---|
 | v1 | 40 epochs, mirror / rotate / stretch augmentation | 70.9% | 61.0% | 77.6% | 99.1% |
-| **v2** (in use) | 60 epochs, plus speed change, dropped frames / hands / lips, more dropout | 70.9% | **62.3%** | **79.5%** | 94.4% |
+| v2 | 60 epochs, plus speed change, dropped frames / hands / lips, more dropout | 70.9% | 62.3% | 79.5% | 94.4% |
+| **v3** | Kaggle 1st-place recipe: late dropout + AWP, stronger augmentation, 300 epochs (best epoch 272) | **75.8%** | **66.4%** | **83.0%** | 79.5% |
+
+| **v4** | v3 + review fixes (lip mirroring, weight decay), body coordinates without camera aspect, hand-local features, hand-found flags (best epoch 258) | 75.8% | **67.2%** | **83.9%** | 83.8% |
+
+v4 per test signer: 46.2% / 71.1% / 78.7%. On Kaggle v4 is only slightly better than v3 (+0.8 top-1, +0.9 top-5, worst signer +1.8); it led by 1–2 points until about epoch 150, then both reached the same validation ceiling. Its main purpose, independence from the camera's aspect ratio and better hand-shape input, cannot show on Kaggle data (one camera type) and has to be checked live and on our own recordings.
+
+v3 per test signer (4718 / 28656 / 55372): 44.4% / 71.4% / 77.8% (v2: 41.2% / 65.4% / 74.8%). v3 never overfit (train accuracy stayed below validation until about epoch 150) and kept improving until epoch 272, so stopping early at 60 epochs without improvement would have lost about 3 points.
 
 Both models overfit (train accuracy far above validation). v2 overfits less and is slightly better on test. Files: `islr_model_v1.pt`, `islr_model_v2.pt` in Drive `sign2speech`, and copied to `models/` on the laptop (not in Git). Each run also saves validation and test model outputs (`islr_val_logits.npz`) for calibration.
 
@@ -55,9 +62,65 @@ Only 3 recordings by one person, so not yet a result to report. A deliberate rep
 
 The live demo now does this by default: make several signs, lower the hands, and the signs appear in order (`--single` for the old one-sign behaviour).
 
+## 14 Oct 2026: calibration of v2 (`src/calibrate.py`)
+
+Fitted on the 3 validation signers, reported on the 3 test signers (12,888 test signs). The 30-sign vocabulary is the demo list.
+
+| | All 250 signs | 30-sign vocabulary |
+|---|---|---|
+| Top-1 / top-5 (all test signs) | 62.3% / 79.5% | 81.5% / 90.5% |
+| Top-1 per test signer (4718 / 28656 / 55372) | 41.2% / 65.4% / 74.8% | 60.2% / 85.5% / 93.3% |
+| Temperature T; ECE raw → scaled | 0.98; 6.1% → 7.2% | 0.91; 3.0% → 2.1% |
+| Threshold for 5% error (chosen on validation) → test coverage, test error | 0.94 → 19.7%, 5.4% | 0.45 → 82.1%, 6.4% |
+| Same threshold, worst signer (4718): coverage, error | 12.3%, 8.1% | 61.2%, 12.2% |
+| Split-conformal list, 90% target → test coverage | 83.3% (mean size 7.3) | 81.9% |
+
+Out-of-vocabulary: for the 30-sign list, AUROC 0.975 between correct in-vocabulary signs and the other 220 classes, but at the threshold that keeps 95% of correct in-vocabulary signs, 14.7% of outside signs are still accepted.
+
+**v3, same analysis** (`docs/figures/calib_v3_report.md`):
+
+| | v2, 250 signs | v3, 250 signs | v2, 30 signs | v3, 30 signs |
+|---|---|---|---|---|
+| Top-1 / top-5 | 62.3 / 79.5 | 66.4 / 83.0 | 81.5 / 90.5 | 84.0 / 93.0 |
+| Worst test signer top-1 | 41.2 | 44.4 | 60.2 | 64.3 |
+| T; ECE raw → scaled | 0.98; 6.1 → 7.2 | 0.76; 13.3 → 1.1 | 0.91; 3.0 → 2.1 | 0.79; 6.3 → 2.0 |
+| Coverage at the 5% threshold (test error) | 19.7% (5.4%) | 44.9% (5.1%) | 82.1% (6.4%) | 86.4% (6.4%) |
+| AURC | 0.151 | 0.104 | 0.029 | 0.022 |
+| Outside-vocabulary signs accepted (95% of correct kept) | — | — | 14.7% | 27.7% |
+
+- v3 answers far more signs at the same error (250 signs: 45% instead of 20% at 5% error).
+- **v3's raw probabilities are too low** (T < 1, from label smoothing and late dropout): ECE 13% raw, 1–2% after temperature scaling. With v3 the live demo must use the fitted temperature (`--temperature 0.79` for the 30-sign list), otherwise the threshold means something else.
+- v3 is worse at rejecting signs outside the vocabulary (28% accepted vs 15%), so an "other" class or negative examples matter more.
+
+**Confusions** (`src/confusions.py`, 30-sign list, test signers):
+- THANKYOU and FOOD are never confused in the Kaggle test data (0% both ways, v2 and v3), although v3 often read Asmar's THANKYOU as FOOD live. So that confusion comes from our camera or signing style, not from the model in general: our own test recordings are needed.
+- Weakest signs with v3: PLEASE 62%, GO 66%, TOMORROW 73%, LIKE 73%. PLEASE ↔ MINE/MY (both on the chest) and WAIT → THANKYOU recur in both models.
+- **v3 has a "sink" class: TIME** is the wrong answer for LATER (17%), GO, WHERE, STORE, THIRSTY, YES and WHO. v2 did not do this. Worth checking in v4.
+
+What this shows (v2):
+- **The raw confidence of v2 is already close to calibrated on average** (ECE 3–6%; temperature scaling changes little).
+- **Signers differ a lot.** One test signer gets 41% where another gets 75%. A threshold chosen on other signers gives that signer about twice the intended error. This is the "works worse for some users" concern of Tran et al. 2023, measured.
+- **Guarantees fitted on one group of signers do not carry over to new signers**: the conformal list aims at 90% and reaches 82–83%; the 5% threshold gives 5.4–6.4%. The threshold has to be calibrated on data from many signers, ideally from our own camera.
+- **A usable operating point exists for the demo vocabulary**: answer about 82% of signs at about 6% error, ask to repeat the rest.
+- **Signs outside the vocabulary are a real risk** (15% accepted): needs an "other" class or negative examples.
+
+## Dataset roles (decided 14 Oct 2026, after the second review)
+
+| Dataset | Role | Why | Licence / ethics |
+|---|---|---|---|
+| Kaggle ISLR (PopSign subset) | Pretraining and fast experiments only; reported final results do not come from it | Child vocabulary, 21 signers, phone portrait video, landmarks only (tied to MediaPipe) | Competition rules: no redistribution |
+| PopSign ASL v1.0 | Optional: more signers (47) for the Kaggle signs, plus labelled variants | Same vocabulary as Kaggle; videos, 1.1 TB | CC BY 4.0, consent-based |
+| **ASL Citizen** | **Main dataset: target vocabulary, fine-tuning and reported results** | 52 signers (35 train / 6 val / 11 test), webcam at home, 2,731 signs, about 30 videos from about 29 signers per sign, videos (any keypoint model) | Microsoft Research licence: non-commercial research only, **data and derived data may not be redistributed** (keep landmarks and models in the team Drive, not in this public repo) |
+| WLASL | Dropped (cited only) | Scraped without consent, dead links, noisy labels; ASL Citizen paper: on shared signs a WLASL-trained model reaches 8.5% top-1 vs 74.2% for ASL Citizen | — |
+| Our own recordings | Device test set, calibration (temperature, threshold) for our camera, light fine-tuning | Team recordings only for debugging; reported accuracy from Deaf / fluent NJIT signers | Consent form; ask whether NJIT IRB approval is needed; add timestamps |
+
+ASL Citizen's split files and single videos can be read straight from Microsoft's zip without downloading the 42.8 GB (`remotezip`). `tools/vocab_candidates.py` uses this to compare a draft service-counter list with ASL Citizen and the Kaggle 250: `docs/VOCAB_CANDIDATES.md` (38 words in both, 97 only in ASL Citizen, 6 in neither: how much, return, receipt, restroom, emergency, question; some may exist under other glosses).
+
 ## Next steps
 
 In this order:
+
+- **v4 (code ready, `notebooks/04_train_islr_v4.py`), from the Goal 1 review of 14 Oct:** fixes lip mirroring (v1–v3 mirrored the lip points without swapping left and right) and weight decay (v3's was about 200x the 1st-place value); body coordinates (origin between the shoulders, 1 = shoulder width, x rescaled per sign so the camera's aspect ratio drops out, replacing the fixed x 2.08 of the live demo); each hand relative to its wrist; hand-found flags; x-stretch augmentation. All changes in one run because of compute; separate short runs later show which change helped. Compare with v3 on validation only; the body-coordinate change mainly shows on our own camera, so it needs the device test set.
 
 0. **Test fluent splitting more:** 5–10 more recordings with other sign combinations, and recordings by another team member; count correct signs. Then try the Moryossef et al. pretrained model on the same recordings for comparison.
 1. **Per-signer accuracy** in the training output (Tran et al. 2023: 81% worry the system works worse for some people).

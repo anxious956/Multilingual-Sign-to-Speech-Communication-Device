@@ -18,6 +18,27 @@ Papers behind the design decisions in this project, grouped by pipeline stage.
 | *kaggle-asl-signs-1st-place*, Hugging Face ([model](https://huggingface.co/sign/kaggle-asl-signs-1st-place)) | Model download (MIT license) | A LiteRT (TFLite) export of the winning ISLR model, released under MIT. It gives us a ready-made baseline to benchmark on the Jetson before we train our own model. |
 | Shi, *Toward ASL Processing in the Real World*, PhD thesis 2023 ([arXiv](https://arxiv.org/abs/2308.12419)) | Script | Covers real-world ASL data, fingerspelling and translation. Useful background. |
 
+## 1b. Training data, transfer and adapting to new signers
+
+Reviewed on 14 Oct 2026 after the v2/v3 results (`docs/GOAL1_LOG.md`): accuracy differs a lot between signers, and some confusions appear only with our own camera. The question was how others get a model to work on new people and new recording conditions.
+
+| Paper / dataset | Access | What it shows | What it means for us |
+|---|---|---|---|
+| Desai et al., *ASL Citizen*, NeurIPS 2023 ([arXiv](https://arxiv.org/abs/2304.05934)) | In repo | Features from a model trained on WLASL-2000 reach 9.9% top-1 on ASL Citizen, against 58.0% for features trained on ASL Citizen itself; Kinetics (general action) features are near random (Table 4). With 25% of the training videos, recall@1 is 0.16 instead of 0.63 (Table 5). Their pose model (ST-GCN) uses MediaPipe Holistic keypoints, centred and scaled by the shoulder distance, with shear and rotation augmentation. | A model trained on one sign dataset transfers badly to another, even within ASL. Training or fine-tuning on data close to the deployment setting is necessary, and more data matters a lot. Our v4 body normalisation is the same as theirs. |
+| Selvaraj et al., *OpenHands*, ACL 2022 ([arXiv](https://arxiv.org/abs/2110.05877)) | Script | Pose-based ISLR models for 6 sign languages. Self-supervised pretraining on unlabelled pose data improves fine-tuning, especially when labelled data is scarce, and pretraining on Indian SL transfers to other sign languages. | Supports "pretrain on a large set, then fine-tune on the target vocabulary": for us, Kaggle ISLR (or PopSign) → ASL Citizen subset → our own recordings. |
+| Starner et al., *PopSign ASL v1.0*, NeurIPS 2023 Datasets and Benchmarks ([paper](https://proceedings.neurips.cc/paper_files/paper/2023/hash/00dada608b8db212ea7d9d92b24c68de-Abstract.html), [data card](https://signdata.cc.gatech.edu/view/datasets/popsign_v1_0/)) | CC BY 4.0, videos | The full PopSign data: the same 250 signs as Kaggle ISLR, 47 Deaf signers (split 31 / 8 / 8), about 200,000 videos (about 660 usable "game" videos and 141 "variant" videos per sign), recorded with phone selfie cameras; 1.1 TB of video. An LSTM baseline reaches 82% (validation) / 84% (test). A version 2.1 with more signs is listed. | More than twice as many signers as Kaggle ISLR (21) for the same vocabulary, plus labelled variants of each sign (e.g. both HELLOs). Videos only: landmarks must be extracted, which is the cost. The Kaggle ISLR data is probably a subset of it (same project and signs; not confirmed). |
+| Kezar et al., *The Sem-Lex Benchmark*, ASSETS 2023 ([arXiv](https://arxiv.org/abs/2310.00196)) | Download instructions in the paper | Over 84,000 isolated-sign videos from Deaf signers, aligned with ASL-LEX, SignBank and ASL Citizen. Predicting phonological features (handshape, location, movement) as an extra target improves isolated recognition by 2% overall and by 6% in the few-shot case. | Another large consent-based ASL source. Phonological features as an extra training target fit our confusions, which are mostly handshape differences at the same location (THANKYOU/FOOD, PLEASE/MINE). |
+| Von Agris et al., signer adaptation on the SIGNUM corpus (RWTH Aachen) ([paper](https://www.bas.uni-muenchen.de/Bas/SIGNUM/papers/paper-02.pdf)) | Open PDF | Adapting a signer-independent recogniser to a new signer with a few labelled examples (eigenvoices, MLLR, MAP): with 10 utterances, about 30% relative error reduction. Older, appearance-based HMM systems. | Even a few labelled signs from a new person help a lot. A short "calibration" round at first use is a reasonable feature. |
+| Yin et al., *Weakly Supervised Metric Learning towards Signer Adaptation*, BMVC 2015 ([paper](https://bmva-archive.org.uk/bmvc/2015/papers/paper035/index.html)) | Open | Adapts a learned distance to a new signer using that signer's unlabelled data. | Adaptation without labels is possible in principle. |
+
+**Gap.** No recent pose-based paper was found that fine-tunes or few-shot adapts an isolated-sign recogniser to a new signer and reports the gain. Measuring this on our device (before and after a short per-user calibration) would be a small original contribution, next to selective prediction (section 4).
+
+**Plan that follows (Goal 1):**
+1. Pretrain on Kaggle ISLR (done: v3; v4 training). Optionally add PopSign v1.0 for the chosen signs only, to get 47 signers instead of 21.
+2. Fine-tune on ASL Citizen for the service-counter vocabulary (52 signers, webcam recordings, signer-independent splits).
+3. Fine-tune lightly and recalibrate on our own camera recordings, with some signers held out for testing.
+4. Optional: per-user calibration round, measured as above.
+
 ## 2. Segmentation (where a sign starts and ends)
 
 | Paper | Access | Why it matters |

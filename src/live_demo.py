@@ -11,7 +11,9 @@ Usage:
 Keys: Q quits.
 """
 import argparse
+import json
 import time
+import warnings
 from pathlib import Path
 
 import cv2
@@ -24,6 +26,7 @@ from segment_signs import hand_speed, raised
 from sign_model import SignClassifier
 
 REPO = Path(__file__).resolve().parent.parent
+warnings.filterwarnings("ignore", message=".*GetPrototype.*")  # harmless protobuf warning printed on every frame
 
 
 def main():
@@ -46,12 +49,20 @@ def main():
     parser.add_argument("--save", action="store_true",
                         help="save every stretch of signing to data/recordings/LIVE to check it later "
                              "with fluent_segment.py")
+    parser.add_argument("--threshold", type=float, default=0.45,
+                        help="below this confidence a sign is not accepted and the user is asked to repeat; 0.45 kept "
+                             "the error of accepted signs near 5%% for the 30-sign list with v2 (docs/GOAL1_LOG.md)")
+    parser.add_argument("--temperature", type=float, default=1.0,
+                        help="temperature T from calibrate.py for this model and vocabulary (v3 with the 30-sign list: "
+                             "0.79); the threshold refers to these calibrated probabilities")
+    parser.add_argument("--jsonl", help="append every result to this file, one JSON line per stretch of signing "
+                                        "(the Goal 1 -> Goal 2 hand-off format in docs/TASKS.md)")
     parser.add_argument("--rest-line", type=float, default=1.0, help="see segment_signs.py (default: 1.0)")
     parser.add_argument("--min-frames", type=int, default=8, help="shortest sign, in frames (default: 8)")
     parser.add_argument("--rest-frames", type=int, default=6, help="frames at rest that end a sign (default: 6)")
     args = parser.parse_args()
 
-    classifier = SignClassifier(args.model, args.x_scale)
+    classifier = SignClassifier(args.model, args.x_scale, args.temperature)
     if args.vocab == "list":
         raise SystemExit(" ".join(sorted(classifier.signs)))
     if args.vocab:
@@ -62,8 +73,11 @@ def main():
         raise SystemExit("Could not open the camera or video")
 
     sign, rest = [], 0           # frames of the sign in progress, frames at rest since the hands went down
+    times, before_t = [], []     # capture time of each frame in `sign` / `before`
+    t0 = time.time()
     before = []                  # a few frames before the sign starts, kept as padding
     result = []                  # last prediction: top 3 for one sign
+    accepted = True              # whether that sign passed the threshold
     sentence = []                # last prediction: signs in order when several were made in one go
     failed = 0
     with mp.solutions.holistic.Holistic(model_complexity=1) as holistic:
@@ -80,15 +94,18 @@ def main():
             failed = 0
             results = holistic.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             lm = frame_landmarks(results)
+            now = time.time() - t0
             up = raised(lm[None], args.rest_line)[0]
 
             if up:
                 if not sign:
-                    sign = before[:]
+                    sign, times = before[:], before_t[:]
                 sign.append(lm)
+                times.append(now)
                 rest = 0
             elif sign:
                 sign.append(lm)
+                times.append(now)
                 rest += 1
                 if rest >= args.rest_frames:  # hands back at rest: the sign is over
                     if len(sign) - rest >= args.min_frames:
@@ -98,27 +115,47 @@ def main():
                         pieces = [] if args.single else merge_repeats(best_split(
                             frames, classifier, candidate_cuts(hand_speed(frames), args.pause),
                             word_bonus=args.word_bonus))
-                        if len(pieces) > 1:
-                            sentence, result = [(s, p) for _, _, s, p in pieces], []
-                            print(" | ".join(f"{s} {p:.0%}" for s, p in sentence))
+                        if len(pieces) <= 1:
+                            pieces = [(0, len(frames), None, None)]
+                        out = []
+                        for a, b, _, _ in pieces:
+                            top = classifier.predict(frames[a:b], top=5)
+                            out.append({"sign": top[0][0], "prob": round(top[0][1], 3),
+                                        "top": [[s, round(p, 3)] for s, p in top],
+                                        "start": round(times[a], 2), "end": round(times[b - 1], 2),
+                                        "abstain": top[0][1] < args.threshold})
+                        if len(out) > 1:
+                            sentence, result = [(o["sign"], o["prob"], o["abstain"]) for o in out], []
                         else:
-                            result, sentence = classifier.predict(frames), []
-                            print("  ".join(f"{s} {p:.0%}" for s, p in result))
-                    sign, rest = [], 0
-            before = (before + [lm])[-3:]
+                            result, sentence = [tuple(x) for x in out[0]["top"][:3]], []
+                            accepted = not out[0]["abstain"]
+                        print(" | ".join(f"{o['sign']} {o['prob']:.0%}" + (" (not sure)" if o["abstain"] else "")
+                                         for o in out))
+                        if args.jsonl:
+                            with open(args.jsonl, "a", encoding="utf-8") as f:
+                                f.write(json.dumps({"model": Path(args.model).name, "threshold": args.threshold,
+                                                    "signs": out}) + "\n")
+                    sign, times, rest = [], [], 0
+            before, before_t = (before + [lm])[-3:], (before_t + [now])[-3:]
 
             draw(frame, results)
             view = cv2.flip(frame, 1)
             status = "signing..." if sign else "ready"
             cv2.putText(view, status, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            if result and not accepted:
+                cv2.putText(view, "not sure - please repeat", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 165, 255), 2)
             for k, (s, p) in enumerate(result):
-                cv2.putText(view, f"{s}  {p:.0%}", (10, 70 + 35 * k), cv2.FONT_HERSHEY_SIMPLEX,
-                            1.0 if k == 0 else 0.7, (0, 255, 0) if k == 0 else (200, 200, 200), 2)
+                first = k == 0 and accepted
+                cv2.putText(view, f"{s}  {p:.0%}", (10, 110 + 35 * k if not accepted else 70 + 35 * k),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1.0 if first else 0.7, (0, 255, 0) if first else (200, 200, 200), 2)
             if sentence:
-                cv2.putText(view, "  ".join(s for s, _ in sentence), (10, 70), cv2.FONT_HERSHEY_SIMPLEX,
-                            1.0, (0, 255, 0), 2)
-                cv2.putText(view, "  ".join(f"{p:.0%}" for _, p in sentence), (10, 105),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 2)
+                x = 10
+                for s, p, unsure in sentence:  # signs below the threshold in orange with "?"
+                    word = f"{s}?" if unsure else s
+                    cv2.putText(view, word, (x, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0,
+                                (0, 165, 255) if unsure else (0, 255, 0), 2)
+                    cv2.putText(view, f"{p:.0%}", (x, 105), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 2)
+                    x += cv2.getTextSize(word, cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)[0][0] + 25
             cv2.imshow("Live sign recognition (Q: quit)", view)
             if cv2.waitKey(1) & 0xFF in (ord("q"), ord("Q")):
                 break

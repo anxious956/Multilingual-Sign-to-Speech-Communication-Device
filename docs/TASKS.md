@@ -15,7 +15,8 @@ Progress and details: `GOAL1_LOG.md`.
 - [ ] Our own test recordings with our camera (team members, then NJIT ASL signers)
 - [ ] Vocabulary for the service counter, with NJIT ASL (with the whole team)
 - [ ] Retrain on ASL Citizen for that vocabulary
-- [ ] Hand-off format to Goal 2 (see "Interfaces" below)
+- [x] Hand-off format to Goal 2 (see "Interfaces" below): `live_demo.py --jsonl`
+- [x] Calibration analysis of v2 (`calibrate.py`, results in `GOAL1_LOG.md`)
 
 ### Goal 2, language and speech: Dorukhan Cakir and Zeynep Hafsa Cakici
 
@@ -65,6 +66,8 @@ Suggested owners; each person writes the part closest to their goal.
 
 Agreeing on these early lets everyone work in parallel with fake data.
 
-- **Goal 1 → Goal 2:** for each sign, `{"sign": "water", "prob": 0.86, "top": [["water", 0.86], ["drink", 0.07], ...], "start": 1.6, "end": 3.1}` (times in seconds). A sentence is a list of these.
+- **Goal 1 → Goal 2:** one JSON line per stretch of signing, written by `python src/live_demo.py ... --jsonl out.jsonl`:
+  `{"model": "islr_model_v2.pt", "threshold": 0.45, "signs": [{"sign": "water", "prob": 0.86, "top": [["water", 0.86], ["drink", 0.07], ...], "start": 1.6, "end": 3.1, "abstain": false}, ...]}`
+  Times are seconds since the demo started; `top` has up to 5 candidates; `abstain` is true when `prob` is below the threshold (ask the user to repeat or pick from `top`). Goal 2 can develop against a saved file of these lines.
 - **Goal 2 → speech:** the confirmed English sentence (text) and the chosen output language (`en`, `tr`, `es`).
 - **Goal 3:** runs Goals 1 and 2 on the Jetson and measures the time and power of each step.

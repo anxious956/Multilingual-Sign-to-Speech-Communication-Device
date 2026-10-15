@@ -15,14 +15,13 @@ D:
 cd \
 git clone https://github.com/anxious956/Multilingual-Sign-to-Speech-Communication-Device.git
 cd Multilingual-Sign-to-Speech-Communication-Device
-git checkout claude/great-hamilton-9vy4ph
 py -3.12 -m venv .venv
 .venv\Scripts\activate
 $env:PIP_CACHE_DIR = "D:\pip-cache"
 pip install -r requirements.txt
 ```
 
-Without Git: on GitHub choose the branch `claude/great-hamilton-9vy4ph`, then **Code → Download ZIP**, and extract it to `D:\`.
+Without Git: on GitHub choose **Code → Download ZIP**, and extract it to `D:\`.
 
 Next time, only open PowerShell and run:
 
@@ -75,11 +74,11 @@ For each recording it prints the signs found as frame ranges and a timeline (`#`
 
 ## Goal 1, step 4: live recognition
 
-`live_demo.py` runs the webcam, finds each sign with the rest-pose rule from step 2 and shows the model's top three guesses with probabilities. It needs the trained model from Colab (`islr_model.pt` in the Drive `sign2speech` folder) copied to `models\islr_model.pt`, and PyTorch (CPU version is enough):
+`live_demo.py` runs the webcam, finds each sign with the rest-pose rule from step 2 and shows the model's top three guesses with probabilities. It needs a trained model from Colab (`islr_model_v2.pt` or `islr_model_v3.pt` in the Drive `sign2speech` folder) copied to `models\`, and PyTorch (CPU version is enough):
 
 ```powershell
 pip install torch --index-url https://download.pytorch.org/whl/cpu
-python src\live_demo.py --model models\islr_model.pt
+python src\live_demo.py --model models\islr_model_v2.pt
 ```
 
 `sign_model.py` holds the model and its input preparation; it must stay identical to `notebooks/02_train_islr.py`.
@@ -93,3 +92,19 @@ python src\fluent_segment.py data\recordings\FLUENT --model models\islr_model_v2
 ```
 
 `segment_signs.py --pauses` is the speed-only rule; it cuts signs in half where the hands stop inside a sign, so it is kept only for comparison.
+
+## Goal 1, step 5: calibration and abstention
+
+`calibrate.py` checks whether the model's confidence can be trusted, using the validation and test outputs the training notebooks save (no training needed). Temperature and thresholds are fitted on the validation signers and reported on the test signers: accuracy per signer, calibration error before and after temperature scaling, the risk–coverage curve, the confidence threshold that keeps the error of answered signs at 5% or 10%, a candidate list that contains the right sign 90% of the time, and, with `--vocab`, how often signs outside the vocabulary would still be accepted.
+
+Copy `islr_val_logits.npz` (v2) or `islr_v3_logits.npz` (v3), `islr_meta.npz` and `islr_info.json` from the Drive `sign2speech` folder to `models\`, then:
+
+```powershell
+python src\calibrate.py --logits models\islr_val_logits.npz --meta models\islr_meta.npz --info models\islr_info.json --vocab hello,bye,please,thankyou,yes,no,water --out docs\figures\calib_v2
+```
+
+It writes `docs\figures\calib_v2_report.md` and the reliability and risk–coverage figures.
+
+### Confidence threshold and output for Goal 2
+
+`live_demo.py --threshold 0.45` (the default) shows signs below that confidence as "not sure - please repeat" (or in orange with "?" inside a sentence). 0.45 is the threshold `calibrate.py` found for about 5% error on the 30-sign list with v2. `--jsonl results.jsonl` appends every result in the hand-off format of `docs/TASKS.md`, for Goal 2.

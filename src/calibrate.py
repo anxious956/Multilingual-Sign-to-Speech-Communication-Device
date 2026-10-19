@@ -182,7 +182,8 @@ def plot(out, name, conf_raw, conf, correct, cov, risk):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--logits", required=True, help="islr_val_logits.npz (v1/v2) or islr_v3_logits.npz (v3)")
-    parser.add_argument("--meta", required=True, help="islr_meta.npz, to know which signer made each sign")
+    parser.add_argument("--meta", help="islr_meta.npz, to know which signer made each sign (not needed when the "
+                                       "logits file itself has val_signer and test_signer: v4 and later)")
     parser.add_argument("--info", required=True, help="islr_info.json, for the sign names")
     parser.add_argument("--vocab", help="comma separated signs: also analyse this smaller vocabulary")
     parser.add_argument("--out", help="prefix for the figures and the report, e.g. docs/figures/calib_v2")
@@ -191,7 +192,12 @@ def main():
     d = np.load(args.logits)
     signs = json.load(open(args.info))["signs"]
     zv, yv, zt, yt = d["val_logits"], d["val_labels"], d["test_logits"], d["test_labels"]
-    sv, st = signer_ids(args.meta)
+    if "val_signer" in d and "test_signer" in d:
+        sv, st = d["val_signer"], d["test_signer"]
+    elif args.meta:
+        sv, st = signer_ids(args.meta)
+    else:
+        raise SystemExit("this logits file has no signer ids: give --meta islr_meta.npz")
     assert len(sv) == len(yv) and len(st) == len(yt), "signer split does not match the saved outputs"
 
     lines, _ = analyse(f"All {zt.shape[1]} signs", zv, yv, zt, yt, st, args.out, signs)

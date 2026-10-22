@@ -77,7 +77,7 @@ Python · PyTorch · MediaPipe · ONNX Runtime / TensorRT · NLLB-200 · Piper T
 | v3 (Kaggle 1st-place recipe) | 66.4% | 83.0% |
 | v4 (review fixes, camera-independent input) | 67.2% | 83.9% |
 
-Test = 3 signers never seen in training. With the 30-sign demo vocabulary, v2 already reaches 81.5% top-1; Next: ASL Citizen (52 signers, webcam) for the service-counter vocabulary. Details: [`docs/GOAL1_LOG.md`](docs/GOAL1_LOG.md).
+Test = 3 signers never seen in training. With the 30-sign demo vocabulary, v4 reaches 84.4% top-1 (weakest test signer 65.9%). Next: v5 = v4 fine-tuned on ASL Citizen (52 Deaf signers, webcam) for the service-counter vocabulary (`notebooks/05_finetune_asl_citizen.py`). Details: [`docs/GOAL1_LOG.md`](docs/GOAL1_LOG.md).
 
 ## Quick start: live demo on a laptop (Windows)
 
@@ -90,10 +90,10 @@ py -3.12 -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 pip install torch --index-url https://download.pytorch.org/whl/cpu
-python src\live_demo.py --model models\islr_model_v2.pt --vocab hello,bye,please,thankyou,yes,no,water
+python src\live_demo.py --model models\islr_model_v4.pt --vocab hello,bye,please,thankyou,yes,no,water --temperature 0.84 --threshold 0.47
 ```
 
-The trained model (`islr_model_v2.pt`) is not in Git; copy it from the team Drive folder `sign2speech` to `models/`. Raise a hand to sign, lower it when done; several signs can be made without lowering the hands in between.
+The trained model (`islr_model_v4.pt`) is not in Git; copy it from the team Drive folder `sign2speech` to `models/`. `--temperature` and `--threshold` are the values `src/calibrate.py` fitted for v4 and the 30-sign list (`docs/figures/calib_v4_report.md`); v1–v3 models need `--x-scale 2.08` as well. Raise a hand to sign, lower it when done; several signs can be made without lowering the hands in between.
 
 ## Repository layout
 

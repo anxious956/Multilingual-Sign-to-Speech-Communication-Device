@@ -77,16 +77,19 @@ Fitted on the 3 validation signers, reported on the 3 test signers (12,888 test 
 
 Out-of-vocabulary: for the 30-sign list, AUROC 0.975 between correct in-vocabulary signs and the other 220 classes, but at the threshold that keeps 95% of correct in-vocabulary signs, 14.7% of outside signs are still accepted.
 
-**v3, same analysis** (`docs/figures/calib_v3_report.md`):
+**v3 and v4, same analysis** (`docs/figures/calib_v3_report.md`, `calib_v4_report.md`; v4 added 21 Oct 2026):
 
-| | v2, 250 signs | v3, 250 signs | v2, 30 signs | v3, 30 signs |
-|---|---|---|---|---|
-| Top-1 / top-5 | 62.3 / 79.5 | 66.4 / 83.0 | 81.5 / 90.5 | 84.0 / 93.0 |
-| Worst test signer top-1 | 41.2 | 44.4 | 60.2 | 64.3 |
-| T; ECE raw → scaled | 0.98; 6.1 → 7.2 | 0.76; 13.3 → 1.1 | 0.91; 3.0 → 2.1 | 0.79; 6.3 → 2.0 |
-| Coverage at the 5% threshold (test error) | 19.7% (5.4%) | 44.9% (5.1%) | 82.1% (6.4%) | 86.4% (6.4%) |
-| AURC | 0.151 | 0.104 | 0.029 | 0.022 |
-| Outside-vocabulary signs accepted (95% of correct kept) | — | — | 14.7% | 27.7% |
+| | v2, 250 signs | v3, 250 signs | v4, 250 signs | v2, 30 signs | v3, 30 signs | v4, 30 signs |
+|---|---|---|---|---|---|---|
+| Top-1 / top-5 | 62.3 / 79.5 | 66.4 / 83.0 | 67.2 / 83.9 | 81.5 / 90.5 | 84.0 / 93.0 | 84.4 / 92.8 |
+| Worst test signer top-1 | 41.2 | 44.4 | 46.2 | 60.2 | 64.3 | 65.9 |
+| T; ECE raw → scaled | 0.98; 6.1 → 7.2 | 0.76; 13.3 → 1.1 | 0.85; 5.1 → 2.5 | 0.91; 3.0 → 2.1 | 0.79; 6.3 → 2.0 | 0.84; 4.4 → 2.4 |
+| Coverage at the 5% threshold (test error) | 19.7% (5.4%) | 44.9% (5.1%) | 45.9% (5.1%) | 82.1% (6.4%) | 86.4% (6.4%) | 87.7% (7.2%) |
+| AURC | 0.151 | 0.104 | 0.101 | 0.029 | 0.022 | 0.020 |
+| Outside-vocabulary signs accepted (95% of correct kept) | — | — | — | 14.7% | 27.7% | 21.7% |
+
+- **v4 is a little better than v3 on every line** (accuracy, worst signer, AURC) and its raw probabilities are closer to right (T 0.85 instead of 0.76, ECE 5% raw instead of 13%). Live demo settings for the 30-sign list: `--temperature 0.84 --threshold 0.47`, and no `--x-scale` (v4 removes the aspect ratio itself). The weakest test signer is still far behind (46% on 250 signs, 66% on 30), and at the 5% threshold that signer still gets 14% error: the signer gap is not something v4's input changes fix.
+- Outside-vocabulary acceptance: 21.7%, between v2 and v3. Still needs the "other" class.
 
 - v3 answers far more signs at the same error (250 signs: 45% instead of 20% at 5% error).
 - **v3's raw probabilities are too low** (T < 1, from label smoothing and late dropout): ECE 13% raw, 1–2% after temperature scaling. With v3 the live demo must use the fitted temperature (`--temperature 0.79` for the 30-sign list), otherwise the threshold means something else.
@@ -96,6 +99,7 @@ Out-of-vocabulary: for the 30-sign list, AUROC 0.975 between correct in-vocabula
 - THANKYOU and FOOD are never confused in the Kaggle test data (0% both ways, v2 and v3), although v3 often read Asmar's THANKYOU as FOOD live. So that confusion comes from our camera or signing style, not from the model in general: our own test recordings are needed.
 - Weakest signs with v3: PLEASE 62%, GO 66%, TOMORROW 73%, LIKE 73%. PLEASE ↔ MINE/MY (both on the chest) and WAIT → THANKYOU recur in both models.
 - **v3 has a "sink" class: TIME** is the wrong answer for LATER (17%), GO, WHERE, STORE, THIRSTY, YES and WHO. v2 did not do this. Worth checking in v4.
+- **v4 (21 Oct 2026):** THANKYOU ↔ FOOD still 2% / 2% on test, so the live confusion is not the model's. v3's weakest signs improved: PLEASE 62 → 70%, GO 66 → 79%, WAIT 76 → 84%, LATER 74 → 77%, LIKE 73 → 76%. The TIME sink is smaller (4 signs instead of 7: LATER 13%, STORE 11%, THIRSTY 8%, WHERE 6%). One sign got worse: MINE/MY 81 → 75% (MINE/MY → PLEASE 15% is now the most frequent confusion); new: WHY → HOME 12%.
 
 What this shows (v2):
 - **The raw confidence of v2 is already close to calibrated on average** (ECE 3–6%; temperature scaling changes little).

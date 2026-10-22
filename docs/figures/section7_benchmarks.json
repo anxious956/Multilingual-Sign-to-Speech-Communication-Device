@@ -1,0 +1,288 @@
+{
+ "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+ "cpu_threads": 4,
+ "recognizer": {
+  "params_M": 1.77578,
+  "fp32_MB": 7.10312,
+  "max_abs_diff": 4.470348358154297e-08,
+  "ort_ms_1t": 3.955683500066698,
+  "torch_ms_1t": 7.340755999962312,
+  "ort_ms_4t": 2.543427999967207,
+  "torch_ms_4t": 6.714117000001352,
+  "macs_M": 112.793088,
+  "onnx_MB": 7.159098,
+  "v4_top1": 67.2,
+  "v4_top5": 83.9,
+  "v5_top1": 86.6,
+  "v5_top5": 98.2,
+  "scratch_top1": 85.7,
+  "scratch_top5": 97.8,
+  "max_abs_diff_str": "4 × 10{sup:−8}"
+ },
+ "calib": {
+  "T": 0.55,
+  "ece_raw": 14.6,
+  "ece_scaled": 1.5,
+  "threshold": 0.62,
+  "coverage": 85.1,
+  "error": 6.5,
+  "worst_error": 12.9
+ },
+ "nllb": {
+  "tr_fp32_s": 1.1296638020000387,
+  "tr_int8_s": 0.6388581364999482,
+  "es_fp32_s": 1.151248589999966,
+  "es_int8_s": 0.6643909645000576,
+  "fp32_GB": 2.460295168,
+  "int8_GB": 0.6285175040000001,
+  "samples": {
+   "tur_Latn": [
+    [
+     "Hello, I would like a coffee, please.",
+     "Merhaba, bir kahve isterim, lütfen."
+    ],
+    [
+     "How much is this?",
+     "- Bu ne kadar?"
+    ],
+    [
+     "Where is the restroom?",
+     "Tuvalet nerede?"
+    ],
+    [
+     "I need help.",
+     "- Yardıma ihtiyacım var."
+    ],
+    [
+     "Can you write it down, please?",
+     "Lütfen yazabilir misin?"
+    ],
+    [
+     "I want to pay with a credit card.",
+     "Kredi kartıyla ödeme yapmak istiyorum."
+    ],
+    [
+     "Thank you, have a good day.",
+     "Teşekkürler. İyi günler."
+    ],
+    [
+     "I am waiting for my appointment.",
+     "Randevimi bekliyorum."
+    ],
+    [
+     "Can I return this?",
+     "Bunu geri verebilir miyim?"
+    ],
+    [
+     "Where is the pharmacy?",
+     "Eczane nerede?"
+    ]
+   ],
+   "spa_Latn": [
+    [
+     "Hello, I would like a coffee, please.",
+     "Hola, me gustaría un café, por favor."
+    ],
+    [
+     "How much is this?",
+     "¿Cuánto cuesta esto?"
+    ],
+    [
+     "Where is the restroom?",
+     "¿Dónde está el baño?"
+    ],
+    [
+     "I need help.",
+     "- Necesito ayuda."
+    ],
+    [
+     "Can you write it down, please?",
+     "¿Puedes escribirlo, por favor?"
+    ],
+    [
+     "I want to pay with a credit card.",
+     "Quiero pagar con tarjeta de crédito."
+    ],
+    [
+     "Thank you, have a good day.",
+     "Gracias, un buen día."
+    ],
+    [
+     "I am waiting for my appointment.",
+     "Estoy esperando mi cita."
+    ],
+    [
+     "Can I return this?",
+     "¿Puedo devolver esto?"
+    ],
+    [
+     "Where is the pharmacy?",
+     "¿Dónde está la farmacia?"
+    ]
+   ]
+  }
+ },
+ "piper": {
+  "en": {
+   "first_s": 0.06854580949999445,
+   "synth_s": 0.07712753800001337,
+   "rtf": 0.0523925432666128,
+   "MB": 63.201294
+  },
+  "tr": {
+   "first_s": 0.06802711599999611,
+   "synth_s": 0.07387730599998577,
+   "rtf": 0.05099281210677725,
+   "MB": 63.201294
+  },
+  "es": {
+   "first_s": 0.06227235149998478,
+   "synth_s": 0.06447483300001977,
+   "rtf": 0.04776484511726707,
+   "MB": 63.201294
+  },
+  "first_max_s": 0.2074586950000139
+ },
+ "whisper": {
+  "base_wer_en": 1.9230769230769231,
+  "base_s_en": 0.7882231069999648,
+  "base_wer_tr": 18.75,
+  "base_s_tr": 0.7929926819999196,
+  "base_en_s_tr": 0.7694357285000137,
+  "base_wer_es": 2.4390243902439024,
+  "base_s_es": 0.7887377165000089,
+  "base_en_s_es": 0.7424034490000508,
+  "base_audio_s": 1.44540625,
+  "small_wer_en": 0.0,
+  "small_s_en": 1.8160971054999209,
+  "small_wer_tr": 12.5,
+  "small_s_tr": 1.9608802304999244,
+  "small_en_s_tr": 1.8642337654999892,
+  "small_wer_es": 2.4390243902439024,
+  "small_s_es": 1.9913143704999356,
+  "small_en_s_es": 1.7546949190000305,
+  "small_audio_s": 1.44540625,
+  "base_GB": 0.147882981,
+  "small_GB": 0.486212412
+ },
+ "simulation": {
+  "n": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6
+  ],
+  "corr_avg": [
+   0.20481409090909092,
+   0.40962818181818184,
+   0.6144422727272727,
+   0.8192563636363637,
+   1.0240704545454546,
+   1.2288845454545454
+  ],
+  "corr_worst": [
+   0.304071,
+   0.608142,
+   0.9122129999999999,
+   1.216284,
+   1.520355,
+   1.8244259999999999
+  ],
+  "worst_signer": 5,
+  "none_avg": [
+   0.7951859090909091,
+   0.6338478051629999,
+   0.5063745584048756,
+   0.40537508912666964,
+   0.32514208860375393,
+   0.26125096140155735
+  ],
+  "none_worst": [
+   0.695929,
+   0.484317173041,
+   0.3370503659172501,
+   0.23456312410242597,
+   0.1632392803934772,
+   0.1136029491649522
+  ],
+  "p3_none_avg": 50.637455840487554,
+  "e3_avg": 0.6144422727272727,
+  "e3_worst": 0.9122129999999999,
+  "e3_mc_avg": 0.6141490909090911,
+  "mem": {
+   "Operating system and desktop": 2.0,
+   "GPU runtime (CUDA, TensorRT)": 0.5,
+   "Landmark extractor (MediaPipe)": 0.1,
+   "Sentence-builder language model": 0.5,
+   "Sign recognizer (v5)": 0.007103119999999999,
+   "NLLB-200, 8-bit": 0.6285175040000001,
+   "Whisper small": 0.486212412,
+   "Piper voices (3)": 0.189603882
+  },
+  "mem_total_gb": 4.411436918,
+  "mem_os_gb": 2.0,
+  "lat_en_s": 0.06854580949999445,
+  "lat_tr_s": 0.7081387159999508,
+  "lat_es_s": 0.7260483355000815,
+  "lat_parts": {
+   "tr": [
+    0.6388581364999482,
+    0.06802711599999611
+   ],
+   "es": [
+    0.6643909645000576,
+    0.06227235149998478
+   ],
+   "en": [
+    0.0,
+    0.06854580949999445
+   ]
+  }
+ },
+ "table13": [
+  [
+   "Sign recognizer (v5), ONNX",
+   "Classify one sign, 1 processor core",
+   "7.1 MB",
+   "4.0 ms"
+  ],
+  [
+   "NLLB-200 distilled 600M, 32-bit",
+   "Translate English → Turkish / Spanish",
+   "2.5 GB",
+   "1.13 s / 1.15 s"
+  ],
+  [
+   "NLLB-200, 8-bit (CTranslate2)",
+   "Translate English → Turkish / Spanish",
+   "0.63 GB",
+   "0.64 s / 0.66 s"
+  ],
+  [
+   "Piper, medium voices",
+   "First audio, English / Turkish / Spanish",
+   "63 MB per voice",
+   "0.07 / 0.07 / 0.06 s"
+  ],
+  [
+   "Piper, medium voices",
+   "Synthesis time ÷ audio length (EN / TR / ES)",
+   "",
+   "0.05 / 0.05 / 0.05"
+  ],
+  [
+   "Whisper base (16-bit file, run in 8-bit)",
+   "Transcribe a Turkish / Spanish reply in English",
+   "148 MB",
+   "0.77 s / 0.74 s"
+  ],
+  [
+   "Whisper small (16-bit file, run in 8-bit)",
+   "Transcribe a Turkish / Spanish reply in English",
+   "486 MB",
+   "1.86 s / 1.75 s"
+  ]
+ ]
+}

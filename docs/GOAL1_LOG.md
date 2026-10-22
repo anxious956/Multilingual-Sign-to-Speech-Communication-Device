@@ -122,7 +122,30 @@ ASL Citizen's split files and single videos can be read straight from Microsoft'
 
 **ASL Citizen landmarks extracted (target vocabulary).** `tools/extract_asl_citizen.py --glosses tools/vocab_glosses_v0.txt` on a 12-core Colab runtime: 4,755 videos of the 155 target glosses, 12 chunks, merged into `asl_citizen_landmarks.npy` (207 MB, about 367k frames, same 94 landmarks as Kaggle), `asl_citizen_meta.npz` and `asl_citizen_info.json` in the team Drive (`sign2speech/asl_citizen`), not in this repo (licence). On Colab the venv needs `MPLBACKEND=Agg` (now set in the script). The 12 chunks took about an hour on a 12-core runtime.
 
-**v5 = v4 fine-tuned on ASL Citizen: `notebooks/05_finetune_asl_citizen.py` written (19 Oct 2026), not yet run.** Gloss variants are merged into the spoken word (WANT1 + WANT2 -> want; 155 glosses -> about 140 words). The v4 weights are kept, the output layer is new (rows of the 38 words that are also in Kaggle copied from v4), 5 epochs output layer only, then everything at 1/5 of the v4 learning rate with the same augmentation, late dropout and AWP; official ASL Citizen signer split, best epoch by validation, test reported once over the 11 test signers. Before training it measures v4 unchanged on the ASL Citizen test videos of the shared words, so the gain from fine-tuning is visible; `INIT=scratch` trains the same model from random weights for comparison. Smoke-tested end to end on synthetic data (CPU), including resume, `calibrate.py` (now reads the signer ids from the logits file, `--meta` optional), `confusions.py` and loading in `SignClassifier`.
+## 22 Oct 2026: v5 = v4 fine-tuned on ASL Citizen
+
+`notebooks/05_finetune_asl_citizen.py`, L4, 100 epochs, about 5 minutes. Test = ASL Citizen's official test split: **11 Deaf signers never seen in training or validation**, webcam videos.
+
+| | Value |
+|---|---|
+| Data | 4,755 videos, 155 glosses → **134 words** (variants merged), 50 signers; train 2,266 videos / 34 signers, validation 576 / 5, test 1,913 / 11 |
+| v4 unchanged, ASL Citizen test videos of the 38 words also in Kaggle (choice among those 38) | 88.2% top-1 |
+| v5, same videos, same 38-way choice | **97.3%** |
+| v5, all 134 words: best validation | 90.5% (epoch 92) |
+| **v5, all 134 words: test top-1 / top-5** | **86.6% / 98.2%** |
+| Per test signer top-1 | 79.3, 83.4, 84.3, 87.1, 87.8, 88.0, 88.1, 88.4, 88.6, 88.9, 88.9% (worst P6 79.3%) |
+| Words new to the model (96) / words also in Kaggle (38), top-1 over all 134 | 84.0% / 94.0% |
+
+What this shows:
+- **The proposal's Goal 1 targets (≥ 75% top-1, ≥ 90% top-5 on unseen signers) are met on the ASL Citizen test signers**, for a 134-word service-counter vocabulary. Still to show: the same on our own camera and users (the other half of the target).
+- **The gap between signers is much smaller than on Kaggle**: 79–89% across 11 signers, against 46–79% across 3 for v4 on Kaggle. Webcam data from Deaf signers, the same kind of input the device will see.
+- **Kaggle pretraining transfers**: v4 without any ASL Citizen training already got 88% on the shared words (much less domain gap than feared), and the words the model knew are learned better than the new ones (94% vs 84%). How much the pretraining is worth overall is measured by training the same model from random weights (`INIT=scratch`), not done yet.
+- Training accuracy (80%) stays below validation (90%) because training sees augmented signs with late dropout and AWP; validation plateaued from about epoch 60, so 100 epochs was enough.
+- Not comparable with the ASL Citizen paper's numbers (2,731 signs; ours is a 134-word subset).
+
+Next for v5: calibration and threshold (`calibrate.py`), confusions, live test on the laptop, the `INIT=scratch` comparison, and an "other" class for signs outside the vocabulary.
+
+**Notebook 05 as written (19 Oct 2026):** Gloss variants are merged into the spoken word (WANT1 + WANT2 -> want; 155 glosses -> about 140 words). The v4 weights are kept, the output layer is new (rows of the 38 words that are also in Kaggle copied from v4), 5 epochs output layer only, then everything at 1/5 of the v4 learning rate with the same augmentation, late dropout and AWP; official ASL Citizen signer split, best epoch by validation, test reported once over the 11 test signers. Before training it measures v4 unchanged on the ASL Citizen test videos of the shared words, so the gain from fine-tuning is visible; `INIT=scratch` trains the same model from random weights for comparison. Smoke-tested end to end on synthetic data (CPU), including resume, `calibrate.py` (now reads the signer ids from the logits file, `--meta` optional), `confusions.py` and loading in `SignClassifier`.
 
 ## Next steps
 

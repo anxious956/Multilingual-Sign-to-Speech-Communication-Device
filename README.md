@@ -77,7 +77,13 @@ Python · PyTorch · MediaPipe · ONNX Runtime / TensorRT · NLLB-200 · Piper T
 | v3 (Kaggle 1st-place recipe) | 66.4% | 83.0% |
 | v4 (review fixes, camera-independent input) | 67.2% | 83.9% |
 
-Test = 3 signers never seen in training. With the 30-sign demo vocabulary, v4 reaches 84.4% top-1 (weakest test signer 65.9%). Next: v5 = v4 fine-tuned on ASL Citizen (52 Deaf signers, webcam) for the service-counter vocabulary (`notebooks/05_finetune_asl_citizen.py`). Details: [`docs/GOAL1_LOG.md`](docs/GOAL1_LOG.md).
+Test = 3 signers never seen in training. With the 30-sign demo vocabulary, v4 reaches 84.4% top-1 (weakest test signer 65.9%).
+
+| Model (ASL Citizen, 134-word service-counter vocabulary) | Test top-1 | Test top-5 |
+|---|---|---|
+| v5 = v4 fine-tuned on ASL Citizen | 86.6% | 98.2% |
+
+Test = ASL Citizen's 11 test signers (Deaf, webcam), never seen in training; per signer 79–89%. Details: [`docs/GOAL1_LOG.md`](docs/GOAL1_LOG.md).
 
 ## Quick start: live demo on a laptop (Windows)
 

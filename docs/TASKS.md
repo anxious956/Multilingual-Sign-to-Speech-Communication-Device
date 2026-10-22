@@ -10,11 +10,13 @@ Progress and details: `GOAL1_LOG.md`.
 
 - [x] Webcam capture, sign start/end, live demo on a laptop
 - [x] First models on the Kaggle ISLR data (v2: 62.3% top-1 on unseen signers, 250 signs)
-- [ ] v3 (Kaggle 1st-place recipe), training now
-- [ ] Calibration and abstention: confidence threshold, risk–coverage curve
+- [x] v3 (Kaggle 1st-place recipe) and v4 (review fixes, camera-independent input): 67.2% top-1 on 250 Kaggle signs
+- [x] Calibration and abstention: confidence threshold, risk–coverage curve (v2, v3, v4)
+- [x] ASL Citizen landmarks for the 155 target glosses; v5 = v4 fine-tuned on them: 86.6% top-1 / 98.2% top-5, 134 words, 11 unseen Deaf signers
+- [ ] v5 calibration, confusions, live test; "other" class for signs outside the vocabulary
 - [ ] Our own test recordings with our camera (team members, then NJIT ASL signers)
 - [ ] Vocabulary for the service counter, with NJIT ASL (with the whole team)
-- [ ] Retrain on ASL Citizen for that vocabulary
+- [x] Retrain on ASL Citizen for that vocabulary (v5, draft 155-gloss list; retrain when the final list is chosen)
 - [x] Hand-off format to Goal 2 (see "Interfaces" below): `live_demo.py --jsonl`
 - [x] Calibration analysis of v2 (`calibrate.py`, results in `GOAL1_LOG.md`)
 

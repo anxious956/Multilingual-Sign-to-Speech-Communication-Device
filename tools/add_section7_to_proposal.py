@@ -237,6 +237,59 @@ class Builder:
         self.insert(gap)
         return num
 
+    # ---- edits to the earlier sections (keep their formatting, change only the text)
+    def table_after_caption(self, prefix):
+        cap = next(p for p in self.doc.paragraphs if p.text.startswith(prefix))._p
+        tbl = cap.getnext()
+        assert tbl.tag == qn("w:tbl"), prefix
+        return tbl
+
+    def set_cell(self, tbl, row, col, text, expect=None):
+        """Replace the text of one cell; expect = the start of the current text, as a safety check."""
+        tc = tbl.findall(qn("w:tr"))[row].findall(qn("w:tc"))[col]
+        old = "".join(t.text or "" for t in tc.iter(qn("w:t")))
+        if expect is not None and not old.startswith(expect):
+            raise ValueError(f"row {row} col {col} is {old[:60]!r}, expected {expect!r}")
+        paras = tc.findall(qn("w:p"))
+        p = self.para_like(paras[0])
+        rpr = paras[0].find(".//" + qn("w:rPr"))
+        for q in paras:
+            tc.remove(q)
+        tc.append(p)
+        self.runs(p, text)
+        if rpr is not None:  # keep the cell's run formatting (e.g. bold totals)
+            for r in p.findall(qn("w:r")):
+                if r.find(qn("w:rPr")) is None:
+                    r.insert(0, copy.deepcopy(rpr))
+
+    def insert_row(self, tbl, before, texts):
+        """Insert a body row before row index `before`, copying the formatting of the row above it."""
+        rows = tbl.findall(qn("w:tr"))
+        new = copy.deepcopy(rows[before - 1])
+        rows[before].addprevious(new)
+        for col, text in enumerate(texts):
+            self.set_cell(tbl, before, col, text)
+
+    def replace_text(self, prefix, old, new):
+        """Replace text in the paragraph that starts with `prefix`; the match may span several runs. The new text
+        takes the formatting of the run where the match starts."""
+        p = next(p for p in self.doc.paragraphs if p.text.startswith(prefix))._p
+        ts = [t for t in p.iter(qn("w:t"))]
+        full = "".join(t.text or "" for t in ts)
+        start = full.find(old)
+        if start < 0:
+            raise ValueError(f"{old!r} not found in paragraph {prefix!r}")
+        end, pos, placed = start + len(old), 0, False
+        for t in ts:
+            s0, s1 = pos, pos + len(t.text or "")
+            pos = s1
+            if s1 <= start or s0 >= end:
+                continue
+            a, b_ = max(start, s0) - s0, min(end, s1) - s0
+            t.text = t.text[:a] + ("" if placed else new) + t.text[b_:]
+            t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+            placed = True
+
     # ---- TOC and references
     def toc(self):
         for level, text, name in self.toc_entries:
@@ -334,6 +387,7 @@ def refresh_toc(docx_path, tmp):
 def main():
     doc = docx.Document(SRC)
     b = Builder(doc)
+    C.update_earlier_sections(b)
     C.build(b)
     b.toc()
     b.keep_intro_on_page_3()

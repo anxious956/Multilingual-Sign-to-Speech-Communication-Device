@@ -98,7 +98,7 @@ def fig_flow():
                 "classifier with calibrated confidence → abstain or confirm",
                 "on screen → offline translation and speech (Table 10)",
                 "Constraints: memory, timing, licences, safety (Section 6.2)"])
-    biz = ("Business and Economic\nPerspectives", ["≈ $485–640 in parts (Table 6)", "No cloud or per-use fees",
+    biz = ("Business and Economic\nPerspectives", ["≈ $495–665 in parts (Table 6)", "No cloud or per-use fees",
                                                     "Non-commercial licences"])
     comps = [("Component X Design:\nSign Recognition (Goal 1)",
               ["MediaPipe landmarks (94 points)", "Rest-pose sign segmentation", "1D-CNN + transformer classifier",

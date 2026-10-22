@@ -48,6 +48,81 @@ def f1(x):
     return f"{x:.1f}"
 
 
+COST = ("495–665", "$495–$665", "$125–$165")  # Table 6 total with the adapters and controls of Fig. 6
+
+
+def update_earlier_sections(b):
+    """Bring Tables 6 and 8 (Section 6) and their text in line with the results reported in Section 7."""
+    r, w, sim = B["recognizer"], B["whisper"], B["simulation"]
+
+    # Table 6: parts that the block diagram (Fig. 6) adds
+    t6 = b.table_after_caption("Table 6.")
+    b.insert_row(t6, 9, ["DisplayPort-to-HDMI adapter, push button, LED and power switch",
+                         "Display connection, controls and power selection (Fig. 6)", "10–25"])
+    b.set_cell(t6, 10, 2, f"**{COST[0]}**", expect="485–640")
+    b.replace_text("Economic constraints.", "about $485–$640, or about $120–$160 per team member",
+                   f"about {COST[1]}, or about {COST[2]} per team member")
+
+    # Table 8: risks after v5, the live test and the first Goal 2 measurements
+    t8 = b.table_after_caption("Table 8.")
+    b.set_cell(t8, 1, 1, "Accuracy with our own camera and users stays below the ≥ 75% top-1 target. On recorded "
+               f"data the targets are met: v5 reaches {r['v5_top1']}% top-1 and {r['v5_top5']}% top-5 on 11 unseen "
+               "ASL Citizen signers (134 words), up from 67.2% and 83.9% for v4 on the 250 Kaggle signs",
+               expect="Accuracy on unseen signers")
+    b.set_cell(t8, 1, 2, "Moderate", expect="High")
+    b.set_cell(t8, 1, 3, "Fine-tuning on ASL Citizen (done, v5); merge signs that are spoken the same, such as HURT "
+               "and PAIN; fine-tune on recordings from our own camera; abstain and show five candidates when unsure",
+               expect="Smaller service-counter")
+    b.set_cell(t8, 2, 1, "Accuracy differs between people: 79% to 89% top-1 across the 11 ASL Citizen test signers "
+               "for v5 (46% to 79% across three Kaggle signers for v4); at the threshold chosen for 5% error, the "
+               f"weakest v5 signer gets {B['calib']['worst_error']}% error", expect="Accuracy differs widely")
+    b.set_cell(t8, 2, 2, "Moderate", expect="High")
+    b.set_cell(t8, 5, 1, "The first live test of v5 with a laptop webcam was worse than v4, although v5 is far better "
+               "on recorded test signers; the live pipeline (camera, lighting, frame rate or preprocessing) differs "
+               "from the training videos", expect="The training data was recorded")
+    b.set_cell(t8, 5, 2, "High", expect="Moderate")
+    b.set_cell(t8, 5, 3, "Compare the models on saved recordings, also slowed down, to find the cause; body-relative "
+               "coordinates (v4, v5); record a test set with the device camera and fine-tune on it",
+               expect="Body-relative coordinates")
+    b.set_cell(t8, 7, 3, "Contact the NJIT ASL community early; start from the draft list of 134 service-counter words "
+               "already used to train v5; record missing signs from many signers or replace them with available "
+               "signs; use team recordings only for debugging", expect="Contact the NJIT ASL community")
+    b.set_cell(t8, 9, 1, "NLLB-200 may translate short, informal phrases poorly; in a first test of 20 translations, "
+               "three began with a stray dash and one Turkish word was misspelled", expect="NLLB-200 may translate")
+    b.set_cell(t8, 9, 2, "Moderate", expect="Low")
+    b.set_cell(t8, 9, 3, "Check the template phrases with native speakers and store approved translations; remove "
+               "stray punctuation; rate a fixed test set", expect="Check the template phrases")
+    b.set_cell(t8, 11, 1, "Background noise at a service counter raises Whisper's word error rate, Turkish and "
+               "Spanish replies must also be translated into English, and larger models may be too slow; even on "
+               f"clean synthetic speech, Whisper small had {w['small_wer_tr']:.1f}% error in Turkish "
+               f"({w['small_wer_en']:.0f}% English, {w['small_wer_es']:.1f}% Spanish)", expect="Background noise")
+    b.set_cell(t8, 13, 1, "All models may not fit together in 8 GB, or the 1.2 s latency target may be missed; the "
+               f"estimates are favourable (about {sim['mem_total_gb']:.1f} GB of 8 GB; {sim['lat_tr_s']:.2f}–"
+               f"{sim['lat_es_s']:.2f} s from confirmation to first audio on a 4-core CPU) but not yet measured on "
+               "the Jetson", expect="All models may not fit")
+    b.set_cell(t8, 13, 2, "Low", expect="Moderate")
+    b.replace_text("Each risk was rated", "based on our preliminary experiments with the Google Isolated Sign "
+                   "Language Recognition (Kaggle) data and a laptop prototype of the recognizer.",
+                   "based on our preliminary experiments with the Google Isolated Sign Language Recognition (Kaggle) "
+                   "and ASL Citizen data, a laptop prototype of the recognizer, and first measurements of the "
+                   "language and speech models (Section 7.5).")
+    b.replace_text("The highest risks are",
+                   "The highest risks are recognition accuracy, differences between signers, and landmark extraction "
+                   "on the Jetson. The first two are reduced by the main design choice of the project: because the "
+                   "device abstains when it is unsure and speaks only after the user confirms, lower accuracy mainly "
+                   "makes the conversation slower, since most wrong signs are caught before anything is spoken. The "
+                   "third risk will be tested first, as soon as the hardware arrives, so that an alternative can be "
+                   "adopted early if needed.",
+                   "The highest risks are now the gap between recorded test data and live use with our own camera, "
+                   "and landmark extraction on the Jetson. On recorded unseen signers the recognizer already meets "
+                   "its targets (Section 7.5), and its remaining errors are reduced by the main design choice of the "
+                   "project: because the device abstains when it is unsure and speaks only after the user confirms, "
+                   "lower accuracy mainly makes the conversation slower, since most wrong signs are caught before "
+                   "anything is spoken. The camera gap is being investigated now, and landmark extraction will be "
+                   "tested first, as soon as the hardware arrives, so that an alternative can be adopted early if "
+                   "needed.")
+
+
 def build(b):
     r, n, p, w = B["recognizer"], B["nllb"], B["piper"], B["whisper"]
     sim = B["simulation"]
@@ -181,7 +256,7 @@ def build(b):
             rows, center_cols=(1, 2, 3, 4, 5), total_row=True)
     b.body("*Fails the offline requirement; shown for comparison only.", indent=False)
     b.body(
-        "**Business and economic perspectives.** The prototype costs about $485–$640 in parts (Table 6), uses "
+        f"**Business and economic perspectives.** The prototype costs about {COST[1]} in parts (Table 6), uses "
         "open-source software, and has no per-use or cloud fees, which keeps its cost far below that of repeated "
         "interpreter services {ref:1}. Two economic factors shaped the design. First, the parts are standard and "
         "replaceable, so a failed part does not end the device's life. Second, ASL Citizen and NLLB-200 may be used "

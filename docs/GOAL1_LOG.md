@@ -150,7 +150,19 @@ What this shows:
 
 **v5 confusions** (`src/confusions.py`, test signers): most of the frequent ones are **signs that are nearly the same in ASL or mean the same thing**, not model failures: HURT → PAIN 67% (and PAIN → HURT 21%), GOOD → THANKYOU 58% (same flat hand from the chin; GOOD usually ends on the other palm), TODAY → NOW 55% (TODAY is NOW + DAY), TOILET ↔ BATHROOM 42% / 36%, COST → PRICE 33%. Others: NUMBERS → MORE 31%, CREDITCARD → NEAR 29%, LEAVE → TAKE 25%, WRITE → NEAR 25%, MORNING → STOP 21%. For the device: merge pairs that should be spoken the same (hurt/pain, toilet/bathroom, cost/price) in the final vocabulary, and leave GOOD/THANKYOU and TODAY/NOW to the confirmation screen and the sentence builder (Goal 2).
 
-Next for v5: live test on the laptop, the `INIT=scratch` comparison, and an "other" class for signs outside the vocabulary.
+**What the Kaggle pretraining is worth (`INIT=scratch`, same model, data and split, from random weights, up to 200 epochs):**
+
+| | v5 (from v4) | Same model from scratch |
+|---|---|---|
+| Best validation (epoch) | 90.5% (92) | 87.0% (138; stopped at 168) |
+| Test top-1 / top-5 | 86.6% / 98.2% | 85.7% / 97.8% |
+| Weakest two test signers | P6 79.3%, P17 83.4% | P22 75.9%, P6 77.6% |
+
+On ASL Citizen's own test signers the pretraining gains only about 1 point top-1 (about 17 of 1,913 videos, within run-to-run noise for one run each), plus faster training and a few points for the weakest signers. Most of v5's accuracy comes from the ASL Citizen data itself. The pretraining may still matter more on data unlike ASL Citizen (our camera), which only a live or own-recording test shows.
+
+**First live test of v5 (21 Oct 2026): worse than v4.** Mostly KNOW at 24–40%, some FINE, PLEASE, SOON, UNDERSTAND, DONTKNOW. With 86.6% on unseen ASL Citizen signers this points to a difference between the live pipeline and the training data, not to the model; being investigated.
+
+Next for v5: find the live problem, then an "other" class for signs outside the vocabulary.
 
 **Notebook 05 as written (19 Oct 2026):** Gloss variants are merged into the spoken word (WANT1 + WANT2 -> want; 155 glosses -> about 140 words). The v4 weights are kept, the output layer is new (rows of the 38 words that are also in Kaggle copied from v4), 5 epochs output layer only, then everything at 1/5 of the v4 learning rate with the same augmentation, late dropout and AWP; official ASL Citizen signer split, best epoch by validation, test reported once over the 11 test signers. Before training it measures v4 unchanged on the ASL Citizen test videos of the shared words, so the gain from fine-tuning is visible; `INIT=scratch` trains the same model from random weights for comparison. Smoke-tested end to end on synthetic data (CPU), including resume, `calibrate.py` (now reads the signer ids from the logits file, `--meta` optional), `confusions.py` and loading in `SignClassifier`.
 

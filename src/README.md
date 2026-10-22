@@ -108,3 +108,11 @@ It writes `docs\figures\calib_v2_report.md` and the reliability and risk–cover
 ### Confidence threshold and output for Goal 2
 
 `live_demo.py --threshold 0.45` (the default) shows signs below that confidence as "not sure - please repeat" (or in orange with "?" inside a sentence). 0.45 is the threshold `calibrate.py` found for about 5% error on the 30-sign list with v2; for v4 use `--temperature 0.84 --threshold 0.47` (v3: `--temperature 0.79 --threshold 0.46`); for v5 (`asl_citizen_model_v5.pt`, 134 words) `--temperature 0.55 --threshold 0.62`. `--jsonl results.jsonl` appends every result in the hand-off format of `docs/TASKS.md`, for Goal 2.
+
+### Comparing models on saved recordings
+
+`compare_models.py` classifies saved recordings (`live_demo.py --save` or `capture_landmarks.py`) with several models, as recorded and slowed down in time (frames repeated as in the training speed augmentation; ×2 makes a 15 fps clip look like 30 fps). With `--labels` (true sign of each file, in file-name order) it adds a table of correct answers per model and speed.
+
+```cmd
+python src\compare_models.py data\recordings\LIVE\LIVE_20261021_2342*.npy --models v4=models\islr_model_v4.pt:0.84 v5=models\asl_citizen_model_v5.pt:0.55 --labels hello,hello,water,water,thankyou,thankyou,please,please
+```

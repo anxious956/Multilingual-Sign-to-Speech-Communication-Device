@@ -9,6 +9,7 @@ Code to paste into Kaggle or Colab notebooks. Each file is one cell; the comment
 | `03_train_islr_v3.py` | Colab (GPU) | v3: the Kaggle 1st-place recipe (late dropout, AWP, stronger augmentation), 300 epochs, about 3 hours on an L4, resumable. |
 | `04_train_islr_v4.py` | Colab (GPU) | v4: v3 plus the review fixes (lip mirroring, weight decay) and new input: body coordinates with the camera's aspect ratio removed, each hand relative to its wrist, hand-found flags. Same time as v3. |
 | `05_finetune_asl_citizen.py` | Colab (GPU) | v5: v4 fine-tuned on the ASL Citizen landmarks of our 155 target glosses (variants merged into words), official 35 / 6 / 11 signer split, test reported once. Under an hour on an L4. See below. |
+| `06_finetune_mixed.py` | Colab (GPU) | v6: like v5, but every epoch also trains on Kaggle signs (same number as ASL Citizen videos), so what v4 learned from Kaggle is not overwritten. v5 was worse than v4 live; v6 is the fix to test. 20–30 minutes on an L4. |
 
 ## ASL Citizen landmarks (`tools/extract_asl_citizen.py`)
 

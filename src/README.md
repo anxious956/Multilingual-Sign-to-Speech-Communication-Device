@@ -107,4 +107,4 @@ It writes `docs\figures\calib_v2_report.md` and the reliability and risk–cover
 
 ### Confidence threshold and output for Goal 2
 
-`live_demo.py --threshold 0.45` (the default) shows signs below that confidence as "not sure - please repeat" (or in orange with "?" inside a sentence). 0.45 is the threshold `calibrate.py` found for about 5% error on the 30-sign list with v2; for v4 use `--temperature 0.84 --threshold 0.47` (v3: `--temperature 0.79 --threshold 0.46`). `--jsonl results.jsonl` appends every result in the hand-off format of `docs/TASKS.md`, for Goal 2.
+`live_demo.py --threshold 0.45` (the default) shows signs below that confidence as "not sure - please repeat" (or in orange with "?" inside a sentence). 0.45 is the threshold `calibrate.py` found for about 5% error on the 30-sign list with v2; for v4 use `--temperature 0.84 --threshold 0.47` (v3: `--temperature 0.79 --threshold 0.46`); for v5 (`asl_citizen_model_v5.pt`, 134 words) `--temperature 0.55 --threshold 0.62`. `--jsonl results.jsonl` appends every result in the hand-off format of `docs/TASKS.md`, for Goal 2.

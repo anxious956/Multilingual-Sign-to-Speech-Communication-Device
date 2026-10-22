@@ -143,7 +143,14 @@ What this shows:
 - Training accuracy (80%) stays below validation (90%) because training sees augmented signs with late dropout and AWP; validation plateaued from about epoch 60, so 100 epochs was enough.
 - Not comparable with the ASL Citizen paper's numbers (2,731 signs; ours is a 134-word subset).
 
-Next for v5: calibration and threshold (`calibrate.py`), confusions, live test on the laptop, the `INIT=scratch` comparison, and an "other" class for signs outside the vocabulary.
+**v5 calibration** (`docs/figures/calib_v5_report.md`, fitted on the 5 validation signers, measured on the 11 test signers):
+- **Raw probabilities are much too low: T = 0.55** (ECE 14.6% raw, 1.5% after temperature scaling). The live demo must use `--temperature 0.55`, otherwise every threshold means something else.
+- Threshold for 5% error: **0.62** → answers 85.1% of test signs at 6.5% error (per signer 3.5–12.9%; the weakest signer P6 gets 12.9%, so a threshold fitted on 5 signers still does not hold for everyone). AURC 0.022, the same as v4 on only 30 Kaggle signs although v5 chooses among 134 words. Live: `--temperature 0.55 --threshold 0.62`.
+- Conformal list at a 90% target reaches 87.5% on new signers (mean size 1.0); top-5 covers 98.2%, so a 5-candidate confirmation screen almost always contains the right word.
+
+**v5 confusions** (`src/confusions.py`, test signers): most of the frequent ones are **signs that are nearly the same in ASL or mean the same thing**, not model failures: HURT → PAIN 67% (and PAIN → HURT 21%), GOOD → THANKYOU 58% (same flat hand from the chin; GOOD usually ends on the other palm), TODAY → NOW 55% (TODAY is NOW + DAY), TOILET ↔ BATHROOM 42% / 36%, COST → PRICE 33%. Others: NUMBERS → MORE 31%, CREDITCARD → NEAR 29%, LEAVE → TAKE 25%, WRITE → NEAR 25%, MORNING → STOP 21%. For the device: merge pairs that should be spoken the same (hurt/pain, toilet/bathroom, cost/price) in the final vocabulary, and leave GOOD/THANKYOU and TODAY/NOW to the confirmation screen and the sentence builder (Goal 2).
+
+Next for v5: live test on the laptop, the `INIT=scratch` comparison, and an "other" class for signs outside the vocabulary.
 
 **Notebook 05 as written (19 Oct 2026):** Gloss variants are merged into the spoken word (WANT1 + WANT2 -> want; 155 glosses -> about 140 words). The v4 weights are kept, the output layer is new (rows of the 38 words that are also in Kaggle copied from v4), 5 epochs output layer only, then everything at 1/5 of the v4 learning rate with the same augmentation, late dropout and AWP; official ASL Citizen signer split, best epoch by validation, test reported once over the 11 test signers. Before training it measures v4 unchanged on the ASL Citizen test videos of the shared words, so the gain from fine-tuning is visible; `INIT=scratch` trains the same model from random weights for comparison. Smoke-tested end to end on synthetic data (CPU), including resume, `calibrate.py` (now reads the signer ids from the logits file, `--meta` optional), `confusions.py` and loading in `SignClassifier`.
 

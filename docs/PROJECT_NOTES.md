@@ -89,12 +89,16 @@ Sign-Speak's patent (US 2022/0327961 A1) already shows users the top 3 candidate
 - [ ] Verify each patent's legal status on Google Patents or USPTO.
 - [ ] Get the ISLR 1st-place leaderboard score from Kaggle (needs a team member's login).
 - [x] Move the reference list to Section 12 (done in the combined proposal file).
+- [x] Section 7 (draft): design flow chart on the course template (Fig. 5), hardware block diagram (Fig. 6), prototype categories P1–P5 (Table 14), validation and qualification categories (Table 15), verification matrix (Table 16), preliminary data and simulations (Figs. 7–9, Table 13). Needs the team's review, especially the block diagram (Merrick) and the Goal 2 timings (Dorukhan, Zeynep).
+- [ ] Have native speakers check the NLLB-200 test translations in `docs/figures/section7_benchmarks.json` (one Turkish word was misspelled; three outputs began with a stray dash).
+- [ ] Test the Turkish reply channel with recorded voices: Whisper small had 12.5% word error rate on synthetic Turkish speech, against 0% English and 2.4% Spanish.
 
 ## Related files
 
 - `literature/README.md`: papers and patents, with summaries.
 - `literature/references.bib`: BibTeX for all sources.
 - `docs/ECE_414_Proposal_Draft.docx`: combined proposal (cover page, abstract, table of contents, Sections 3, 4, 5 and 12). This is the single source: it is built on the team's own latest Word file, with Sections 4 and 5 added. Includes student ID numbers (the team chose to publish them).
-- `docs/figures/`: figure images and the scripts that draw Figure 1 (`make_survey_chart.py`) and Figure 2 (`make_setup_sketch.py`).
+- `docs/ECE_414_Proposal_Draft_with_Section7.docx` (+ `.pdf`): the Section 6 file with Section 7 added, built by `tools/add_section7_to_proposal.py` (text and tables in `tools/section7_content.py`). The builder also updates Section 6 to match: Table 6 gains the adapter, button, LED and switch of the block diagram (total $495–$665), and Table 8 and the text around it reflect v5, the live-camera gap and the first Goal 2 measurements. Edit the content file and rerun rather than editing the Word file, or make later edits in Word once Section 7 is final.
+- `docs/figures/`: figure images and the scripts that draw Figure 1 (`make_survey_chart.py`), Figure 2 (`make_setup_sketch.py`) and Figures 5–10 (`make_section7_figures.py`). `section7_benchmarks.json` holds the Section 7.5 measurements, written by `tools/bench_section7.py` (CPU only; recognizer size and speed, NLLB-200, Piper and Whisper timings, correction simulation, memory budget).
 - `docs/GOAL1_LOG.md`: Goal 1 (sign recognition) progress, model results and next steps.
 - `src/README.md`: how to set up and run the Goal 1 scripts on a laptop.

@@ -55,8 +55,8 @@ Suggested owners; each person writes the part closest to their goal.
 | 6 | Design methodology | Everyone, one paragraph per goal |
 | 7–8 | Literature review, originality, patents | Asmar (done; verify patent legal status) |
 | 7–8 | Marketability and comparison with SignAll, Sign-Speak, Avodah | Zeynep |
-| 9 | Flow chart | Dorukhan |
-| 9 | Block diagram | Merrick |
+| 9 | Flow chart (draft in Section 7, Fig. 5) | Dorukhan |
+| 9 | Block diagram (draft in Section 7, Fig. 6) | Merrick |
 | 9 | Specification table | Asmar |
 | — | Environmental and economic factors (power, e-waste, cost vs interpreter) | Merrick and Dorukhan |
 | — | Cover page team number | Whoever gets it first |

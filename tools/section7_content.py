@@ -1,4 +1,4 @@
-"""Text, tables and references of proposal Section 7, used by tools/add_section7_to_proposal.py.
+"""Text, tables and references of proposal Section 7, used by tools/build_proposal.py.
 
 Markup: **bold**, *italic*, {cite:key} for a new reference (numbered from 30), {ref:N} for an existing one [N].
 Measured numbers are read from docs/figures/section7_benchmarks.json (tools/bench_section7.py).
@@ -9,7 +9,6 @@ import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG = os.path.join(ROOT, "docs", "figures")
-FIRST_FIG, FIRST_TAB = 5, 9
 B = json.load(open(os.path.join(FIG, "section7_benchmarks.json")))
 
 REFERENCES = {

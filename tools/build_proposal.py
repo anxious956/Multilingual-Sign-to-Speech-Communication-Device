@@ -1,10 +1,12 @@
-"""Insert Section 7 (design methodology, prototyping, validation, hardware block diagram) into the proposal.
+"""Build the latest proposal: the Section 6 file plus Section 7 (design methodology, prototyping, validation,
+hardware block diagram) and Section 8 (literature review: articles and patents).
 
-python tools/add_section7_to_proposal.py
+python tools/build_proposal.py
     reads  docs/ECE_414_Proposal_Draft_with_Section6.docx
-    writes docs/ECE_414_Proposal_Draft_with_Section7.docx (+ .pdf, with LibreOffice)
+    writes docs/ECE_414_Proposal_Draft_with_Section8.docx (+ .pdf, with LibreOffice)
 
-The section text and tables are in tools/section7_content.py. Every paragraph, caption and table is built from
+The section text and tables are in tools/section7_content.py and tools/section8_content.py; each may also update
+earlier sections (update_earlier_sections) so that they stay consistent. Every paragraph, caption and table is built from
 copies of the proposal's own formatting (body text, Fig./Table captions, three-line tables), headings get TOC
 bookmarks and TOC lines, and citations written as {cite:key} are numbered from 30 in order of first appearance and
 appended to Section 12. The table of contents page numbers are then refreshed from a LibreOffice rendering.
@@ -19,16 +21,21 @@ import sys
 import tempfile
 
 import docx
-from docx.shared import Inches
+from docx.shared import Inches, Pt
 from docx.oxml.ns import qn
 from lxml import etree
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-import section7_content as C  # noqa: E402
+import section7_content as C7  # noqa: E402
+import section8_content as C8  # noqa: E402
+
+SECTIONS = (C7, C8)
+REFERENCES = {k: v for c in SECTIONS for k, v in c.REFERENCES.items()}
+FIRST_FIG, FIRST_TAB = 5, 9  # Sections 3-6 have Figs. 1-4 and Tables 1-8
 
 SRC = os.path.join(ROOT, "docs", "ECE_414_Proposal_Draft_with_Section6.docx")
-DST = os.path.join(ROOT, "docs", "ECE_414_Proposal_Draft_with_Section7.docx")
+DST = os.path.join(ROOT, "docs", "ECE_414_Proposal_Draft_with_Section8.docx")
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 FIRST_NEW_REF = 30
 
@@ -71,7 +78,7 @@ class Builder:
             keys = [k.strip() for k in m.group(1).split(",")]
             out = []
             for k in keys:
-                if k not in C.REFERENCES:
+                if k not in REFERENCES:
                     raise KeyError(f"unknown reference {k}")
                 if k not in self.cites:
                     self.cites[k] = FIRST_NEW_REF + len(self.cites)
@@ -134,6 +141,23 @@ class Builder:
         self.toc_entries.append((level, text, name))
         self.insert(p)
 
+    def item_heading(self, text):
+        """Bold, unindented heading inside a subsection (one per reviewed article or patent); kept with the next
+        block so that it never ends a page on its own."""
+        p = self.para_like(self.t_body)
+        ppr = p.find(qn("w:pPr"))
+        ind = ppr.find(qn("w:ind"))
+        if ind is not None:
+            ppr.remove(ind)
+        ppr.insert(0, etree.Element(qn("w:keepNext")))
+        sp = ppr.find(qn("w:spacing"))
+        sp.set(qn("w:before"), "240")
+        jc = ppr.find(qn("w:jc"))
+        if jc is not None:
+            jc.set(qn("w:val"), "left")
+        self.runs(p, text, size=24, base_bold=True)
+        self.insert(p)
+
     def body(self, text, indent=True):
         p = self.para_like(self.t_body)
         if not indent:
@@ -145,7 +169,7 @@ class Builder:
 
     def figure(self, path, width_in, caption):
         self.n_fig += 1
-        num = C.FIRST_FIG + self.n_fig - 1
+        num = FIRST_FIG + self.n_fig - 1
         para = self.doc.add_paragraph()
         para.add_run().add_picture(path, width=Inches(width_in))
         p = para._p
@@ -170,7 +194,7 @@ class Builder:
     def table(self, caption, widths, header, rows, shade_rows=(), group_rows=(), bold_first_col=False,
               center_cols=(), total_row=False):
         self.n_tab += 1
-        num = C.FIRST_TAB + self.n_tab - 1
+        num = FIRST_TAB + self.n_tab - 1
         c = self.para_like(self.t_tabcap)
         r = sub(c, "w:r"); rpr = sub(r, "w:rPr"); sub(rpr, "w:b"); sub(rpr, "w:bCs")
         t = sub(r, "w:t"); t.text = f"Table {num}. "; t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
@@ -316,6 +340,9 @@ class Builder:
             prev = e.getprevious()
             e.getparent().remove(e)
             e = prev
+        # with Sections 7 and 8 the TOC has 35 lines; the styles' 5 pt after each line would push it onto page 3
+        for name in ("toc 1", "toc 2"):
+            self.doc.styles[name].paragraph_format.space_after = Pt(1)
         ppr = intro.find(qn("w:pPr"))
         if ppr.find(qn("w:pageBreakBefore")) is None:
             # schema order: pStyle, keepNext, keepLines, pageBreakBefore, ...
@@ -333,7 +360,7 @@ class Builder:
             sub(rpr, "w:sz", **{"w:val": 24}); sub(rpr, "w:szCs", **{"w:val": 24})
             t = sub(r, "w:t"); t.text = f"{n}."
             sub(r, "w:tab")
-            self.runs(p, C.REFERENCES[key], size=24)
+            self.runs(p, REFERENCES[key], size=24)
             last.addnext(p)
             last = p
 
@@ -387,8 +414,10 @@ def refresh_toc(docx_path, tmp):
 def main():
     doc = docx.Document(SRC)
     b = Builder(doc)
-    C.update_earlier_sections(b)
-    C.build(b)
+    for c in SECTIONS:
+        c.update_earlier_sections(b)
+    for c in SECTIONS:
+        c.build(b)
     b.toc()
     b.keep_intro_on_page_3()
     b.references()

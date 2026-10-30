@@ -1,4 +1,5 @@
-"""Text, tables and references of proposal Section 8 (literature review: articles and patents), used by
+"""Text, tables and references of proposal Section 8, Relevant Technical Background (review of articles and
+patents), used by
 tools/build_proposal.py. Markup as in section7_content.py.
 
 Bibliographic data checked on 26 Oct 2026: patents on Google Patents (title, number, abstract, dates, legal status;
@@ -41,7 +42,7 @@ def record(b, caption, rows):
 
 def build(b):
     b.page_break()
-    b.heading(1, "8. Literature Review: Articles and Patents")
+    b.heading(1, "8. Relevant Technical Background")  # title of the ECE 414 assignment
     b.body(
         "This section reviews in detail the two research articles and the four patents that are closest to the "
         "proposed device, and explains for each how our proposal differs from it. Articles were found with Google "

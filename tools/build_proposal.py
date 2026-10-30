@@ -36,6 +36,7 @@ FIRST_FIG, FIRST_TAB = 5, 9  # Sections 3-6 have Figs. 1-4 and Tables 1-8
 
 SRC = os.path.join(ROOT, "docs", "ECE_414_Proposal_Draft_with_Section6.docx")
 DST = os.path.join(ROOT, "docs", "ECE_414_Proposal_Draft_with_Section8.docx")
+EXCERPT = os.path.join(ROOT, "docs", "ECE_414_Section8_Relevant_Technical_Background.docx")  # Section 8 upload
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 FIRST_NEW_REF = 30
 
@@ -411,6 +412,51 @@ def refresh_toc(docx_path, tmp):
     return missing
 
 
+EXCERPT_NOTE = ("This file is Section 8 of the ECE 414 proposal draft, submitted on its own. Section, figure, table and "
+                "reference numbers are those of the full proposal (docs/ECE_414_Proposal_Draft_with_Section8.docx); "
+                "the reference list below keeps only the entries cited here.")
+
+
+def write_excerpt(full_path, out_path, heading_prefix="8. "):
+    """Cover page + one section + the references it cites (numbers unchanged), for a section's own upload."""
+    d = docx.Document(full_path)
+    body = d.element.body
+    kids = [e for e in body if e.tag in (qn("w:p"), qn("w:tbl"))]
+    text = lambda e: "".join(t.text or "" for t in e.iter(qn("w:t")))
+    is_heading = lambda e, pre: e.tag == qn("w:p") and e.xpath("string(./w:pPr/w:pStyle/@w:val)") == "IntroSection" \
+        and text(e).startswith(pre)
+    cover_end = next(i for i, e in enumerate(kids) if e.xpath(".//w:br[@w:type='page']"))
+    start = next(i for i, e in enumerate(kids) if is_heading(e, heading_prefix))
+    refs = next(i for i, e in enumerate(kids) if is_heading(e, "12. References"))
+    section = kids[start:refs]
+    cited = {int(n) for e in section for n in re.findall(r"\[(\d+)\]", text(e))}
+    keep = set(kids[:cover_end + 1]) | set(section) | {kids[refs]}
+    for e in kids[refs + 1:]:
+        m = re.match(r"(\d+)\.", text(e))  # the tab after the number is a w:tab element, not text
+        if m and int(m.group(1)) in cited:
+            keep.add(e)
+    for e in kids:
+        if e not in keep:
+            body.remove(e)
+    # the section's own page break would leave a blank page after the cover; a note goes under its heading
+    first = section[0]
+    note = copy.deepcopy(next(e for e in section if e.tag == qn("w:p") and text(e).startswith("This section reviews")))
+    for r in note.findall(qn("w:r")):
+        note.remove(r)
+    r = etree.SubElement(note, qn("w:r")); rpr = etree.SubElement(r, qn("w:rPr"))
+    for tag in ("w:i", "w:iCs"):
+        etree.SubElement(rpr, qn(tag))
+    for tag in ("w:sz", "w:szCs"):
+        etree.SubElement(rpr, qn(tag)).set(qn("w:val"), "22")
+    t = etree.SubElement(r, qn("w:t")); t.text = EXCERPT_NOTE
+    ind = note.find(qn("w:pPr")).find(qn("w:ind"))
+    if ind is not None:
+        ind.getparent().remove(ind)
+    first.addnext(note)
+    d.save(out_path)
+    return sorted(cited)
+
+
 def main():
     doc = docx.Document(SRC)
     b = Builder(doc)
@@ -429,6 +475,9 @@ def main():
     pdf = render_pdf(DST, tmp)
     shutil.copy(pdf, DST.replace(".docx", ".pdf"))
     print("wrote", DST, "and", DST.replace(".docx", ".pdf"))
+    cited = write_excerpt(DST, EXCERPT)
+    shutil.copy(render_pdf(EXCERPT, tmp), EXCERPT.replace(".docx", ".pdf"))
+    print("wrote", EXCERPT, "(+ .pdf), references kept:", cited)
     print("new references:", {k: v for k, v in sorted(b.cites.items(), key=lambda kv: kv[1])})
 
 

@@ -348,13 +348,28 @@ refBlock(X0, ry, "PATENTS", [
   "Kelly, N. A. Realtime AI sign language recognition. US 12,518,653 B2, 2026 (Sign-Speak).",
   "Menefee, M., Nash, D., Chandler, T. Automated sign language translation using multiple input and output modalities. US 10,489,639 B2, 2019 (Avodah).",
   "Carlock, J., Maxwell, C. Translating sign language content into word content and vice versa. US 12,131,586 B2, 2024 (Sorenson).",
-  "Zhou, Z. et al. System and method for automated sign language recognition. US 10,109,219 B2, 2018 (Bosch)."], 3.9);
+  "Zhou, Z. et al. System and method for automated sign language recognition. US 10,109,219 B2, 2018 (Bosch)."], 2.3);
 const rx2 = X0 + colw + 0.5;
 refBlock(rx2, ry, "ARTICLES", [
   "Desai, A. et al. ASL Citizen. NeurIPS 36, 2023. doi:10.52202/075280-3360",
-  "Tran, N., Ladner, R. E., Bragg, D. U.S. Deaf community perspectives on automatic sign language translation. ASSETS ’23. doi:10.1145/3597638.3614507"], 1.75);
-refBlock(rx2, ry + 2.3, "OTHER", [
-  "MediaPipe (Lugaresi et al., 2019) · NLLB-200 (NLLB Team, 2022) · Whisper (Radford et al., 2023) · Piper TTS (Hansen, 2023) · Kaggle ISLR 1st place (Sohn, 2023) · NVIDIA Jetson Orin Nano documentation · IEEE 7000, 7002, 1012, 2841 · ANSI/UL 62368-1 · NIST AI 100-1"], 1.7);
+  "Tran, N., Ladner, R. E., Bragg, D. U.S. Deaf community perspectives on automatic sign language translation. ASSETS ’23. doi:10.1145/3597638.3614507"], 1.1);
+refBlock(rx2, ry + 2.15, "OTHER", [
+  "MediaPipe (Lugaresi et al., 2019) · NLLB-200 (NLLB Team, 2022) · Whisper (Radford et al., 2023) · Piper TTS (Hansen, 2023) · Kaggle ISLR 1st place (Sohn, 2023) · NVIDIA Jetson Orin Nano documentation · IEEE 7000, 7002, 1012, 2841 · ANSI/UL 62368-1 · NIST AI 100-1"], 1.0);
+// grey logos under each group (Sorenson's logo could not be obtained; its name is in the list)
+const LOGO_DIR = path.join(ROOT, "docs", "presentation", "logos");
+const LOGOS = JSON.parse(require("fs").readFileSync(path.join(LOGO_DIR, "sizes.json"), "utf8"));
+const logoRow = (keys, x, y, h, gap) => {
+  let cx = x;
+  keys.forEach((k) => {
+    const [w0, h0] = LOGOS[k], w = h * w0 / h0;
+    s.addImage({ path: path.join(LOGO_DIR, k + ".png"), x: cx, y, w, h, altText: k + " logo" });
+    cx += w + gap;
+  });
+};
+logoRow(["signspeak", "avodah", "bosch"], X0, 5.1, 0.32, 0.4);
+logoRow(["neurips", "acm"], rx2, 3.6, 0.42, 0.4);
+logoRow(["google", "meta", "openai"], rx2, 5.68, 0.24, 0.3);
+logoRow(["nvidia", "ieee", "nist"], rx2, 6.08, 0.24, 0.3);
 notes(s, "Our main sources: four patents we reviewed in detail, from Sign-Speak, Avodah, Sorenson and Bosch, and two articles: the ASL Citizen dataset, which we train and test on, and the Tran et al. survey of Deaf users, which chose our use case. The other line lists the models and standards we build on; the full list of 39 references is in Section 12 of the proposal. Then: thank you, and we are happy to take one or two questions. (About 20 seconds, then questions.)");
 
   await pres.writeFile({ fileName: OUT });

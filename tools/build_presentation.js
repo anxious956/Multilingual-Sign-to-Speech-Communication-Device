@@ -65,6 +65,27 @@ function table(s, rows, o) {
                      margin: [3, 6, 3, 6], valign: "middle", autoPage: false });
 }
 
+function box(s, x, y, w, h, title, sub, st = {}) {
+  s.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color: st.fill || CARD },
+    line: { color: st.line || INK, width: st.lw || 1, dashType: st.dash || "solid" } });
+  const tc = st.tc || INK, sc = st.sc || MUTED;
+  if (sub) {
+    T(s, title, { x: x + 0.08, y: y + 0.06, w: w - 0.16, h: h / 2 - 0.02, valign: "bottom", align: "center", fontFace: SANS,
+      fontSize: st.ts || 16, bold: true, color: tc });
+    T(s, sub, { x: x + 0.08, y: y + h / 2 + 0.03, w: w - 0.16, h: h / 2 - 0.1, valign: "top", align: "center", fontFace: SANS,
+      fontSize: st.ss || 12.5, color: sc });
+  } else {
+    T(s, title, { x: x + 0.08, y, w: w - 0.16, h, valign: "middle", align: "center", fontFace: SANS, fontSize: st.ts || 14,
+      bold: true, color: tc });
+  }
+}
+function arrow(s, x1, y1, x2, y2, o = {}) {
+  const line = { color: o.color || INK, width: o.w || 1.5, endArrowType: "triangle" };
+  if (o.both) line.beginArrowType = "triangle";
+  s.addShape(pres.shapes.LINE, { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1),
+    flipH: x2 < x1, flipV: y2 < y1, line });
+}
+
 async function ico(C, color) {
   const svg = RDS.renderToStaticMarkup(React.createElement(C, { color: "#" + color, size: 256 }));
   return "image/png;base64," + (await sharp(Buffer.from(svg)).png().toBuffer()).toString("base64");
@@ -198,32 +219,71 @@ pres.addSection({ title: "Design" });
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Design" });
 s.addText("05 / COMPONENTS & BLOCK DIAGRAM", { placeholder: "label" });
 s.addText("One $250 board does all the thinking", { placeholder: "title" });
-const bx = X0, by = 1.95, bh = 4.7, bw = (bh - 0.2) * 1513 / 1436 + 0.2;
-s.addShape(pres.shapes.RECTANGLE, { x: bx, y: by, w: bw, h: bh, fill: { color: CARD }, line: { color: INK, width: 0.75 } });
-s.addImage({ path: FIG("fig_hw_block_diagram.png"), x: bx + 0.1, y: by + 0.1, w: bw - 0.2, h: bh - 0.2,
-  altText: "Hardware block diagram: camera, touchscreen, button and LED face the Deaf user; speaker and microphone face the hearing person; Jetson Orin Nano developer kit with SSD and power inside the base; Wi-Fi removed" });
-const tx = bx + bw + 0.5, tw = X0 + CW - tx;
-T(s, "$495–665", { x: tx, y: by, w: tw, h: 0.85, fontFace: SERIF, fontSize: 48, color: BLUE });
-T(s, "in parts for one prototype", { x: tx, y: by + 0.85, w: tw, h: 0.35, fontFace: SANS, fontSize: 16, color: MUTED });
-s.addChart(pres.charts.DOUGHNUT, [{ name: "Cost", labels: ["Jetson board", "Camera, screen", "Mic, speaker", "SSD, case, battery"],
-  values: [250, 130, 52.5, 147.5] }],
-  { x: tx, y: by + 1.25, w: tw, h: 2.6, holeSize: 55, chartColors: ["7C93E8", YEL, MUTED_D, RULE], showPercent: true,
-    showValue: false, dataLabelColor: INK, dataLabelFontSize: 11, dataLabelFontFace: "+mn-lt", showLegend: true,
-    legendPos: "r", legendFontSize: 13, legendColor: INK, legendFontFace: "+mn-lt", objectName: "cost chart" });
-T(s, "RUNS: MEDIAPIPE · RECOGNIZER · NLLB-200 · PIPER · WHISPER", { x: tx, y: by + 3.95, w: tw, h: 0.65,
-  fontFace: MONO, fontSize: 12, color: "3D3A35", lineSpacingMultiple: 1.2 });
+const colL = X0, colW = 2.55, cx0 = 4.55, cW = 4.25, colR = X0 + CW - colW;
+const lab = (t, x, w) => T(s, t, { x, y: 1.88, w, h: 0.3, align: "center", fontFace: MONO, fontSize: 11, charSpacing: 1, color: MUTED });
+lab("FACES THE DEAF USER", colL, colW); lab("INSIDE THE BASE", cx0, cW); lab("FACES THE HEARING PERSON", colR, colW);
+const r5 = [2.3, 3.33, 4.36], bh5 = 0.85, mid = (i) => r5[i] + bh5 / 2;
+box(s, colL, r5[0], colW, bh5, "Camera", "1080p, USB");
+box(s, colL, r5[1], colW, bh5, "Touchscreen", "confirm, read reply");
+box(s, colL, r5[2], colW, bh5, "Button + LED", "LED on while recording");
+box(s, colR, r5[0], colW, bh5, "Speaker", "speaks the sentence");
+box(s, colR, r5[1], colW, bh5, "Microphone", "records the reply");
+box(s, colR, r5[2], colW, bh5, "Wi-Fi card", "removed: fully offline", { dash: "dash", line: MUTED, tc: MUTED });
+const jy = r5[0], jh = r5[2] + bh5 - r5[0];
+s.addShape(pres.shapes.RECTANGLE, { x: cx0, y: jy, w: cW, h: jh, fill: { color: INK }, line: { color: INK } });
+T(s, "Jetson Orin Nano", { x: cx0 + 0.3, y: jy + 0.28, w: cW - 0.6, h: 0.6, fontFace: SERIF, fontSize: 28, color: PAPER });
+T(s, "6-core Arm CPU · 1024-core GPU · 8 GB memory", { x: cx0 + 0.3, y: jy + 1.0, w: cW - 0.6, h: 0.6,
+  fontFace: SANS, fontSize: 14, color: "C8C1B3" });
+T(s, "Runs every model, with no network", { x: cx0 + 0.3, y: jy + 1.7, w: cW - 0.6, h: 0.35,
+  fontFace: SANS, fontSize: 14, color: "C8C1B3" });
+s.addShape(pres.shapes.RECTANGLE, { x: cx0 + cW - 1.25, y: jy + jh - 0.6, w: 0.95, h: 0.36, fill: { color: YEL }, line: { color: YEL } });
+T(s, "$250", { x: cx0 + cW - 1.25, y: jy + jh - 0.6, w: 0.95, h: 0.36, align: "center", valign: "middle", fontFace: MONO,
+  fontSize: 13, bold: true, color: INK });
+const by5 = r5[2] + bh5 + 0.38, bb = 0.72;
+box(s, cx0, by5, 1.95, bb, "NVMe SSD", "OS and models");
+box(s, cx0 + cW - 1.95, by5, 1.95, bb, "Power", "19 V or battery");
+arrow(s, colL + colW, mid(0), cx0, mid(0));
+arrow(s, cx0, mid(1), colL + colW, mid(1), { both: true });
+arrow(s, colL + colW, mid(2), cx0, mid(2), { both: true });
+arrow(s, cx0 + cW, mid(0), colR, mid(0));
+arrow(s, colR, mid(1), cx0 + cW, mid(1));
+arrow(s, cx0 + 0.97, by5, cx0 + 0.97, jy + jh, { both: true });
+arrow(s, cx0 + cW - 0.97, by5, cx0 + cW - 0.97, jy + jh);
+const tag = (t, x, y, w) => T(s, t, { x, y, w, h: 0.26, align: "center", fontFace: MONO, fontSize: 11, color: BLUE });
+const gl = colL + colW, GAPL = cx0 - gl, gr = cx0 + cW, GAPR = colR - gr;
+tag("USB", gl, mid(0) - 0.32, GAPL); tag("HDMI, USB", gl, mid(1) - 0.32, GAPL); tag("GPIO", gl, mid(2) - 0.32, GAPL);
+tag("USB", gr, mid(0) - 0.32, GAPR); tag("USB", gr, mid(1) - 0.32, GAPR);
+tag("PCIe", cx0 + 1.02, jy + jh + 0.06, 0.7); tag("19 V", cx0 + cW - 0.92, jy + jh + 0.06, 0.7);
+T(s, "PARTS ≈ $495–665", { x: colR, y: by5 + 0.2, w: colW, h: 0.32, align: "center", fontFace: MONO, fontSize: 13,
+  bold: true, color: INK });
 notes(s, "This is the hardware block diagram. Everything that thinks is one NVIDIA Jetson Orin Nano developer kit in the base, about 250 dollars. On the Deaf user’s side: the camera, the touchscreen, and a button and LED; the LED lights whenever the camera or microphone is on. On the hearing person’s side: speaker and microphone, all on USB. The board has only DisplayPort, so the touchscreen uses an adapter. We remove the Wi-Fi card and leave Ethernet unplugged, so offline is a physical fact you can check. Parts for one prototype total about 495 to 665 dollars. On the module run MediaPipe, our 1.78-million-parameter recognizer, which needs about 4 milliseconds per sign, NLLB-200 for translation, Piper for speech and Whisper for the reply. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 6 prototyping
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Design" });
 s.addText("06 / PROTOTYPING, VALIDATION, TESTING & ASSEMBLY", { placeholder: "label" });
 s.addText("Cheap prototypes first, then the real device", { placeholder: "title" });
-const fx = X0, fy = 1.95, fh = 4.45, fw = (fh - 0.2) * 1524 / 1355 + 0.2;
-s.addShape(pres.shapes.RECTANGLE, { x: fx, y: fy, w: fw, h: fh, fill: { color: CARD }, line: { color: INK, width: 0.75 } });
-s.addImage({ path: FIG("fig_design_flow.png"), x: fx + 0.1, y: fy + 0.1, w: fw - 0.2, h: fh - 0.2,
-  altText: "Course design flow chart filled in for our project: objectives, benchmarking, concept and constraints, business, three component designs, prototyping and testing, prototype assembly" });
-T(s, "Course design flow, filled in", { x: fx, y: fy + fh + 0.08, w: fw, h: 0.28, fontFace: MONO, fontSize: 11, color: MUTED });
-const rx = fx + fw + 0.5, rw = X0 + CW - rx, rh = 0.52;
+const fy = 1.95;
+const mx = X0, mw = 3.9, sxx = mx + mw + 0.4, sw6 = 1.6, rr = 0.6;
+const ry6 = [2.0, 2.85, 3.75, 4.85, 5.65];
+box(s, mx, ry6[0], mw, rr, "Objectives & specifications", null, { ts: 14 });
+box(s, sxx, ry6[0], sw6, rr, "Benchmarking", null, { fill: BAND, ts: 13 });
+box(s, mx, ry6[1], mw, rr, "Concept & constraints", null, { ts: 14 });
+box(s, sxx, ry6[1], sw6, rr, "Business", null, { fill: BAND, ts: 13 });
+arrow(s, mx + mw, ry6[0] + rr / 2, sxx, ry6[0] + rr / 2, { both: true });
+arrow(s, mx + mw, ry6[1] + rr / 2, sxx, ry6[1] + rr / 2, { both: true });
+arrow(s, mx + mw / 2, ry6[0] + rr, mx + mw / 2, ry6[1]);
+const cw6 = (mw - 2 * 0.12) / 3, ch6 = 0.8;
+["Recognition", "Language, speech", "Embedded"].forEach((t, i) => {
+  const x = mx + i * (cw6 + 0.12), c = x + cw6 / 2;
+  box(s, x, ry6[2], cw6, ch6, t, null, { fill: INK, line: INK, tc: PAPER, ts: 12 });
+  arrow(s, c, ry6[1] + rr, c, ry6[2], { both: true });
+  arrow(s, c, ry6[2] + ch6, c, ry6[3]);
+});
+box(s, mx, ry6[3], mw, rr, "Prototyping, testing, integration", null, { fill: YEL, line: INK, ts: 14 });
+arrow(s, mx + mw / 2, ry6[3] + rr, mx + mw / 2, ry6[4]);
+box(s, mx, ry6[4], mw, rr, "Prototype assembly", null, { fill: YEL, line: INK, ts: 14 });
+T(s, "COURSE DESIGN FLOW · OUR THREE GOALS IN BLACK", { x: mx, y: 6.33, w: 6, h: 0.28, fontFace: MONO, fontSize: 11, color: MUTED });
+const rx = 7.05, rw = X0 + CW - rx, rh = 0.52;
 const protos = [["P1", "Laptop demo", "BUILT"], ["P2", "Paper mock-up", "NEXT"], ["P3", "Jetson on the bench", "SOON"],
   ["P4", "3D-printed case", "PLANNED"], ["P5", "Full device", "ECE 416"]];
 protos.forEach(([c, t, st], i) => {

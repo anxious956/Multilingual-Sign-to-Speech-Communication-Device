@@ -92,126 +92,127 @@ s = pres.addSlide({ masterName: "DARK", sectionTitle: "Introduction" });
 s.addText("02 / ABSTRACT", { placeholder: "label" });
 s.addText([{ text: "It speaks only when the signer says " }, { text: "yes", options: { italic: true, color: YEL } }],
   { placeholder: "title" });
-T(s, "A Deaf user signs to one ordinary camera. Our recognizer reads the signs and how sure it is, the user confirms the sentence on a touchscreen, and only then does the device speak it in English, Turkish or Spanish. The hearing person’s reply comes back as text. Everything runs offline on an NVIDIA Jetson.",
-  { x: X0, y: 2.05, w: 9.8, h: 1.75, fontFace: SANS, fontSize: 17, color: "C8C1B3", lineSpacingMultiple: 1.2 });
-const steps = [["1", "Sign", "one camera"], ["2", "Landmarks", "MediaPipe"], ["3", "Recognize", "with confidence"],
-               ["4", "Confirm", "touchscreen"], ["5", "Translate", "NLLB-200"], ["6", "Speak", "Piper voices"]];
-const sw = CW / 6, sy = 4.3;
+const steps = [["1", "Sign", "one camera"], ["2", "Landmarks", "MediaPipe"], ["3", "Recognize", "+ confidence"],
+               ["4", "Confirm", "touchscreen"], ["5", "Translate", "EN · TR · ES"], ["6", "Speak", "offline voice"]];
+const sw = CW / 6, sy = 3.0;
 hline(s, X0, sy, CW, PAPER, 1.5);
 steps.forEach(([n, w, sub], i) => {
   const x = X0 + i * sw, hot = i === 3;
-  if (hot) s.addShape(pres.shapes.RECTANGLE, { x, y: sy + 0.02, w: sw, h: 1.45, fill: { color: YEL }, line: { color: YEL } });
-  else if (i > 0 && i !== 4) vline(s, x, sy + 0.12, 1.2, MUTED, 0.75);
-  if (i === 4) vline(s, x + sw, sy + 0.12, 0, MUTED, 0);
+  if (hot) s.addShape(pres.shapes.RECTANGLE, { x, y: sy + 0.02, w: sw, h: 1.75, fill: { color: YEL }, line: { color: YEL } });
+  else if (i > 0 && i !== 4) vline(s, x, sy + 0.15, 1.45, MUTED, 0.75);
   const pad = i === 0 ? 0 : 0.15;
-  T(s, n, { x: x + pad, y: sy + 0.15, w: sw - 0.3, h: 0.25, fontFace: MONO, fontSize: 12, color: hot ? INK : MUTED_D });
-  T(s, w, { x: x + pad, y: sy + 0.45, w: sw - 0.2, h: 0.5, fontFace: SERIF, fontSize: 23, color: hot ? INK : PAPER });
-  T(s, sub, { x: x + pad, y: sy + 0.98, w: sw - 0.25, h: 0.3, fontFace: SANS, fontSize: 12.5, color: hot ? INK : MUTED_D });
+  T(s, n, { x: x + pad, y: sy + 0.18, w: sw - 0.3, h: 0.3, fontFace: MONO, fontSize: 14, color: hot ? INK : MUTED_D });
+  T(s, w, { x: x + pad, y: sy + 0.55, w: sw - 0.2, h: 0.6, fontFace: SERIF, fontSize: 27, color: hot ? INK : PAPER });
+  T(s, sub, { x: x + pad, y: sy + 1.2, w: sw - 0.25, h: 0.35, fontFace: SANS, fontSize: 14, color: hot ? INK : MUTED_D });
 });
-notes(s, "In one sentence: the device speaks for a Deaf user, but only after they say yes to the sentence. Walk the six steps left to right: one ordinary camera, MediaPipe body and hand landmarks, our recognizer, which also reports how sure it is, then the confirmation on the touchscreen, highlighted because it is the heart of the design, then translation with NLLB-200 and speech with Piper. The hearing person’s reply comes back through Whisper as English text. Everything runs offline, so no video ever leaves the device. It is an aid for when no interpreter is available, not a replacement. (About 60 seconds.)");
+T(s, "The reply comes back as text  ·  nothing leaves the device", { x: X0, y: 5.45, w: CW, h: 0.45,
+  fontFace: SERIF, fontSize: 22, italic: true, color: "C8C1B3" });
+notes(s, "In one sentence: the device speaks for a Deaf user, but only after they say yes to the sentence. Walk the six steps left to right: the user signs to one ordinary camera; MediaPipe finds the body and hand landmarks; our recognizer reads the signs and also how sure it is; the user confirms the sentence on the touchscreen, highlighted because it is the heart of the design; NLLB-200 translates it into English, Turkish or Spanish; and Piper speaks it. The hearing person’s reply comes back through Whisper as English text on the same screen. Everything runs offline on an NVIDIA Jetson, so no video ever leaves the device. It is an aid for when no interpreter is available, not a replacement. (About 60 seconds.)");
 
 // ---------------------------------------------------------------- 3 specs
 pres.addSection({ title: "Requirements" });
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });
 s.addText("03 / DESIGN OBJECTIVES & SPECIFICATIONS", { placeholder: "label" });
-s.addText("Eight numbers we hold ourselves to", { placeholder: "title" });
-table(s, [["Objective", "Target", "Today", "Measured on"],
-  ["Top-1 accuracy, unseen signers", "≥ 75%", "86.6%", "ASL Citizen, 11 Deaf signers"],
-  ["Top-5 accuracy, unseen signers", "≥ 90%", "98.2%", "ASL Citizen, 11 Deaf signers"],
-  ["Confirmation to speech", "< 1.2 s", "0.71–0.73 s", "Cloud CPU; Jetson next"],
-  ["Frame rate", "≥ 15 fps", "≈ 20 fps", "Laptop; Jetson next"],
-  ["Memory, all models", "≤ 8 GB", "≈ 4.4 GB", "Estimate from model files"],
-  ["Vocabulary", "100–250 signs", "134 words", "Draft; review with Deaf users"],
-  ["Spoken languages", "EN, TR, ES", "all 3 run", "Offline, on a CPU"],
-  ["Network", "none needed", "offline", "Wi-Fi card removed by design"]],
-  { x: X0, y: 2.0, w: CW, colW: [3.75, 2.05, 2.2, 3.63], rowH: 0.47, fontSize: 15, ink: INK, text: INK,
-    rowFill: (i) => (i > 0 && i % 2 === 0 ? BAND : null), cellColor: (i, j) => (i > 0 && j === 2 ? BLUE : null) });
-notes(s, "Our design objectives as eight measurable specifications, with where we stand today and what each number was measured on. Recognition: at least 75 percent top-1 and 90 percent top-5 on signers the model has never seen; our v5 model reaches 86.6 and 98.2 percent on the 11 Deaf test signers of the ASL Citizen dataset. Speech must start within 1.2 seconds of confirmation; translation plus the first audio already takes about 0.7 seconds on an ordinary CPU. All models together are estimated at 4.4 of the 8 gigabytes. The right-hand column is the honest part: several numbers are from a laptop or a cloud CPU, and the Jetson and our own camera come next. If asked: the 86.6 percent is on a 134-word vocabulary from recorded videos, not yet live. (About 75 seconds.)");
+s.addText("Four numbers that matter most", { placeholder: "title" });
+const big4 = [["86.6%", "Top-1 accuracy", "target ≥ 75%"], ["98.2%", "Top-5 accuracy", "target ≥ 90%"],
+              ["0.7 s", "Confirm → speech", "target < 1.2 s"], ["4.4 GB", "All models", "limit 8 GB"]];
+const bw4 = (CW - 3 * 0.4) / 4;
+big4.forEach(([n, what, tgt], i) => {
+  const x = X0 + i * (bw4 + 0.4), y = 2.3;
+  hline(s, x, y, bw4, INK, 1.5);
+  T(s, n, { x, y: y + 0.2, w: bw4, h: 1.05, fontFace: SERIF, fontSize: 58, color: BLUE });
+  T(s, what, { x, y: y + 1.35, w: bw4, h: 0.4, fontFace: SANS, fontSize: 18, bold: true, color: INK });
+  T(s, tgt, { x, y: y + 1.8, w: bw4, h: 0.35, fontFace: MONO, fontSize: 14, color: MUTED });
+});
+T(s, "Also required: 100–250 signs  ·  EN, TR, ES  ·  fully offline  ·  ≥ 15 frames per second",
+  { x: X0, y: 4.95, w: CW, h: 0.4, fontFace: SANS, fontSize: 17, color: "3D3A35" });
+s.addShape(pres.shapes.RECTANGLE, { x: X0, y: 5.6, w: 0.9, h: 0.38, fill: { color: YEL }, line: { color: YEL } });
+T(s, "NEXT", { x: X0, y: 5.6, w: 0.9, h: 0.38, align: "center", valign: "middle", fontFace: MONO, fontSize: 13, bold: true, color: INK });
+T(s, "the same tests on the Jetson and with our own camera", { x: X0 + 1.1, y: 5.6, w: 9, h: 0.38, valign: "middle",
+  fontFace: SANS, fontSize: 17, color: INK });
+notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must reach at least 75 percent top-1 and 90 percent top-5 on signers the model has never seen; our v5 model reaches 86.6 and 98.2 percent on the 11 Deaf test signers of the ASL Citizen dataset. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio takes about 0.7 seconds on an ordinary CPU. All models together are estimated at 4.4 of the Jetson’s 8 gigabytes. The other requirements: a vocabulary of 100 to 250 signs (our draft has 134 words), three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). Next we repeat these tests on the Jetson and with our own camera. If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 4 constraints
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });
 s.addText("04 / CONSTRAINTS & STANDARDS", { placeholder: "label" });
 s.addText("A small box, a student budget, strict rules", { placeholder: "title" });
-const cons = [["Technical", "8 GB shared memory, 1.2 s budget, one RGB camera, no network"],
-  ["Economic", "≈ $495–665 in parts, split four ways; free, open-source models"],
-  ["Legal", "ADA: an aid, never a replacement for interpreters; non-commercial data and model licences; IRB check for recordings"],
-  ["Ethical", "Nothing spoken without the user’s confirmation; accuracy reported for every signer; Deaf users involved"],
-  ["Time, safety", "Propose in ECE 414, build in ECE 416; heat, power, safe touch temperature"]];
+const cons = [["Technical", "8 GB · 1.2 s · one camera · offline"], ["Economic", "≈ $500, paid by the team"],
+  ["Legal", "ADA · non-commercial licences · IRB"], ["Ethical", "Confirm before speaking"],
+  ["Time, safety", "ECE 414 → ECE 416 · heat, power"]];
 const cy0 = 2.05, ch = 0.86, cw = 6.85;
 cons.forEach(([k, v], i) => {
   const y = cy0 + i * ch;
   hline(s, X0, y, cw, i === 0 ? INK : RULE, i === 0 ? 1.5 : 0.75);
-  T(s, k, { x: X0, y: y + 0.12, w: 1.75, h: 0.45, fontFace: SERIF, fontSize: 20, color: INK });
-  T(s, v, { x: X0 + 1.85, y: y + 0.12, w: cw - 1.85, h: ch - 0.18, fontFace: SANS, fontSize: 13.5, color: "3D3A35" });
+  T(s, k, { x: X0, y: y + 0.2, w: 2.0, h: 0.45, fontFace: SERIF, fontSize: 22, color: INK });
+  T(s, v, { x: X0 + 2.1, y: y + 0.24, w: cw - 2.1, h: 0.45, fontFace: SANS, fontSize: 17, color: "3D3A35" });
 });
 hline(s, X0, cy0 + 5 * ch, cw, INK, 1.5);
 const px = 8.15, pw = X0 + CW - px;
 s.addShape(pres.shapes.RECTANGLE, { x: px, y: cy0, w: pw, h: 5 * ch, fill: { color: INK }, line: { color: INK } });
-T(s, "STANDARDS WE FOLLOW", { x: px + 0.3, y: cy0 + 0.25, w: pw - 0.6, h: 0.3, fontFace: MONO, fontSize: 12, charSpacing: 2, color: YEL });
-const stds = [["IEEE 7000-2021", "ethics in system design"], ["IEEE 7002-2022", "data privacy process"],
-  ["IEEE 1012-2024", "verification and validation"], ["IEEE 2841-2022", "deep-learning evaluation"],
-  ["ANSI/UL 62368-1", "equipment safety"], ["NIST AI 100-1", "AI risk management"]];
+T(s, "STANDARDS", { x: px + 0.3, y: cy0 + 0.25, w: pw - 0.6, h: 0.3, fontFace: MONO, fontSize: 13, charSpacing: 2, color: YEL });
+const stds = [["IEEE 7000", "ethical design"], ["IEEE 7002", "privacy"], ["IEEE 1012", "verification, validation"],
+  ["IEEE 2841", "AI model evaluation"], ["UL 62368-1", "equipment safety"], ["NIST AI RMF", "AI risk"]];
 stds.forEach(([c, d], i) => {
-  const y = cy0 + 0.68 + i * 0.6;
+  const y = cy0 + 0.72 + i * 0.6;
   hline(s, px + 0.3, y, pw - 0.6, MUTED, 0.75);
-  T(s, c, { x: px + 0.3, y: y + 0.06, w: pw - 0.6, h: 0.26, fontFace: MONO, fontSize: 13, bold: true, color: PAPER });
-  T(s, d, { x: px + 0.3, y: y + 0.31, w: pw - 0.6, h: 0.25, fontFace: SANS, fontSize: 12.5, color: MUTED_D });
+  T(s, c, { x: px + 0.3, y: y + 0.14, w: 1.75, h: 0.32, fontFace: MONO, fontSize: 14, bold: true, color: PAPER });
+  T(s, d, { x: px + 2.1, y: y + 0.14, w: pw - 2.4, h: 0.32, fontFace: SANS, fontSize: 14, color: MUTED_D });
 });
-notes(s, "Our constraints come in five groups. Technical: everything must fit in the Jetson’s 8 gigabytes and meet the 1.2 second budget with one ordinary camera and no network. Economic: about 500 to 665 dollars, paid by the four of us, so only free, open-source models. Legal: under the ADA the device must never be presented as a replacement for an interpreter; the dataset and translation model are licensed for non-commercial use only; recordings of people need consent and an IRB check. Ethical: nothing is spoken without the user’s confirmation, and we report accuracy for each signer. On the right, the six standards: IEEE 7000 for ethical design, 7002 for privacy, 1012 for verification and validation, 2841 for evaluating deep-learning models, UL 62368-1 for electrical and thermal safety, and the NIST AI risk management framework. (About 75 seconds.)");
+notes(s, "Our constraints in five groups. Technical: everything must fit in the Jetson’s 8 gigabytes and meet the 1.2 second budget with one ordinary camera and no network. Economic: about 500 to 665 dollars in parts, paid by the four of us, so only free, open-source models. Legal: under the ADA the device must never be presented as a replacement for an interpreter; the ASL Citizen dataset and the NLLB translation model are licensed for non-commercial use only; recordings of people need written consent and an IRB check. Ethical: nothing is spoken without the user’s confirmation, and accuracy is reported for each signer. Time and safety: we propose now and build in ECE 416, keeping heat and power in check. On the right, the six standards we follow: IEEE 7000 for ethical design, 7002 for privacy, 1012 for verification and validation, 2841 for evaluating deep-learning models, UL 62368-1 for electrical and thermal safety, and the NIST AI risk management framework. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 5 block diagram
 pres.addSection({ title: "Design" });
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Design" });
 s.addText("05 / COMPONENTS & BLOCK DIAGRAM", { placeholder: "label" });
 s.addText("One $250 board does all the thinking", { placeholder: "title" });
-const bx = X0, by = 2.0, bw = 4.75, bh = 4.6;
+const bx = X0, by = 1.95, bh = 4.7, bw = (bh - 0.2) * 1513 / 1436 + 0.2;
 s.addShape(pres.shapes.RECTANGLE, { x: bx, y: by, w: bw, h: bh, fill: { color: CARD }, line: { color: INK, width: 0.75 } });
-const iw = bw - 0.2, ih = iw * 1436 / 1513;
-s.addImage({ path: FIG("fig_hw_block_diagram.png"), x: bx + 0.1, y: by + (bh - ih) / 2, w: iw, h: ih,
+s.addImage({ path: FIG("fig_hw_block_diagram.png"), x: bx + 0.1, y: by + 0.1, w: bw - 0.2, h: bh - 0.2,
   altText: "Hardware block diagram: camera, touchscreen, button and LED face the Deaf user; speaker and microphone face the hearing person; Jetson Orin Nano developer kit with SSD and power inside the base; Wi-Fi removed" });
-const tx = bx + bw + 0.45, tw = X0 + CW - tx;
-table(s, [["Component", "Role", "USD"], ["Jetson Orin Nano 8 GB kit", "runs every model", "250"],
-  ["USB camera, 1080p", "sees the signer", "40–70"], ["7-inch touchscreen", "confirm, read reply", "60–90"],
-  ["USB microphone, speaker", "hearing side", "35–70"], ["256 GB NVMe SSD", "OS and models", "30–40"],
-  ["Enclosure, cables, controls", "3D-printed base", "30–65"], ["Battery pack (optional)", "portable use", "50–80"],
-  ["Total", "", "495–665"]],
-  { x: tx, y: by, w: tw, colW: [3.05, 2.25, tw - 5.3], rowH: 0.42, fontSize: 14, ink: INK, text: INK,
-    rowFill: (i) => (i === 8 ? YEL : (i > 0 && i % 2 === 0 ? BAND : null)), boldRow: (i) => i === 8 });
-T(s, "On the module: MediaPipe · our recognizer (1.78 M parameters, about 4 ms per sign) · NLLB-200 · Piper · Whisper",
-  { x: tx, y: by + 9 * 0.42 + 0.25, w: tw, h: 0.6, fontFace: SANS, fontSize: 13.5, color: "3D3A35" });
-notes(s, "This is the hardware block diagram. Everything that thinks is one NVIDIA Jetson Orin Nano developer kit in the base. On the Deaf user’s side: the camera, the touchscreen, and a button and LED; the LED lights whenever the camera or microphone is on. On the hearing person’s side: speaker and microphone, all on USB. The board has only DisplayPort, so the touchscreen uses an adapter. We remove the Wi-Fi card and leave Ethernet unplugged, so offline is a physical fact you can check. Parts total about 495 to 665 dollars. On the module run MediaPipe, our 1.78-million-parameter recognizer, which needs about 4 milliseconds per sign, NLLB-200, Piper and Whisper. (About 75 seconds.)");
+const tx = bx + bw + 0.5, tw = X0 + CW - tx;
+T(s, "$495–665", { x: tx, y: by, w: tw, h: 0.85, fontFace: SERIF, fontSize: 48, color: BLUE });
+T(s, "in parts for one prototype", { x: tx, y: by + 0.85, w: tw, h: 0.35, fontFace: SANS, fontSize: 16, color: MUTED });
+const parts = [["Jetson Orin Nano 8 GB", "$250"], ["Camera, touchscreen", "$100–160"], ["Microphone, speaker", "$35–70"],
+               ["SSD, case, battery", "$110–185"]];
+parts.forEach(([p, c], i) => {
+  const y = by + 1.5 + i * 0.55;
+  hline(s, tx, y, tw, i === 0 ? INK : RULE, i === 0 ? 1.5 : 0.75);
+  T(s, p, { x: tx, y: y + 0.12, w: tw - 1.6, h: 0.35, fontFace: SANS, fontSize: 17, bold: i === 0, color: INK });
+  T(s, c, { x: tx + tw - 1.6, y: y + 0.12, w: 1.6, h: 0.35, align: "right", fontFace: MONO, fontSize: 15, color: INK });
+});
+hline(s, tx, by + 1.5 + 4 * 0.55, tw, INK, 1.5);
+T(s, "RUNS: MEDIAPIPE · RECOGNIZER · NLLB-200 · PIPER · WHISPER", { x: tx, y: by + 3.95, w: tw, h: 0.65,
+  fontFace: MONO, fontSize: 12, color: "3D3A35", lineSpacingMultiple: 1.2 });
+notes(s, "This is the hardware block diagram. Everything that thinks is one NVIDIA Jetson Orin Nano developer kit in the base, about 250 dollars. On the Deaf user’s side: the camera, the touchscreen, and a button and LED; the LED lights whenever the camera or microphone is on. On the hearing person’s side: speaker and microphone, all on USB. The board has only DisplayPort, so the touchscreen uses an adapter. We remove the Wi-Fi card and leave Ethernet unplugged, so offline is a physical fact you can check. Parts for one prototype total about 495 to 665 dollars. On the module run MediaPipe, our 1.78-million-parameter recognizer, which needs about 4 milliseconds per sign, NLLB-200 for translation, Piper for speech and Whisper for the reply. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 6 prototyping
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Design" });
 s.addText("06 / PROTOTYPING, VALIDATION, TESTING & ASSEMBLY", { placeholder: "label" });
 s.addText("Cheap prototypes first, then the real device", { placeholder: "title" });
-const fx = X0, fy = 2.0, fw = 4.6, fh = 4.2;
+const fx = X0, fy = 1.95, fh = 4.45, fw = (fh - 0.2) * 1524 / 1355 + 0.2;
 s.addShape(pres.shapes.RECTANGLE, { x: fx, y: fy, w: fw, h: fh, fill: { color: CARD }, line: { color: INK, width: 0.75 } });
-const fiw = fw - 0.2, fih = fiw * 1355 / 1524;
-s.addImage({ path: FIG("fig_design_flow.png"), x: fx + 0.1, y: fy + (fh - fih) / 2, w: fiw, h: fih,
+s.addImage({ path: FIG("fig_design_flow.png"), x: fx + 0.1, y: fy + 0.1, w: fw - 0.2, h: fh - 0.2,
   altText: "Course design flow chart filled in for our project: objectives, benchmarking, concept and constraints, business, three component designs, prototyping and testing, prototype assembly" });
-T(s, "Course design flow, filled in", { x: fx, y: fy + fh + 0.1, w: fw, h: 0.28, fontFace: MONO, fontSize: 11, color: MUTED });
-const rx = fx + fw + 0.45, rw = X0 + CW - rx, rh = 0.52;
-const protos = [["P1", "Proof of principle:", " laptop and webcam live demo", "BUILT"],
-  ["P2", "User experience:", " paper screens, Wizard of Oz", "NEXT"], ["P3", "Bench:", " Jetson with USB parts, no case", "PURCHASE"],
-  ["P4", "Form study:", " 3D-printed enclosure", "PLANNED"], ["P5", "Working prototype:", " full device, assembled", "ECE 416"]];
-protos.forEach(([c, b, rest, st], i) => {
+T(s, "Course design flow, filled in", { x: fx, y: fy + fh + 0.08, w: fw, h: 0.28, fontFace: MONO, fontSize: 11, color: MUTED });
+const rx = fx + fw + 0.5, rw = X0 + CW - rx, rh = 0.52;
+const protos = [["P1", "Laptop demo", "BUILT"], ["P2", "Paper mock-up", "NEXT"], ["P3", "Jetson on the bench", "SOON"],
+  ["P4", "3D-printed case", "PLANNED"], ["P5", "Full device", "ECE 416"]];
+protos.forEach(([c, t, st], i) => {
   const y = fy + i * rh;
   hline(s, rx, y, rw, i === 0 ? INK : RULE, i === 0 ? 1.5 : 0.75);
-  T(s, c, { x: rx, y: y + 0.12, w: 0.5, h: 0.3, fontFace: MONO, fontSize: 13, bold: true, color: INK });
-  T(s, [{ text: b, options: { bold: true } }, { text: rest }], { x: rx + 0.55, y: y + 0.12, w: rw - 2.05, h: 0.32,
-    fontFace: SANS, fontSize: 14, color: INK });
+  T(s, c, { x: rx, y: y + 0.12, w: 0.55, h: 0.32, fontFace: MONO, fontSize: 14, bold: true, color: INK });
+  T(s, t, { x: rx + 0.6, y: y + 0.11, w: rw - 2.1, h: 0.34, fontFace: SANS, fontSize: 17, color: INK });
   if (i === 0) s.addShape(pres.shapes.RECTANGLE, { x: rx + rw - 1.4, y: y + 0.1, w: 1.4, h: 0.32, fill: { color: YEL }, line: { color: YEL } });
-  T(s, st, { x: rx + rw - 1.4, y: y + 0.1, w: 1.4, h: 0.32, valign: "middle", align: "center", fontFace: MONO, fontSize: 12,
+  T(s, st, { x: rx + rw - 1.4, y: y + 0.1, w: 1.4, h: 0.32, valign: "middle", align: "center", fontFace: MONO, fontSize: 13,
     color: i === 0 ? INK : BLUE });
 });
 hline(s, rx, fy + 5 * rh, rw, INK, 1.5);
-T(s, [{ text: "Validated so far: ", options: { bold: true, color: BLUE } },
-      { text: "86.6% top-1 on 11 unseen Deaf signers; the device answers 85.1% of signs at 6.5% error and asks the user about the rest." }],
-  { x: rx, y: fy + 5 * rh + 0.25, w: rw, h: 0.8, fontFace: SANS, fontSize: 14.5, color: INK, lineSpacingMultiple: 1.1 });
-T(s, "UNIT → INTEGRATION → SYSTEM TESTS (R1–R15) → VALIDATION WITH DEAF SIGNERS",
-  { x: rx, y: fy + 5 * rh + 1.2, w: rw, h: 0.6, fontFace: MONO, fontSize: 12, color: "3D3A35", lineSpacingMultiple: 1.15 });
-notes(s, "On the left is the course’s design flow chart, filled in for our project: our three goals are components X, Y and Z, and we added one loop back to the concept when a test misses its target. We prototype from cheap to expensive. P1, the proof of principle, is built: a laptop and webcam running the full recognizer live. P2 tests the confirmation screen with Deaf users on paper, with a teammate playing the computer, the Wizard of Oz method. P3 is the Jetson on the bench, P4 the 3D-printed enclosure, and P5 the assembled device in ECE 416. Validation so far is on recorded data: 86.6 percent top-1, and at our threshold the device answers 85 percent of signs at 6.5 percent error and asks the user about the rest. Testing goes from unit to integration to 15 system requirements, ending with Deaf users at a mock counter. (About 80 seconds.)");
+T(s, "85%", { x: rx, y: fy + 5 * rh + 0.2, w: 1.9, h: 0.85, fontFace: SERIF, fontSize: 50, color: BLUE });
+T(s, "of signs answered at 6.5% error; the user is asked about the rest", { x: rx + 2.0, y: fy + 5 * rh + 0.3, w: rw - 2.0,
+  h: 0.7, fontFace: SANS, fontSize: 15, color: INK });
+T(s, "UNIT → INTEGRATION → SYSTEM → DEAF USERS", { x: rx, y: fy + 5 * rh + 1.25, w: rw, h: 0.35,
+  fontFace: MONO, fontSize: 13, color: "3D3A35" });
+notes(s, "On the left is the course’s design flow chart, filled in for our project: our three goals are components X, Y and Z, and we added one loop back to the concept when a test misses its target. We prototype from cheap to expensive. P1, the proof of principle, is built: a laptop and webcam running the full recognizer live. P2 tests the confirmation screen with Deaf users on paper, with a teammate playing the computer, the Wizard of Oz method. P3 is the Jetson on the bench, P4 the 3D-printed enclosure, and P5 the assembled device in ECE 416. Validation so far is on recorded data from 11 unseen Deaf signers: at our confidence threshold the device answers 85 percent of signs at 6.5 percent error and asks the user about the rest. Testing goes from unit to integration to 15 system requirements, ending with Deaf users at a mock service counter. (About 80 seconds.)");
 
 // ---------------------------------------------------------------- 7 benchmarking
 pres.addSection({ title: "Comparison" });
@@ -219,27 +220,28 @@ s = pres.addSlide({ masterName: "DARK", sectionTitle: "Comparison" });
 s.addText("07 / BENCHMARKING · BUSINESS & ECONOMIC POTENTIAL", { placeholder: "label" });
 s.addText([{ text: "Others need a cloud, gloves or depth cameras. " }, { text: "We need one webcam", options: { italic: true, color: YEL } }],
   { placeholder: "title" });
-table(s, [["System", "Input", "Processing", "Abstains or confirms", "Output"],
-  ["Sign-Speak, patent 2026", "one camera", "cloud server", "menu of 3 sentences", "text"],
-  ["Avodah, patent 2019", "cameras + depth", "local or cloud", "not described", "speech, avatar"],
-  ["Sorenson, patent 2024", "video call", "relay servers", "not described", "voice, text"],
-  ["Bosch, patent 2018", "sensor gloves", "local", "not described", "text, audio"],
-  ["Our device", "one RGB camera", "offline Jetson", "both, by confidence", "speech EN/TR/ES"]],
-  { x: X0, y: 2.55, w: CW, colW: [2.75, 2.25, 2.0, 2.55, 2.08], rowH: 0.4, fontSize: 13.5, ink: PAPER, text: PAPER,
-    rowFill: (i) => (i === 5 ? YEL : null), cellColor: (i) => (i === 5 ? INK : null), boldRow: (i) => i === 5 });
-const stats = [["63.1% → 86.6%", "ASL Citizen baseline (2,731 signs) vs ours (134-word subset)"],
-  ["$495–665", "parts, with no per-use or cloud fees"],
-  ["69%", "of surveyed Deaf users accept a stand-alone device (38% a wearable)"]];
-const stw = (CW - 2 * 0.4) / 3;
-stats.forEach(([big, small], i) => {
-  const x = X0 + i * (stw + 0.4), y = 5.2;
-  hline(s, x, y, stw, MUTED, 0.75);
-  T(s, big, { x, y: y + 0.08, w: stw, h: 0.55, fontFace: SERIF, fontSize: 28, color: PAPER });
-  T(s, small, { x, y: y + 0.65, w: stw, h: 0.55, fontFace: SANS, fontSize: 12.5, color: MUTED_D });
+const kx = X0, kw = 6.9, ky = 3.1, kh = 0.56;
+const comp = [["Sign-Speak", "a cloud server"], ["Avodah", "cameras + depth sensor"], ["Sorenson", "relay servers"],
+              ["Bosch", "sensor gloves"], ["Our device", "one webcam, offline"]];
+T(s, "PATENTED SYSTEMS NEED", { x: kx, y: ky - 0.4, w: kw, h: 0.3, fontFace: MONO, fontSize: 12, charSpacing: 2, color: MUTED_D });
+comp.forEach(([sys, need], i) => {
+  const y = ky + i * kh, ours = i === 4;
+  if (ours) s.addShape(pres.shapes.RECTANGLE, { x: kx, y, w: kw, h: kh, fill: { color: YEL }, line: { color: YEL } });
+  else hline(s, kx, y, kw, i === 0 ? PAPER : MUTED, i === 0 ? 1.5 : 0.75);
+  T(s, sys, { x: kx + 0.12, y, w: 2.4, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, bold: true, color: ours ? INK : PAPER });
+  T(s, need, { x: kx + 2.6, y, w: kw - 2.7, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, color: ours ? INK : "C8C1B3" });
 });
-T(s, "Before any product: non-commercial licences (ASL Citizen, NLLB-200) and the granted Sign-Speak claim need review.",
-  { x: X0, y: 6.42, w: CW, h: 0.3, fontFace: SANS, fontSize: 12.5, color: MUTED_D });
-notes(s, "How we compare. Against the four closest patents: Sign-Speak also uses one camera but needs a cloud server; Avodah needs several cameras and a depth sensor; Sorenson works inside its video relay service on servers; Bosch uses sensor gloves. Ours runs on one ordinary camera, fully offline, and is the only one that decides by its calibrated confidence when to answer and when to ask. The industry benchmark for accuracy is ASL Citizen: its published baseline is 63.1 percent; ours is 86.6, but on 134 words instead of 2,731, so it is not a direct comparison. Business side: about 500 to 665 dollars in parts and no per-use fees, aimed at service counters, where Deaf users in the Tran et al. survey were most willing to use such a device; 69 percent accept a stand-alone device. Honest risks: our data and translation model are non-commercial only, and Sign-Speak’s granted patent would need a legal review before any product. (About 80 seconds.)");
+const sx = 8.3, sw2 = X0 + CW - sx;
+const stats = [["63.1% → 86.6%", "accuracy: published baseline vs ours*"], ["$495–665", "parts, no per-use fees"],
+               ["69%", "of Deaf users accept a stand-alone device"]];
+stats.forEach(([big, small], i) => {
+  const y = ky - 0.4 + i * 1.3;
+  hline(s, sx, y, sw2, MUTED, 0.75);
+  T(s, big, { x: sx, y: y + 0.1, w: sw2, h: 0.6, fontFace: SERIF, fontSize: 30, color: PAPER });
+  T(s, small, { x: sx, y: y + 0.72, w: sw2, h: 0.4, fontFace: SANS, fontSize: 14, color: MUTED_D });
+});
+T(s, "* ASL Citizen: 2,731 signs vs our 134-word subset", { x: sx, y: 6.42, w: sw2, h: 0.3, fontFace: SANS, fontSize: 11, color: MUTED_D });
+notes(s, "How we compare. The four closest patents each need something extra: Sign-Speak, granted this year, uses one camera but needs a cloud server; Avodah needs several cameras and a depth sensor; Sorenson works on servers inside its video relay service; Bosch uses sensor gloves. Ours needs one ordinary webcam and runs fully offline, and it is the only one that decides by calibrated confidence when to answer and when to ask the user. The industry benchmark for accuracy is the ASL Citizen dataset: its published baseline is 63.1 percent; ours is 86.6, but on 134 words instead of 2,731, so it is not a direct comparison. Business side: about 500 to 665 dollars in parts and no per-use or cloud fees, aimed at service counters and front desks, where Deaf users in the Tran et al. survey were most willing to use such a device; 69 percent accept a stand-alone device, only 38 percent a wearable. Honest risks: our dataset and translation model are non-commercial only, and Sign-Speak’s granted patent would need a legal review before any product. (About 80 seconds.)");
 
 // ---------------------------------------------------------------- 8 references
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Comparison" });

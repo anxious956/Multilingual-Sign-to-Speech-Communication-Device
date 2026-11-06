@@ -1,10 +1,13 @@
 // Team 9 proposal presentation as .pptx (same content and look as the online deck).
-// npm install pptxgenjs; NODE_PATH=<its node_modules> PPTX_SKILL=<pptx skill dir> node tools/build_presentation.js . docs/presentation/njit_logo.png docs/presentation/Team9_Proposal_Presentation.pptx
+// npm install pptxgenjs react react-dom react-icons sharp; then NODE_PATH=<its node_modules> PPTX_SKILL=<pptx skill dir>
+// node tools/build_presentation.js . docs/presentation/njit_logo.png docs/presentation/Team9_Proposal_Presentation.pptx docs/presentation/setup_sketch.png 1078 568
 const path = require("path");
 const pptxgen = require("pptxgenjs");
 const { applyTheme } = require(process.env.PPTX_SKILL + "/scripts/apply_theme.js");
 
-const [ROOT, LOGO, OUT] = process.argv.slice(2);
+const React = require("react"), RDS = require("react-dom/server"), sharp = require("sharp");
+const fa = require("react-icons/fa"), md = require("react-icons/md");
+const [ROOT, LOGO, OUT, SKETCH, SK_W, SK_H] = process.argv.slice(2);
 const FIG = (f) => path.join(ROOT, "docs", "figures", f);
 
 const INK = "1C1B19", PAPER = "EFEBE2", CARD = "FBF9F4", YEL = "F4D35E", BLUE = "2944C2";
@@ -62,19 +65,34 @@ function table(s, rows, o) {
                      margin: [3, 6, 3, 6], valign: "middle", autoPage: false });
 }
 
+async function ico(C, color) {
+  const svg = RDS.renderToStaticMarkup(React.createElement(C, { color: "#" + color, size: 256 }));
+  return "image/png;base64," + (await sharp(Buffer.from(svg)).png().toBuffer()).toString("base64");
+}
+const icon = (s, data, x, y, d, name) => s.addImage({ data, x, y, w: d, h: d, altText: name });
+
+(async () => {
+const I = {
+  sign: await ico(fa.FaSignLanguage, PAPER), landmarks: await ico(md.MdScatterPlot, PAPER), brain: await ico(fa.FaBrain, PAPER),
+  confirm: await ico(md.MdTouchApp, INK), translate: await ico(md.MdTranslate, PAPER), speak: await ico(md.MdRecordVoiceOver, PAPER),
+  chip: await ico(fa.FaMicrochip, INK), dollar: await ico(fa.FaDollarSign, INK), law: await ico(fa.FaBalanceScale, INK),
+  hands: await ico(fa.FaHandsHelping, INK), clock: await ico(fa.FaClock, INK),
+  cloud: await ico(fa.FaCloud, PAPER), cams: await ico(fa.FaVideo, PAPER), server: await ico(fa.FaServer, PAPER),
+  glove: await ico(fa.FaHandPaper, PAPER), cam: await ico(fa.FaCamera, INK),
+};
 // ---------------------------------------------------------------- 1 cover
 pres.addSection({ title: "Introduction" });
 let s = pres.addSlide({ masterName: "COVER", sectionTitle: "Introduction" });
-T(s, "9", { x: 8.3, y: -0.35, w: 4.4, h: 6.0, fontFace: SERIF, fontSize: 380, color: NINE, align: "right", objectName: "team number" });
+s.addImage({ path: SKETCH, x: 7.25, y: 1.45, w: 5.2, h: 5.2 * SK_H / SK_W, altText: "Side view of the device at a service counter: the Deaf user signs to the camera and touchscreen; the speaker and microphone face the hearing staff member" });
 s.addImage({ path: LOGO, x: X0, y: 0.55, w: 1.9, h: 0.5, altText: "NJIT logo" });
 T(s, "ECE 414 · PROPOSAL · FALL 2026", { x: 7.5, y: 0.68, w: 4.98, h: 0.3, fontFace: MONO, fontSize: 12, charSpacing: 2,
   color: MUTED, align: "right" });
 T(s, "Sign‑to‑Speech", { x: X0, y: 1.45, w: 9.5, h: 1.35, fontFace: SERIF, fontSize: 80, color: INK });
 T(s, "A multilingual communication device: edge-deployed ASL recognition with confidence-gated speech output",
-  { x: X0, y: 2.9, w: 8.0, h: 0.85, fontFace: SANS, fontSize: 18, color: MUTED, lineSpacingMultiple: 1.15 });
-s.addShape(pres.shapes.RECTANGLE, { x: X0, y: 3.95, w: 6.55, h: 0.6, fill: { color: YEL }, line: { color: YEL } });
-T(s, "Signs in. Speech out. Nothing leaves the device.", { x: X0 + 0.15, y: 3.95, w: 6.3, h: 0.6, valign: "middle",
-  fontFace: SERIF, fontSize: 22, italic: true, color: INK });
+  { x: X0, y: 2.85, w: 5.8, h: 1.0, fontFace: SANS, fontSize: 18, color: MUTED, lineSpacingMultiple: 1.15 });
+s.addShape(pres.shapes.RECTANGLE, { x: X0, y: 4.0, w: 5.8, h: 0.6, fill: { color: YEL }, line: { color: YEL } });
+T(s, "Signs in. Speech out. Nothing leaves the device.", { x: X0 + 0.15, y: 4.0, w: 5.6, h: 0.6, valign: "middle",
+  fontFace: SERIF, fontSize: 20, italic: true, color: INK });
 T(s, "TEAM 9", { x: X0, y: 4.95, w: 3, h: 0.3, fontFace: MONO, fontSize: 12, bold: true, charSpacing: 2, color: INK });
 const team = [["01", "Asmar Hasanova", "Sign recognition"], ["02", "Dorukhan Cakir", "Sentence and confirmation"],
               ["03", "Zeynep Hafsa Cakici", "Translation, speech, reply"], ["04", "Merrick Simmons", "Embedded system"]];
@@ -94,16 +112,17 @@ s.addText([{ text: "It speaks only when the signer says " }, { text: "yes", opti
   { placeholder: "title" });
 const steps = [["1", "Sign", "one camera"], ["2", "Landmarks", "MediaPipe"], ["3", "Recognize", "+ confidence"],
                ["4", "Confirm", "touchscreen"], ["5", "Translate", "EN · TR · ES"], ["6", "Speak", "offline voice"]];
-const sw = CW / 6, sy = 3.0;
+const sw = CW / 6, sy = 2.65;
 hline(s, X0, sy, CW, PAPER, 1.5);
 steps.forEach(([n, w, sub], i) => {
   const x = X0 + i * sw, hot = i === 3;
-  if (hot) s.addShape(pres.shapes.RECTANGLE, { x, y: sy + 0.02, w: sw, h: 1.75, fill: { color: YEL }, line: { color: YEL } });
-  else if (i > 0 && i !== 4) vline(s, x, sy + 0.15, 1.45, MUTED, 0.75);
+  if (hot) s.addShape(pres.shapes.RECTANGLE, { x, y: sy + 0.02, w: sw, h: 2.05, fill: { color: YEL }, line: { color: YEL } });
+  else if (i > 0 && i !== 4) vline(s, x, sy + 0.15, 1.75, MUTED, 0.75);
   const pad = i === 0 ? 0 : 0.15;
-  T(s, n, { x: x + pad, y: sy + 0.18, w: sw - 0.3, h: 0.3, fontFace: MONO, fontSize: 14, color: hot ? INK : MUTED_D });
-  T(s, w, { x: x + pad, y: sy + 0.55, w: sw - 0.2, h: 0.6, fontFace: SERIF, fontSize: 27, color: hot ? INK : PAPER });
-  T(s, sub, { x: x + pad, y: sy + 1.2, w: sw - 0.25, h: 0.35, fontFace: SANS, fontSize: 14, color: hot ? INK : MUTED_D });
+  icon(s, I[["sign", "landmarks", "brain", "confirm", "translate", "speak"][i]], x + pad, sy + 0.22, 0.55, w);
+  T(s, n, { x: x + sw - 0.45, y: sy + 0.22, w: 0.3, h: 0.3, align: "right", fontFace: MONO, fontSize: 13, color: hot ? INK : MUTED_D });
+  T(s, w, { x: x + pad, y: sy + 0.9, w: sw - 0.2, h: 0.6, fontFace: SERIF, fontSize: 27, color: hot ? INK : PAPER });
+  T(s, sub, { x: x + pad, y: sy + 1.52, w: sw - 0.25, h: 0.35, fontFace: SANS, fontSize: 14, color: hot ? INK : MUTED_D });
 });
 T(s, "The reply comes back as text  ·  nothing leaves the device", { x: X0, y: 5.45, w: CW, h: 0.45,
   fontFace: SERIF, fontSize: 22, italic: true, color: "C8C1B3" });
@@ -114,22 +133,35 @@ pres.addSection({ title: "Requirements" });
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });
 s.addText("03 / DESIGN OBJECTIVES & SPECIFICATIONS", { placeholder: "label" });
 s.addText("Four numbers that matter most", { placeholder: "title" });
-const big4 = [["86.6%", "Top-1 accuracy", "target ≥ 75%"], ["98.2%", "Top-5 accuracy", "target ≥ 90%"],
-              ["0.7 s", "Confirm → speech", "target < 1.2 s"], ["4.4 GB", "All models", "limit 8 GB"]];
-const bw4 = (CW - 3 * 0.4) / 4;
+const big4 = [["86.6%", "Top-1 accuracy", "target \u2265 75%"], ["98.2%", "Top-5 accuracy", "target \u2265 90%"],
+              ["0.7 s", "Confirm \u2192 speech", "target < 1.2 s"], ["4.4 GB", "All models", "limit 8 GB"]];
+const bw4 = 2.6;
 big4.forEach(([n, what, tgt], i) => {
-  const x = X0 + i * (bw4 + 0.4), y = 2.3;
+  const x = X0 + (i % 2) * (bw4 + 0.35), y = 2.05 + Math.floor(i / 2) * 1.85;
   hline(s, x, y, bw4, INK, 1.5);
-  T(s, n, { x, y: y + 0.2, w: bw4, h: 1.05, fontFace: SERIF, fontSize: 58, color: BLUE });
-  T(s, what, { x, y: y + 1.35, w: bw4, h: 0.4, fontFace: SANS, fontSize: 18, bold: true, color: INK });
-  T(s, tgt, { x, y: y + 1.8, w: bw4, h: 0.35, fontFace: MONO, fontSize: 14, color: MUTED });
+  T(s, n, { x, y: y + 0.12, w: bw4, h: 0.8, fontFace: SERIF, fontSize: 44, color: BLUE });
+  T(s, what, { x, y: y + 0.95, w: bw4, h: 0.35, fontFace: SANS, fontSize: 16, bold: true, color: INK });
+  T(s, tgt, { x, y: y + 1.32, w: bw4, h: 0.3, fontFace: MONO, fontSize: 13, color: MUTED });
 });
-T(s, "Also required: 100–250 signs  ·  EN, TR, ES  ·  fully offline  ·  ≥ 15 frames per second",
-  { x: X0, y: 4.95, w: CW, h: 0.4, fontFace: SANS, fontSize: 17, color: "3D3A35" });
-s.addShape(pres.shapes.RECTANGLE, { x: X0, y: 5.6, w: 0.9, h: 0.38, fill: { color: YEL }, line: { color: YEL } });
-T(s, "NEXT", { x: X0, y: 5.6, w: 0.9, h: 0.38, align: "center", valign: "middle", fontFace: MONO, fontSize: 13, bold: true, color: INK });
-T(s, "the same tests on the Jetson and with our own camera", { x: X0 + 1.1, y: 5.6, w: 9, h: 0.38, valign: "middle",
-  fontFace: SANS, fontSize: 17, color: INK });
+s.addShape(pres.shapes.RECTANGLE, { x: X0, y: 5.95, w: 0.9, h: 0.36, fill: { color: YEL }, line: { color: YEL } });
+T(s, "NEXT", { x: X0, y: 5.95, w: 0.9, h: 0.36, align: "center", valign: "middle", fontFace: MONO, fontSize: 13, bold: true, color: INK });
+T(s, "same tests on the Jetson and our own camera", { x: X0 + 1.05, y: 5.95, w: 4.6, h: 0.36, valign: "middle",
+  fontFace: SANS, fontSize: 14, color: INK });
+const gx = 6.95, gw = X0 + CW - gx;
+s.addChart(pres.charts.BAR, [
+  { name: "Top-1", labels: ["v1", "v2", "v3", "v4", "v5"], values: [61.0, 62.3, 66.4, 67.2, 86.6] },
+  { name: "Top-5", labels: ["v1", "v2", "v3", "v4", "v5"], values: [77.6, 79.5, 83.0, 83.9, 98.2] }],
+  { x: gx, y: 1.95, w: gw, h: 4.3, barDir: "col", barGrouping: "clustered", barGapWidthPct: 60,
+    chartColors: [BLUE, MUTED_D], showValue: true, dataLabelPosition: "outEnd", dataLabelFontSize: 10, dataLabelColor: INK,
+    dataLabelFormatCode: "0.0", dataLabelFontFace: "+mn-lt",
+    valAxisMinVal: 40, valAxisMaxVal: 100, valAxisMajorUnit: 20, valAxisLabelColor: MUTED, valAxisLabelFontSize: 10,
+    valAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisLabelFontSize: 12, catAxisLabelFontFace: "+mn-lt",
+    valGridLine: { color: "D6CFC0", size: 0.5 }, catGridLine: { style: "none" },
+    showLegend: true, legendPos: "t", legendFontSize: 11, legendColor: INK, legendFontFace: "+mn-lt",
+    showTitle: true, title: "Our recognizer, version by version (% on unseen signers)", titleFontSize: 13, titleColor: INK,
+    titleFontFace: "+mn-lt", objectName: "accuracy chart" });
+T(s, "v1\u2013v4: Kaggle data, 250 signs \u00b7 v5: ASL Citizen, 134 words", { x: gx, y: 6.3, w: gw, h: 0.3,
+  fontFace: MONO, fontSize: 11, color: MUTED });
 notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must reach at least 75 percent top-1 and 90 percent top-5 on signers the model has never seen; our v5 model reaches 86.6 and 98.2 percent on the 11 Deaf test signers of the ASL Citizen dataset. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio takes about 0.7 seconds on an ordinary CPU. All models together are estimated at 4.4 of the Jetson’s 8 gigabytes. The other requirements: a vocabulary of 100 to 250 signs (our draft has 134 words), three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). Next we repeat these tests on the Jetson and with our own camera. If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 4 constraints
@@ -143,8 +175,9 @@ const cy0 = 2.05, ch = 0.86, cw = 6.85;
 cons.forEach(([k, v], i) => {
   const y = cy0 + i * ch;
   hline(s, X0, y, cw, i === 0 ? INK : RULE, i === 0 ? 1.5 : 0.75);
-  T(s, k, { x: X0, y: y + 0.2, w: 2.0, h: 0.45, fontFace: SERIF, fontSize: 22, color: INK });
-  T(s, v, { x: X0 + 2.1, y: y + 0.24, w: cw - 2.1, h: 0.45, fontFace: SANS, fontSize: 17, color: "3D3A35" });
+  icon(s, I[["chip", "dollar", "law", "hands", "clock"][i]], X0 + 0.02, y + 0.22, 0.4, k);
+  T(s, k, { x: X0 + 0.6, y: y + 0.2, w: 1.9, h: 0.45, fontFace: SERIF, fontSize: 22, color: INK });
+  T(s, v, { x: X0 + 2.6, y: y + 0.24, w: cw - 2.6, h: 0.45, fontFace: SANS, fontSize: 17, color: "3D3A35" });
 });
 hline(s, X0, cy0 + 5 * ch, cw, INK, 1.5);
 const px = 8.15, pw = X0 + CW - px;
@@ -172,15 +205,11 @@ s.addImage({ path: FIG("fig_hw_block_diagram.png"), x: bx + 0.1, y: by + 0.1, w:
 const tx = bx + bw + 0.5, tw = X0 + CW - tx;
 T(s, "$495–665", { x: tx, y: by, w: tw, h: 0.85, fontFace: SERIF, fontSize: 48, color: BLUE });
 T(s, "in parts for one prototype", { x: tx, y: by + 0.85, w: tw, h: 0.35, fontFace: SANS, fontSize: 16, color: MUTED });
-const parts = [["Jetson Orin Nano 8 GB", "$250"], ["Camera, touchscreen", "$100–160"], ["Microphone, speaker", "$35–70"],
-               ["SSD, case, battery", "$110–185"]];
-parts.forEach(([p, c], i) => {
-  const y = by + 1.5 + i * 0.55;
-  hline(s, tx, y, tw, i === 0 ? INK : RULE, i === 0 ? 1.5 : 0.75);
-  T(s, p, { x: tx, y: y + 0.12, w: tw - 1.6, h: 0.35, fontFace: SANS, fontSize: 17, bold: i === 0, color: INK });
-  T(s, c, { x: tx + tw - 1.6, y: y + 0.12, w: 1.6, h: 0.35, align: "right", fontFace: MONO, fontSize: 15, color: INK });
-});
-hline(s, tx, by + 1.5 + 4 * 0.55, tw, INK, 1.5);
+s.addChart(pres.charts.DOUGHNUT, [{ name: "Cost", labels: ["Jetson board", "Camera, screen", "Mic, speaker", "SSD, case, battery"],
+  values: [250, 130, 52.5, 147.5] }],
+  { x: tx, y: by + 1.25, w: tw, h: 2.6, holeSize: 55, chartColors: ["7C93E8", YEL, MUTED_D, RULE], showPercent: true,
+    showValue: false, dataLabelColor: INK, dataLabelFontSize: 11, dataLabelFontFace: "+mn-lt", showLegend: true,
+    legendPos: "r", legendFontSize: 13, legendColor: INK, legendFontFace: "+mn-lt", objectName: "cost chart" });
 T(s, "RUNS: MEDIAPIPE · RECOGNIZER · NLLB-200 · PIPER · WHISPER", { x: tx, y: by + 3.95, w: tw, h: 0.65,
   fontFace: MONO, fontSize: 12, color: "3D3A35", lineSpacingMultiple: 1.2 });
 notes(s, "This is the hardware block diagram. Everything that thinks is one NVIDIA Jetson Orin Nano developer kit in the base, about 250 dollars. On the Deaf user’s side: the camera, the touchscreen, and a button and LED; the LED lights whenever the camera or microphone is on. On the hearing person’s side: speaker and microphone, all on USB. The board has only DisplayPort, so the touchscreen uses an adapter. We remove the Wi-Fi card and leave Ethernet unplugged, so offline is a physical fact you can check. Parts for one prototype total about 495 to 665 dollars. On the module run MediaPipe, our 1.78-million-parameter recognizer, which needs about 4 milliseconds per sign, NLLB-200 for translation, Piper for speech and Whisper for the reply. (About 75 seconds.)");
@@ -228,7 +257,8 @@ comp.forEach(([sys, need], i) => {
   const y = ky + i * kh, ours = i === 4;
   if (ours) s.addShape(pres.shapes.RECTANGLE, { x: kx, y, w: kw, h: kh, fill: { color: YEL }, line: { color: YEL } });
   else hline(s, kx, y, kw, i === 0 ? PAPER : MUTED, i === 0 ? 1.5 : 0.75);
-  T(s, sys, { x: kx + 0.12, y, w: 2.4, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, bold: true, color: ours ? INK : PAPER });
+  icon(s, I[["cloud", "cams", "server", "glove", "cam"][i]], kx + 0.12, y + 0.1, 0.36, sys);
+  T(s, sys, { x: kx + 0.65, y, w: 2.0, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, bold: true, color: ours ? INK : PAPER });
   T(s, need, { x: kx + 2.6, y, w: kw - 2.7, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, color: ours ? INK : "C8C1B3" });
 });
 const sx = 8.3, sw2 = X0 + CW - sx;
@@ -267,7 +297,6 @@ refBlock(rx2, ry + 2.3, "OTHER", [
   "MediaPipe (Lugaresi et al., 2019) · NLLB-200 (NLLB Team, 2022) · Whisper (Radford et al., 2023) · Piper TTS (Hansen, 2023) · Kaggle ISLR 1st place (Sohn, 2023) · NVIDIA Jetson Orin Nano documentation · IEEE 7000, 7002, 1012, 2841 · ANSI/UL 62368-1 · NIST AI 100-1"], 1.7);
 notes(s, "Our main sources: four patents we reviewed in detail, from Sign-Speak, Avodah, Sorenson and Bosch, and two articles: the ASL Citizen dataset, which we train and test on, and the Tran et al. survey of Deaf users, which chose our use case. The other line lists the models and standards we build on; the full list of 39 references is in Section 12 of the proposal. Then: thank you, and we are happy to take one or two questions. (About 20 seconds, then questions.)");
 
-(async () => {
   await pres.writeFile({ fileName: OUT });
   await applyTheme(OUT, THEME);
   console.log("wrote", OUT);

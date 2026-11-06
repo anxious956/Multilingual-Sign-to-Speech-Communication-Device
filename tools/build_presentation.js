@@ -12,7 +12,7 @@ const FIG = (f) => path.join(ROOT, "docs", "figures", f);
 
 const INK = "262626", PAPER = "FFFFFF", CARD = "F5F7FA", YEL = "DCE6F2", BLUE = "2E5C8A"; // calm: white, grey, one blue
 const MUTED = "595959", MUTED_D = "8C8C8C", BAND = "EEF2F7", RULE = "D0D5DC", NINE = "E6E9EE";
-const SERIF = "Calibri", SANS = "Calibri", MONO = "Calibri"; // one plain, readable face everywhere
+const SERIF = "Arial", SANS = "Arial", MONO = "Arial"; // one plain face that exists on Windows, Mac and iPhone
 const THEME = {
   name: "Sign-to-Speech", headFontFace: SERIF, bodyFontFace: SANS,
   colors: { dk1: INK, lt1: CARD, dk2: MUTED, lt2: PAPER, accent1: YEL, accent2: BLUE, accent3: MUTED_D,
@@ -108,12 +108,12 @@ s.addImage({ path: SKETCH, x: 7.25, y: 1.45, w: 5.2, h: 5.2 * SK_H / SK_W, altTe
 s.addImage({ path: LOGO, x: X0, y: 0.55, w: 1.9, h: 0.5, altText: "NJIT logo" });
 T(s, "ECE 414 · PROPOSAL · FALL 2026", { x: 7.5, y: 0.68, w: 4.98, h: 0.3, fontFace: MONO, fontSize: 12,
   color: MUTED, align: "right" });
-T(s, "Sign‑to‑Speech", { x: X0, y: 1.45, w: 9.5, h: 1.35, fontFace: SERIF, fontSize: 72, bold: true, color: INK });
+T(s, "Sign‑to‑Speech", { x: X0, y: 1.45, w: 9.5, h: 1.35, fontFace: SERIF, fontSize: 60, bold: true, color: INK });
 T(s, "A multilingual communication device: edge-deployed ASL recognition with confidence-gated speech output",
-  { x: X0, y: 2.85, w: 5.8, h: 1.0, fontFace: SANS, fontSize: 18, color: MUTED, lineSpacingMultiple: 1.15 });
+  { x: X0, y: 2.85, w: 5.8, h: 1.0, fontFace: SANS, fontSize: 16, color: MUTED, lineSpacingMultiple: 1.15 });
 s.addShape(pres.shapes.RECTANGLE, { x: X0, y: 4.0, w: 5.8, h: 0.6, fill: { color: YEL }, line: { color: YEL } });
 T(s, "Signs in. Speech out. Nothing leaves the device.", { x: X0 + 0.15, y: 4.0, w: 5.6, h: 0.6, valign: "middle",
-  fontFace: SERIF, fontSize: 20, color: INK });
+  fontFace: SERIF, fontSize: 17, color: INK });
 T(s, "TEAM 9", { x: X0, y: 4.95, w: 3, h: 0.3, fontFace: MONO, fontSize: 12, bold: true, color: INK });
 const team = [["01", "Asmar Hasanova", "Sign recognition"], ["02", "Dorukhan Cakir", "Sentence and confirmation"],
               ["03", "Zeynep Hafsa Cakici", "Translation, speech, reply"], ["04", "Merrick Simmons", "Embedded system"]];
@@ -142,7 +142,7 @@ steps.forEach(([n, w, sub], i) => {
   const pad = i === 0 ? 0 : 0.15;
   icon(s, I[["sign", "landmarks", "brain", "confirm", "translate", "speak"][i]], x + pad, sy + 0.22, 0.55, w);
   T(s, n, { x: x + sw - 0.45, y: sy + 0.22, w: 0.3, h: 0.3, align: "right", fontFace: MONO, fontSize: 13, color: MUTED });
-  T(s, w, { x: x + pad, y: sy + 0.9, w: sw - 0.2, h: 0.6, fontFace: SERIF, fontSize: 27, color: INK });
+  T(s, w, { x: x + pad, y: sy + 0.9, w: sw - 0.2, h: 0.6, fontFace: SERIF, fontSize: 22, color: INK });
   T(s, sub, { x: x + pad, y: sy + 1.52, w: sw - 0.25, h: 0.35, fontFace: SANS, fontSize: 14, color: MUTED });
 });
 T(s, "The reply comes back as text  ·  nothing leaves the device", { x: X0, y: 5.45, w: CW, h: 0.45,
@@ -342,7 +342,7 @@ const refBlock = (x, y, head, items, h) => {
   hline(s, x, y, colw, INK, 1.5);
   T(s, head, { x, y: y + 0.08, w: colw, h: 0.28, fontFace: MONO, fontSize: 12, bold: true, color: INK });
   T(s, items.map((t, i) => ({ text: t, options: { breakLine: i < items.length - 1, paraSpaceAfter: 7 } })),
-    { x, y: y + 0.42, w: colw, h, fontFace: SANS, fontSize: 13, color: INK, lineSpacingMultiple: 1.05 });
+    { x, y: y + 0.42, w: colw, h, fontFace: SANS, fontSize: 12, color: INK, lineSpacingMultiple: 1.05 });
 };
 refBlock(X0, ry, "PATENTS", [
   "Kelly, N. A. Realtime AI sign language recognition. US 12,518,653 B2, 2026 (Sign-Speak).",
@@ -353,7 +353,7 @@ const rx2 = X0 + colw + 0.5;
 refBlock(rx2, ry, "ARTICLES", [
   "Desai, A. et al. ASL Citizen. NeurIPS 36, 2023. doi:10.52202/075280-3360",
   "Tran, N., Ladner, R. E., Bragg, D. U.S. Deaf community perspectives on automatic sign language translation. ASSETS ’23. doi:10.1145/3597638.3614507"], 1.1);
-refBlock(rx2, ry + 2.15, "OTHER", [
+refBlock(rx2, ry + 2.3, "OTHER", [
   "MediaPipe (Lugaresi et al., 2019) · NLLB-200 (NLLB Team, 2022) · Whisper (Radford et al., 2023) · Piper TTS (Hansen, 2023) · Kaggle ISLR 1st place (Sohn, 2023) · NVIDIA Jetson Orin Nano documentation · IEEE 7000, 7002, 1012, 2841 · ANSI/UL 62368-1 · NIST AI 100-1"], 1.0);
 // grey logos under each group (Sorenson's logo could not be obtained; its name is in the list)
 const LOGO_DIR = path.join(ROOT, "docs", "presentation", "logos");
@@ -367,9 +367,9 @@ const logoRow = (keys, x, y, h, gap) => {
   });
 };
 logoRow(["signspeak", "avodah", "bosch"], X0, 5.1, 0.32, 0.4);
-logoRow(["neurips", "acm"], rx2, 3.6, 0.42, 0.4);
-logoRow(["google", "meta", "openai"], rx2, 5.68, 0.24, 0.3);
-logoRow(["nvidia", "ieee", "nist"], rx2, 6.08, 0.24, 0.3);
+logoRow(["neurips", "acm"], rx2, 3.72, 0.42, 0.4);
+logoRow(["google", "meta", "openai"], rx2, 5.95, 0.24, 0.3);
+logoRow(["nvidia", "ieee", "nist"], rx2, 6.32, 0.24, 0.3);
 notes(s, "Our main sources: four patents we reviewed in detail, from Sign-Speak, Avodah, Sorenson and Bosch, and two articles: the ASL Citizen dataset, which we train and test on, and the Tran et al. survey of Deaf users, which chose our use case. The other line lists the models and standards we build on; the full list of 39 references is in Section 12 of the proposal. Then: thank you, and we are happy to take one or two questions. (About 20 seconds, then questions.)");
 
   await pres.writeFile({ fileName: OUT });

@@ -10,13 +10,13 @@ const fa = require("react-icons/fa"), md = require("react-icons/md");
 const [ROOT, LOGO, OUT, SKETCH, SK_W, SK_H] = process.argv.slice(2);
 const FIG = (f) => path.join(ROOT, "docs", "figures", f);
 
-const INK = "1C1B19", PAPER = "EFEBE2", CARD = "FBF9F4", YEL = "F4D35E", BLUE = "2944C2";
-const MUTED = "4A4741", MUTED_D = "B9B2A4", BAND = "E6E0D3", RULE = "B7AF9F", NINE = "E2DCCF";
-const SERIF = "Cambria", SANS = "Calibri", MONO = "Courier New";
+const INK = "262626", PAPER = "FFFFFF", CARD = "F5F7FA", YEL = "DCE6F2", BLUE = "2E5C8A"; // calm: white, grey, one blue
+const MUTED = "595959", MUTED_D = "8C8C8C", BAND = "EEF2F7", RULE = "D0D5DC", NINE = "E6E9EE";
+const SERIF = "Calibri", SANS = "Calibri", MONO = "Calibri"; // one plain, readable face everywhere
 const THEME = {
   name: "Sign-to-Speech", headFontFace: SERIF, bodyFontFace: SANS,
   colors: { dk1: INK, lt1: CARD, dk2: MUTED, lt2: PAPER, accent1: YEL, accent2: BLUE, accent3: MUTED_D,
-            accent4: BAND, accent5: "3D3A35", accent6: RULE, hlink: BLUE, folHlink: MUTED },
+            accent4: BAND, accent5: "404040", accent6: RULE, hlink: BLUE, folHlink: MUTED },
 };
 
 const pres = new pptxgen();
@@ -27,21 +27,21 @@ pres.author = "Team 9";
 
 const X0 = 0.85, CW = 11.63; // margins and content width
 const footer = (dark, text) => [
-  { text: { text, options: { x: X0, y: 6.9, w: 9, h: 0.3, margin: 0, fontFace: MONO, fontSize: 11, charSpacing: 1,
+  { text: { text, options: { x: X0, y: 6.9, w: 9, h: 0.3, margin: 0, fontFace: MONO, fontSize: 11,
                                  color: dark ? MUTED_D : MUTED } } },
   { rect: { x: 11.88, y: 6.86, w: 0.6, h: 0.36, fill: { color: YEL }, line: { color: YEL } } },
 ];
 const slideNum = { x: 11.88, y: 6.86, w: 0.6, h: 0.36, fontFace: MONO, fontSize: 13, bold: true, color: INK, align: "center",
                    valign: "middle" };
 const label = (dark) => ({ placeholder: { options: { name: "label", type: "body", x: X0, y: 0.62, w: CW, h: 0.34, margin: 0,
-  fontFace: MONO, fontSize: 12, charSpacing: 2, color: dark ? YEL : BLUE, valign: "top" }, text: "" } });
+  fontFace: MONO, fontSize: 12, color: dark ? YEL : BLUE, valign: "top" }, text: "" } });
 const title = (dark, h) => ({ placeholder: { options: { name: "title", type: "title", x: X0, y: 1.0, w: CW, h, margin: 0,
-  fontFace: SERIF, fontSize: 40, color: dark ? PAPER : INK, valign: "top", align: "left" }, text: "" } });
+  fontFace: SERIF, fontSize: 38, bold: true, color: dark ? PAPER : INK, valign: "top", align: "left" }, text: "" } });
 
 pres.defineSlideMaster({ title: "LIGHT", background: { color: PAPER },
   objects: [...footer(false, "TEAM 9 · SIGN-TO-SPEECH COMMUNICATION DEVICE"), label(false), title(false, 0.85)], slideNumber: slideNum });
-pres.defineSlideMaster({ title: "DARK", background: { color: INK },
-  objects: [...footer(true, "TEAM 9 · SIGN-TO-SPEECH COMMUNICATION DEVICE"), label(true), title(true, 1.45)], slideNumber: slideNum });
+pres.defineSlideMaster({ title: "DARK", background: { color: PAPER },
+  objects: [...footer(false, "TEAM 9 · SIGN-TO-SPEECH COMMUNICATION DEVICE"), label(false), title(false, 1.45)], slideNumber: slideNum });
 pres.defineSlideMaster({ title: "COVER", background: { color: PAPER },
   objects: [...footer(false, "HELEN AND JOHN C. HARTMANN DEPT. OF ECE")], slideNumber: slideNum });
 
@@ -94,27 +94,27 @@ const icon = (s, data, x, y, d, name) => s.addImage({ data, x, y, w: d, h: d, al
 
 (async () => {
 const I = {
-  sign: await ico(fa.FaSignLanguage, PAPER), landmarks: await ico(md.MdScatterPlot, PAPER), brain: await ico(fa.FaBrain, PAPER),
-  confirm: await ico(md.MdTouchApp, INK), translate: await ico(md.MdTranslate, PAPER), speak: await ico(md.MdRecordVoiceOver, PAPER),
+  sign: await ico(fa.FaSignLanguage, MUTED), landmarks: await ico(md.MdScatterPlot, MUTED), brain: await ico(fa.FaBrain, MUTED),
+  confirm: await ico(md.MdTouchApp, INK), translate: await ico(md.MdTranslate, MUTED), speak: await ico(md.MdRecordVoiceOver, MUTED),
   chip: await ico(fa.FaMicrochip, INK), dollar: await ico(fa.FaDollarSign, INK), law: await ico(fa.FaBalanceScale, INK),
   hands: await ico(fa.FaHandsHelping, INK), clock: await ico(fa.FaClock, INK),
-  cloud: await ico(fa.FaCloud, PAPER), cams: await ico(fa.FaVideo, PAPER), server: await ico(fa.FaServer, PAPER),
-  glove: await ico(fa.FaHandPaper, PAPER), cam: await ico(fa.FaCamera, INK),
+  cloud: await ico(fa.FaCloud, MUTED), cams: await ico(fa.FaVideo, MUTED), server: await ico(fa.FaServer, MUTED),
+  glove: await ico(fa.FaHandPaper, MUTED), cam: await ico(fa.FaCamera, INK),
 };
 // ---------------------------------------------------------------- 1 cover
 pres.addSection({ title: "Introduction" });
 let s = pres.addSlide({ masterName: "COVER", sectionTitle: "Introduction" });
 s.addImage({ path: SKETCH, x: 7.25, y: 1.45, w: 5.2, h: 5.2 * SK_H / SK_W, altText: "Side view of the device at a service counter: the Deaf user signs to the camera and touchscreen; the speaker and microphone face the hearing staff member" });
 s.addImage({ path: LOGO, x: X0, y: 0.55, w: 1.9, h: 0.5, altText: "NJIT logo" });
-T(s, "ECE 414 · PROPOSAL · FALL 2026", { x: 7.5, y: 0.68, w: 4.98, h: 0.3, fontFace: MONO, fontSize: 12, charSpacing: 2,
+T(s, "ECE 414 · PROPOSAL · FALL 2026", { x: 7.5, y: 0.68, w: 4.98, h: 0.3, fontFace: MONO, fontSize: 12,
   color: MUTED, align: "right" });
-T(s, "Sign‑to‑Speech", { x: X0, y: 1.45, w: 9.5, h: 1.35, fontFace: SERIF, fontSize: 80, color: INK });
+T(s, "Sign‑to‑Speech", { x: X0, y: 1.45, w: 9.5, h: 1.35, fontFace: SERIF, fontSize: 72, bold: true, color: INK });
 T(s, "A multilingual communication device: edge-deployed ASL recognition with confidence-gated speech output",
   { x: X0, y: 2.85, w: 5.8, h: 1.0, fontFace: SANS, fontSize: 18, color: MUTED, lineSpacingMultiple: 1.15 });
 s.addShape(pres.shapes.RECTANGLE, { x: X0, y: 4.0, w: 5.8, h: 0.6, fill: { color: YEL }, line: { color: YEL } });
 T(s, "Signs in. Speech out. Nothing leaves the device.", { x: X0 + 0.15, y: 4.0, w: 5.6, h: 0.6, valign: "middle",
-  fontFace: SERIF, fontSize: 20, italic: true, color: INK });
-T(s, "TEAM 9", { x: X0, y: 4.95, w: 3, h: 0.3, fontFace: MONO, fontSize: 12, bold: true, charSpacing: 2, color: INK });
+  fontFace: SERIF, fontSize: 20, color: INK });
+T(s, "TEAM 9", { x: X0, y: 4.95, w: 3, h: 0.3, fontFace: MONO, fontSize: 12, bold: true, color: INK });
 const team = [["01", "Asmar Hasanova", "Sign recognition"], ["02", "Dorukhan Cakir", "Sentence and confirmation"],
               ["03", "Zeynep Hafsa Cakici", "Translation, speech, reply"], ["04", "Merrick Simmons", "Embedded system"]];
 team.forEach(([n, name, role], i) => {
@@ -129,24 +129,24 @@ notes(s, "Good morning, we are Team 9. Our project is a sign-to-speech communica
 // ---------------------------------------------------------------- 2 abstract
 s = pres.addSlide({ masterName: "DARK", sectionTitle: "Introduction" });
 s.addText("02 / ABSTRACT", { placeholder: "label" });
-s.addText([{ text: "It speaks only when the signer says " }, { text: "yes", options: { italic: true, color: YEL } }],
+s.addText([{ text: "It speaks only when the signer says " }, { text: "yes", options: { color: BLUE } }],
   { placeholder: "title" });
 const steps = [["1", "Sign", "one camera"], ["2", "Landmarks", "MediaPipe"], ["3", "Recognize", "+ confidence"],
                ["4", "Confirm", "touchscreen"], ["5", "Translate", "EN · TR · ES"], ["6", "Speak", "offline voice"]];
 const sw = CW / 6, sy = 2.65;
-hline(s, X0, sy, CW, PAPER, 1.5);
+hline(s, X0, sy, CW, INK, 1.5);
 steps.forEach(([n, w, sub], i) => {
   const x = X0 + i * sw, hot = i === 3;
   if (hot) s.addShape(pres.shapes.RECTANGLE, { x, y: sy + 0.02, w: sw, h: 2.05, fill: { color: YEL }, line: { color: YEL } });
-  else if (i > 0 && i !== 4) vline(s, x, sy + 0.15, 1.75, MUTED, 0.75);
+  else if (i > 0 && i !== 4) vline(s, x, sy + 0.15, 1.75, RULE, 0.75);
   const pad = i === 0 ? 0 : 0.15;
   icon(s, I[["sign", "landmarks", "brain", "confirm", "translate", "speak"][i]], x + pad, sy + 0.22, 0.55, w);
-  T(s, n, { x: x + sw - 0.45, y: sy + 0.22, w: 0.3, h: 0.3, align: "right", fontFace: MONO, fontSize: 13, color: hot ? INK : MUTED_D });
-  T(s, w, { x: x + pad, y: sy + 0.9, w: sw - 0.2, h: 0.6, fontFace: SERIF, fontSize: 27, color: hot ? INK : PAPER });
-  T(s, sub, { x: x + pad, y: sy + 1.52, w: sw - 0.25, h: 0.35, fontFace: SANS, fontSize: 14, color: hot ? INK : MUTED_D });
+  T(s, n, { x: x + sw - 0.45, y: sy + 0.22, w: 0.3, h: 0.3, align: "right", fontFace: MONO, fontSize: 13, color: MUTED });
+  T(s, w, { x: x + pad, y: sy + 0.9, w: sw - 0.2, h: 0.6, fontFace: SERIF, fontSize: 27, color: INK });
+  T(s, sub, { x: x + pad, y: sy + 1.52, w: sw - 0.25, h: 0.35, fontFace: SANS, fontSize: 14, color: MUTED });
 });
 T(s, "The reply comes back as text  ·  nothing leaves the device", { x: X0, y: 5.45, w: CW, h: 0.45,
-  fontFace: SERIF, fontSize: 22, italic: true, color: "C8C1B3" });
+  fontFace: SERIF, fontSize: 22, color: MUTED });
 notes(s, "In one sentence: the device speaks for a Deaf user, but only after they say yes to the sentence. Walk the six steps left to right: the user signs to one ordinary camera; MediaPipe finds the body and hand landmarks; our recognizer reads the signs and also how sure it is; the user confirms the sentence on the touchscreen, highlighted because it is the heart of the design; NLLB-200 translates it into English, Turkish or Spanish; and Piper speaks it. The hearing person’s reply comes back through Whisper as English text on the same screen. Everything runs offline on an NVIDIA Jetson, so no video ever leaves the device. It is an aid for when no interpreter is available, not a replacement. (About 60 seconds.)");
 
 // ---------------------------------------------------------------- 3 specs
@@ -177,7 +177,7 @@ s.addChart(pres.charts.BAR, [
     dataLabelFormatCode: "0.0", dataLabelFontFace: "+mn-lt",
     valAxisMinVal: 40, valAxisMaxVal: 100, valAxisMajorUnit: 20, valAxisLabelColor: MUTED, valAxisLabelFontSize: 10,
     valAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisLabelFontSize: 12, catAxisLabelFontFace: "+mn-lt",
-    valGridLine: { color: "D6CFC0", size: 0.5 }, catGridLine: { style: "none" },
+    valGridLine: { color: RULE, size: 0.5 }, catGridLine: { style: "none" },
     showLegend: true, legendPos: "t", legendFontSize: 11, legendColor: INK, legendFontFace: "+mn-lt",
     showTitle: true, title: "Our recognizer, version by version (% on unseen signers)", titleFontSize: 13, titleColor: INK,
     titleFontFace: "+mn-lt", objectName: "accuracy chart" });
@@ -202,15 +202,15 @@ cons.forEach(([k, v], i) => {
 });
 hline(s, X0, cy0 + 5 * ch, cw, INK, 1.5);
 const px = 8.15, pw = X0 + CW - px;
-s.addShape(pres.shapes.RECTANGLE, { x: px, y: cy0, w: pw, h: 5 * ch, fill: { color: INK }, line: { color: INK } });
-T(s, "STANDARDS", { x: px + 0.3, y: cy0 + 0.25, w: pw - 0.6, h: 0.3, fontFace: MONO, fontSize: 13, charSpacing: 2, color: YEL });
+s.addShape(pres.shapes.RECTANGLE, { x: px, y: cy0, w: pw, h: 5 * ch, fill: { color: CARD }, line: { color: RULE } });
+T(s, "STANDARDS", { x: px + 0.3, y: cy0 + 0.25, w: pw - 0.6, h: 0.3, fontFace: MONO, fontSize: 13, bold: true, color: BLUE });
 const stds = [["IEEE 7000", "ethical design"], ["IEEE 7002", "privacy"], ["IEEE 1012", "verification, validation"],
   ["IEEE 2841", "AI model evaluation"], ["UL 62368-1", "equipment safety"], ["NIST AI RMF", "AI risk"]];
 stds.forEach(([c, d], i) => {
   const y = cy0 + 0.72 + i * 0.6;
-  hline(s, px + 0.3, y, pw - 0.6, MUTED, 0.75);
-  T(s, c, { x: px + 0.3, y: y + 0.14, w: 1.75, h: 0.32, fontFace: MONO, fontSize: 14, bold: true, color: PAPER });
-  T(s, d, { x: px + 2.1, y: y + 0.14, w: pw - 2.4, h: 0.32, fontFace: SANS, fontSize: 14, color: MUTED_D });
+  hline(s, px + 0.3, y, pw - 0.6, RULE, 0.75);
+  T(s, c, { x: px + 0.3, y: y + 0.14, w: 1.75, h: 0.32, fontFace: MONO, fontSize: 14, bold: true, color: INK });
+  T(s, d, { x: px + 2.1, y: y + 0.14, w: pw - 2.4, h: 0.32, fontFace: SANS, fontSize: 14, color: MUTED });
 });
 notes(s, "Our constraints in five groups. Technical: everything must fit in the Jetson’s 8 gigabytes and meet the 1.2 second budget with one ordinary camera and no network. Economic: about 500 to 665 dollars in parts, paid by the four of us, so only free, open-source models. Legal: under the ADA the device must never be presented as a replacement for an interpreter; the ASL Citizen dataset and the NLLB translation model are licensed for non-commercial use only; recordings of people need written consent and an IRB check. Ethical: nothing is spoken without the user’s confirmation, and accuracy is reported for each signer. Time and safety: we propose now and build in ECE 416, keeping heat and power in check. On the right, the six standards we follow: IEEE 7000 for ethical design, 7002 for privacy, 1012 for verification and validation, 2841 for evaluating deep-learning models, UL 62368-1 for electrical and thermal safety, and the NIST AI risk management framework. (About 75 seconds.)");
 
@@ -220,7 +220,7 @@ s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Design" });
 s.addText("05 / COMPONENTS & BLOCK DIAGRAM", { placeholder: "label" });
 s.addText("One $250 board does all the thinking", { placeholder: "title" });
 const colL = X0, colW = 2.55, cx0 = 4.55, cW = 4.25, colR = X0 + CW - colW;
-const lab = (t, x, w) => T(s, t, { x, y: 1.88, w, h: 0.3, align: "center", fontFace: MONO, fontSize: 11, charSpacing: 1, color: MUTED });
+const lab = (t, x, w) => T(s, t, { x, y: 1.88, w, h: 0.3, align: "center", fontFace: MONO, fontSize: 11, color: MUTED });
 lab("FACES THE DEAF USER", colL, colW); lab("INSIDE THE BASE", cx0, cW); lab("FACES THE HEARING PERSON", colR, colW);
 const r5 = [2.3, 3.33, 4.36], bh5 = 0.85, mid = (i) => r5[i] + bh5 / 2;
 box(s, colL, r5[0], colW, bh5, "Camera", "1080p, USB");
@@ -230,13 +230,13 @@ box(s, colR, r5[0], colW, bh5, "Speaker", "speaks the sentence");
 box(s, colR, r5[1], colW, bh5, "Microphone", "records the reply");
 box(s, colR, r5[2], colW, bh5, "Wi-Fi card", "removed: fully offline", { dash: "dash", line: MUTED, tc: MUTED });
 const jy = r5[0], jh = r5[2] + bh5 - r5[0];
-s.addShape(pres.shapes.RECTANGLE, { x: cx0, y: jy, w: cW, h: jh, fill: { color: INK }, line: { color: INK } });
-T(s, "Jetson Orin Nano", { x: cx0 + 0.3, y: jy + 0.28, w: cW - 0.6, h: 0.6, fontFace: SERIF, fontSize: 28, color: PAPER });
+s.addShape(pres.shapes.RECTANGLE, { x: cx0, y: jy, w: cW, h: jh, fill: { color: BAND }, line: { color: BLUE, width: 1.5 } });
+T(s, "Jetson Orin Nano", { x: cx0 + 0.3, y: jy + 0.28, w: cW - 0.6, h: 0.6, fontFace: SERIF, fontSize: 28, bold: true, color: INK });
 T(s, "6-core Arm CPU · 1024-core GPU · 8 GB memory", { x: cx0 + 0.3, y: jy + 1.0, w: cW - 0.6, h: 0.6,
-  fontFace: SANS, fontSize: 14, color: "C8C1B3" });
+  fontFace: SANS, fontSize: 14, color: MUTED });
 T(s, "Runs every model, with no network", { x: cx0 + 0.3, y: jy + 1.7, w: cW - 0.6, h: 0.35,
-  fontFace: SANS, fontSize: 14, color: "C8C1B3" });
-s.addShape(pres.shapes.RECTANGLE, { x: cx0 + cW - 1.25, y: jy + jh - 0.6, w: 0.95, h: 0.36, fill: { color: YEL }, line: { color: YEL } });
+  fontFace: SANS, fontSize: 14, color: MUTED });
+s.addShape(pres.shapes.RECTANGLE, { x: cx0 + cW - 1.25, y: jy + jh - 0.6, w: 0.95, h: 0.36, fill: { color: PAPER }, line: { color: BLUE } });
 T(s, "$250", { x: cx0 + cW - 1.25, y: jy + jh - 0.6, w: 0.95, h: 0.36, align: "center", valign: "middle", fontFace: MONO,
   fontSize: 13, bold: true, color: INK });
 const by5 = r5[2] + bh5 + 0.38, bb = 0.72;
@@ -275,14 +275,14 @@ arrow(s, mx + mw / 2, ry6[0] + rr, mx + mw / 2, ry6[1]);
 const cw6 = (mw - 2 * 0.12) / 3, ch6 = 0.8;
 ["Recognition", "Language, speech", "Embedded"].forEach((t, i) => {
   const x = mx + i * (cw6 + 0.12), c = x + cw6 / 2;
-  box(s, x, ry6[2], cw6, ch6, t, null, { fill: INK, line: INK, tc: PAPER, ts: 12 });
+  box(s, x, ry6[2], cw6, ch6, t, null, { fill: BAND, line: BLUE, ts: 12 });
   arrow(s, c, ry6[1] + rr, c, ry6[2], { both: true });
   arrow(s, c, ry6[2] + ch6, c, ry6[3]);
 });
 box(s, mx, ry6[3], mw, rr, "Prototyping, testing, integration", null, { fill: YEL, line: INK, ts: 14 });
 arrow(s, mx + mw / 2, ry6[3] + rr, mx + mw / 2, ry6[4]);
 box(s, mx, ry6[4], mw, rr, "Prototype assembly", null, { fill: YEL, line: INK, ts: 14 });
-T(s, "COURSE DESIGN FLOW · OUR THREE GOALS IN BLACK", { x: mx, y: 6.33, w: 6, h: 0.28, fontFace: MONO, fontSize: 11, color: MUTED });
+T(s, "COURSE DESIGN FLOW · OUR THREE GOALS IN BLUE", { x: mx, y: 6.33, w: 6, h: 0.28, fontFace: MONO, fontSize: 11, color: MUTED });
 const rx = 7.05, rw = X0 + CW - rx, rh = 0.52;
 const protos = [["P1", "Laptop demo", "BUILT"], ["P2", "Paper mock-up", "NEXT"], ["P3", "Jetson on the bench", "SOON"],
   ["P4", "3D-printed case", "PLANNED"], ["P5", "Full device", "ECE 416"]];
@@ -307,30 +307,30 @@ notes(s, "On the left is the course’s design flow chart, filled in for our pro
 pres.addSection({ title: "Comparison" });
 s = pres.addSlide({ masterName: "DARK", sectionTitle: "Comparison" });
 s.addText("07 / BENCHMARKING · BUSINESS & ECONOMIC POTENTIAL", { placeholder: "label" });
-s.addText([{ text: "Others need a cloud, gloves or depth cameras. " }, { text: "We need one webcam", options: { italic: true, color: YEL } }],
+s.addText([{ text: "Others need a cloud, gloves or depth cameras. " }, { text: "We need one webcam", options: { color: BLUE } }],
   { placeholder: "title" });
 const kx = X0, kw = 6.9, ky = 3.1, kh = 0.56;
 const comp = [["Sign-Speak", "a cloud server"], ["Avodah", "cameras + depth sensor"], ["Sorenson", "relay servers"],
               ["Bosch", "sensor gloves"], ["Our device", "one webcam, offline"]];
-T(s, "PATENTED SYSTEMS NEED", { x: kx, y: ky - 0.4, w: kw, h: 0.3, fontFace: MONO, fontSize: 12, charSpacing: 2, color: MUTED_D });
+T(s, "PATENTED SYSTEMS NEED", { x: kx, y: ky - 0.4, w: kw, h: 0.3, fontFace: MONO, fontSize: 12, color: MUTED });
 comp.forEach(([sys, need], i) => {
   const y = ky + i * kh, ours = i === 4;
   if (ours) s.addShape(pres.shapes.RECTANGLE, { x: kx, y, w: kw, h: kh, fill: { color: YEL }, line: { color: YEL } });
-  else hline(s, kx, y, kw, i === 0 ? PAPER : MUTED, i === 0 ? 1.5 : 0.75);
+  else hline(s, kx, y, kw, i === 0 ? INK : RULE, i === 0 ? 1.5 : 0.75);
   icon(s, I[["cloud", "cams", "server", "glove", "cam"][i]], kx + 0.12, y + 0.1, 0.36, sys);
-  T(s, sys, { x: kx + 0.65, y, w: 2.0, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, bold: true, color: ours ? INK : PAPER });
-  T(s, need, { x: kx + 2.6, y, w: kw - 2.7, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, color: ours ? INK : "C8C1B3" });
+  T(s, sys, { x: kx + 0.65, y, w: 2.0, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, bold: true, color: INK });
+  T(s, need, { x: kx + 2.6, y, w: kw - 2.7, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, color: ours ? INK : MUTED });
 });
 const sx = 8.3, sw2 = X0 + CW - sx;
 const stats = [["63.1% → 86.6%", "accuracy: published baseline vs ours*"], ["$495–665", "parts, no per-use fees"],
                ["69%", "of Deaf users accept a stand-alone device"]];
 stats.forEach(([big, small], i) => {
   const y = ky - 0.4 + i * 1.3;
-  hline(s, sx, y, sw2, MUTED, 0.75);
-  T(s, big, { x: sx, y: y + 0.1, w: sw2, h: 0.6, fontFace: SERIF, fontSize: 30, color: PAPER });
-  T(s, small, { x: sx, y: y + 0.72, w: sw2, h: 0.4, fontFace: SANS, fontSize: 14, color: MUTED_D });
+  hline(s, sx, y, sw2, RULE, 0.75);
+  T(s, big, { x: sx, y: y + 0.1, w: sw2, h: 0.6, fontFace: SERIF, fontSize: 30, bold: true, color: BLUE });
+  T(s, small, { x: sx, y: y + 0.72, w: sw2, h: 0.4, fontFace: SANS, fontSize: 14, color: MUTED });
 });
-T(s, "* ASL Citizen: 2,731 signs vs our 134-word subset", { x: sx, y: 6.42, w: sw2, h: 0.3, fontFace: SANS, fontSize: 11, color: MUTED_D });
+T(s, "* ASL Citizen: 2,731 signs vs our 134-word subset", { x: sx, y: 6.42, w: sw2, h: 0.3, fontFace: SANS, fontSize: 11, color: MUTED });
 notes(s, "How we compare. The four closest patents each need something extra: Sign-Speak, granted this year, uses one camera but needs a cloud server; Avodah needs several cameras and a depth sensor; Sorenson works on servers inside its video relay service; Bosch uses sensor gloves. Ours needs one ordinary webcam and runs fully offline, and it is the only one that decides by calibrated confidence when to answer and when to ask the user. The industry benchmark for accuracy is the ASL Citizen dataset: its published baseline is 63.1 percent; ours is 86.6, but on 134 words instead of 2,731, so it is not a direct comparison. Business side: about 500 to 665 dollars in parts and no per-use or cloud fees, aimed at service counters and front desks, where Deaf users in the Tran et al. survey were most willing to use such a device; 69 percent accept a stand-alone device, only 38 percent a wearable. Honest risks: our dataset and translation model are non-commercial only, and Sign-Speak’s granted patent would need a legal review before any product. (About 80 seconds.)");
 
 // ---------------------------------------------------------------- 8 references

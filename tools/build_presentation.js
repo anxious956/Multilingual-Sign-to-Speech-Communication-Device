@@ -156,7 +156,7 @@ s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });
 s.addText("03 / DESIGN OBJECTIVES & SPECIFICATIONS", { placeholder: "label" });
 s.addText("Four numbers that matter most", { placeholder: "title" });
 const big4 = [["86.6%", "Accuracy", "signs read correctly, new signers (goal \u2265 75%)"],
-              ["134", "Words it knows", "service-counter vocabulary (goal 100\u2013250)"],
+              ["134", "Words it knows now", "service-counter words (goal 250+)"],
               ["0.7 s", "From \u201cyes\u201d to speech", "time until it starts talking (goal < 1.2 s)"],
               ["4.4 GB", "Memory used", "all models, on the Jetson\u2019s 8 GB"]];
 const bw4 = 2.6;
@@ -185,7 +185,7 @@ s.addChart(pres.charts.BAR, [
     titleFontFace: "+mn-lt", objectName: "accuracy chart" });
 T(s, "v1\u2013v4: Kaggle data, 250 signs \u00b7 v5: ASL Citizen, 134 words", { x: gx, y: 6.3, w: gw, h: 0.3,
   fontFace: MONO, fontSize: 11, color: MUTED });
-notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must read at least 75 percent of signs correctly for signers the model has never seen; our v5 model reads 86.6 percent correctly for the 11 Deaf test signers of the ASL Citizen dataset. Its vocabulary is 134 words for a service counter, inside our 100 to 250 word target. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio takes about 0.7 seconds on an ordinary CPU. All models together are estimated at 4.4 of the Jetson’s 8 gigabytes. The other requirements: three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). Next we repeat these tests on the Jetson and with our own camera. If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
+notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must read at least 75 percent of signs correctly for signers the model has never seen; our v5 model reads 86.6 percent correctly for the 11 Deaf test signers of the ASL Citizen dataset. It knows 134 service-counter words today; our goal is 250 or more. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio takes about 0.7 seconds on an ordinary CPU. All models together are estimated at 4.4 of the Jetson’s 8 gigabytes. The other requirements: three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). Next we repeat these tests on the Jetson and with our own camera. If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 4 constraints
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });

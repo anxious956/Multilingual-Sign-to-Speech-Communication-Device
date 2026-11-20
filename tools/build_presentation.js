@@ -261,18 +261,7 @@ tag("USB", gr, mid(0) - 0.32, GAPR); tag("USB", gr, mid(1) - 0.32, GAPR);
 tag("PCIe", cx0 + 1.02, jy + jh + 0.06, 0.7); tag("19 V", cx0 + cW - 0.92, jy + jh + 0.06, 0.7);
 T(s, "PARTS ≈ $495–665", { x: colR, y: by5 + 0.2, w: colW, h: 0.32, align: "center", fontFace: MONO, fontSize: 13,
   bold: true, color: INK });
-// measured system benchmark (docs/figures/section7_benchmarks.json, 4-core Xeon CPU, no GPU)
-const mbx = colL, mby = r5[2] + bh5 + 0.12, mbw = cx0 - 0.3 - colL;
-T(s, "MEASURED SO FAR (4-core CPU, no GPU)", { x: mbx, y: mby, w: mbw, h: 0.26, fontFace: MONO, fontSize: 11, bold: true, color: BLUE });
-const meas = [["Recognize one sign", "4 ms"], ["Translate (Turkish / Spanish)", "0.64 / 0.66 s"],
-              ["Start speaking", "0.07 s"], ["Reply to text (Whisper)", "≈ 1.9 s"]];
-meas.forEach(([k, v], i) => {
-  const y = mby + 0.28 + i * 0.25;
-  hline(s, mbx, y, mbw, i === 0 ? INK : RULE, i === 0 ? 1 : 0.5);
-  T(s, k, { x: mbx, y: y + 0.03, w: mbw - 1.2, h: 0.24, fontFace: SANS, fontSize: 11, color: INK });
-  T(s, v, { x: mbx + mbw - 1.2, y: y + 0.03, w: 1.2, h: 0.24, align: "right", fontFace: SANS, fontSize: 11, bold: true, color: INK });
-});
-notes(s, "This is the hardware block diagram. Everything that thinks is one NVIDIA Jetson Orin Nano developer kit in the base, about 250 dollars. On the Deaf user’s side: the camera, the touchscreen, and a button and LED; the LED lights whenever the camera or microphone is on. On the hearing person’s side: speaker and microphone, all on USB. The board has only DisplayPort, so the touchscreen uses an adapter. We remove the Wi-Fi card and leave Ethernet unplugged, so offline is a physical fact you can check. Parts for one prototype total about 495 to 665 dollars. On the module run MediaPipe, our 1.78-million-parameter recognizer, NLLB-200 for translation, Piper for speech and Whisper for the reply. Bottom left are the real measurements so far, on an ordinary 4-core processor without a GPU, since we do not have the Jetson yet: about 4 milliseconds to recognize one sign, about 0.65 seconds to translate a sentence into Turkish or Spanish, 0.07 seconds until the voice starts, and about 1.9 seconds to turn the hearing person’s reply into text. The Jetson’s GPU should only make these faster, but we will measure them there. (About 75 seconds.)");
+notes(s, "This is the hardware block diagram. Everything that thinks is one NVIDIA Jetson Orin Nano developer kit in the base, about 250 dollars. On the Deaf user’s side: the camera, the touchscreen, and a button and LED; the LED lights whenever the camera or microphone is on. On the hearing person’s side: speaker and microphone, all on USB. The board has only DisplayPort, so the touchscreen uses an adapter. We remove the Wi-Fi card and leave Ethernet unplugged, so offline is a physical fact you can check. Parts for one prototype total about 495 to 665 dollars. On the module run MediaPipe, our 1.78-million-parameter recognizer, NLLB-200 for translation, Piper for speech and Whisper for the reply. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 6 prototyping
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Design" });

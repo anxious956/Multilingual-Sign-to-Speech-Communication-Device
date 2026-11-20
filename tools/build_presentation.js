@@ -173,17 +173,17 @@ T(s, "repeat these tests on the Jetson with our own camera", { x: X0 + 1.05, y: 
   fontFace: SANS, fontSize: 14, color: INK });
 const gx = 6.95, gw = X0 + CW - gx;
 s.addChart(pres.charts.BAR, [
-  { name: "Accuracy", labels: ["v1", "v2", "v3", "v4", "v5"], values: [61.0, 62.3, 66.4, 67.2, 86.6] }],
+  { name: "Accuracy", labels: ["v1\n250 signs", "v2\n250 signs", "v3\n250 signs", "v4\n250 signs", "v5\n134 words"], values: [61.0, 62.3, 66.4, 67.2, 86.6] }],
   { x: gx, y: 1.95, w: gw, h: 4.3, barDir: "col", barGrouping: "clustered", barGapWidthPct: 60,
     chartColors: [BLUE], showValue: true, dataLabelPosition: "outEnd", dataLabelFontSize: 10, dataLabelColor: INK,
     dataLabelFormatCode: "0.0", dataLabelFontFace: "+mn-lt",
     valAxisMinVal: 40, valAxisMaxVal: 100, valAxisMajorUnit: 20, valAxisLabelColor: MUTED, valAxisLabelFontSize: 10,
-    valAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisLabelFontSize: 12, catAxisLabelFontFace: "+mn-lt",
+    valAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisLabelFontSize: 11, catAxisLabelFontFace: "+mn-lt",
     valGridLine: { color: RULE, size: 0.5 }, catGridLine: { style: "none" },
     showLegend: false, legendPos: "t", legendFontSize: 11, legendColor: INK, legendFontFace: "+mn-lt",
     showTitle: true, title: "Accuracy of our recognizer, version by version (% correct, new signers)", titleFontSize: 13, titleColor: INK,
     titleFontFace: "+mn-lt", objectName: "accuracy chart" });
-T(s, "v1\u2013v4: Kaggle data, 250 signs \u00b7 v5: ASL Citizen, 134 words", { x: gx, y: 6.3, w: gw, h: 0.3,
+T(s, "v1\u2013v4: Kaggle data \u00b7 v5: ASL Citizen \u00b7 fewer words is an easier test", { x: gx, y: 6.3, w: gw, h: 0.3,
   fontFace: MONO, fontSize: 11, color: MUTED });
 notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must read at least 75 percent of signs correctly for signers the model has never seen; our v5 model reads 86.6 percent correctly for the 11 Deaf test signers of the ASL Citizen dataset. It knows 134 service-counter words today; our goal is 250 or more. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio takes about 0.7 seconds on an ordinary CPU. All models together are estimated at 4.4 of the Jetson’s 8 gigabytes. The other requirements: three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). Next we repeat these tests on the Jetson and with our own camera. If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
 

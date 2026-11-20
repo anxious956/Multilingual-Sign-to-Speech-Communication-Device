@@ -192,10 +192,10 @@ s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });
 s.addText("04 / CONSTRAINTS & STANDARDS", { placeholder: "label" });
 s.addText("A small box, a student budget, strict rules", { placeholder: "title" });
 const cons = [["Technical", "All models must fit in the Jetson’s 8 GB memory and start speaking within 1.2 s, using one camera and no internet."],
-  ["Economic", "About $500 in parts, paid by the four of us, so we use only free, open-source models."],
-  ["Legal", "It may not be sold as a replacement for an interpreter (ADA); our data is for non-commercial use only; filming people needs consent (IRB)."],
+  ["Economic", "About $495–665 in parts, paid by the four of us, so we use only free, openly available models."],
+  ["Legal", "ADA: an aid only, never a replacement for a qualified interpreter. Our dataset and translation model are non-commercial only. Filming people needs consent (IRB)."],
   ["Ethical", "Nothing is spoken until the signer confirms the sentence; accuracy is reported for every signer."],
-  ["Time, safety", "We design it this term (ECE 414) and build it next term (ECE 416); heat and power must stay safe."]];
+  ["Time, safety", "Design this term (ECE 414), build and test next term (ECE 416). A closed case with airflow for the board’s heat and a certified power adapter (UL 62368-1)."]];
 const cy0 = 2.05, ch = 0.86, cw = 6.85;
 cons.forEach(([k, v], i) => {
   const y = cy0 + i * ch;
@@ -217,7 +217,7 @@ stds.forEach(([c, d], i) => {
   T(s, c, { x: px + 0.3, y: y + 0.14, w: 1.5, h: 0.32, fontFace: MONO, fontSize: 13, bold: true, color: INK });
   T(s, d, { x: px + 1.8, y: y + 0.14, w: pw - 2.0, h: 0.32, fontFace: SANS, fontSize: 13, color: MUTED });
 });
-notes(s, "Our constraints in five groups. Technical: everything must fit in the Jetson’s 8 gigabytes and meet the 1.2 second budget with one ordinary camera and no network. Economic: about 500 to 665 dollars in parts, paid by the four of us, so only free, open-source models. Legal: under the ADA the device must never be presented as a replacement for an interpreter; the ASL Citizen dataset and the NLLB translation model are licensed for non-commercial use only; recordings of people need written consent and an IRB check. Ethical: nothing is spoken without the user’s confirmation, and accuracy is reported for each signer. Time and safety: we propose now and build in ECE 416, keeping heat and power in check. On the right, the six standards we follow: IEEE 7000 for ethical design, 7002 for privacy, 1012 for verification and validation, 2841 for evaluating deep-learning models, UL 62368-1 for electrical and thermal safety, and the NIST AI risk management framework. (About 75 seconds.)");
+notes(s, "Our constraints in five groups. Technical: everything must fit in the Jetson’s 8 gigabytes and meet the 1.2 second budget with one ordinary camera and no network. Economic: about 500 to 665 dollars in parts, paid by the four of us, so only free, openly available models. Legal: under the ADA the device must never be presented as a replacement for an interpreter; the ASL Citizen dataset and the NLLB translation model are licensed for non-commercial use only; recordings of people need written consent and an IRB check. Ethical: nothing is spoken without the user’s confirmation, and accuracy is reported for each signer. Time and safety: we design it this term in ECE 414 and build and test it next term in ECE 416; the board gives off heat, so it sits in a closed case with airflow, powered by a certified adapter, following UL 62368-1. On the right, the six standards we follow: IEEE 7000 for ethical design, 7002 for privacy, 1012 for verification and validation, 2841 for evaluating deep-learning models, UL 62368-1 for electrical and thermal safety, and the NIST AI risk management framework. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 5 block diagram
 pres.addSection({ title: "Design" });

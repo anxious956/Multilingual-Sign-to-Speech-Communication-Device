@@ -158,7 +158,7 @@ s.addText("Four numbers that matter most", { placeholder: "title" });
 const big4 = [["86.6%", "Accuracy", "recorded videos of new Deaf signers (goal \u2265 75%)"],
               ["134", "Words it knows now", "service-counter words (goal 250+)"],
               ["0.7 s", "From \u201cyes\u201d to speech", "measured on an ordinary 4-core CPU (goal < 1.2 s)"],
-              ["4.4 GB", "Estimated memory", "everything incl. the OS (Jetson has 8 GB)"]];
+              ["4.4 GB", "Estimated memory", "fits in the Jetson\u2019s 8 GB with 3.6 GB to spare (incl. the OS)"]];
 const bw4 = 2.6;
 big4.forEach(([n, what, tgt], i) => {
   const x = X0 + (i % 2) * (bw4 + 0.35), y = 2.05 + Math.floor(i / 2) * 1.85;
@@ -183,9 +183,9 @@ s.addChart(pres.charts.BAR, [
     showLegend: false, legendPos: "t", legendFontSize: 11, legendColor: INK, legendFontFace: "+mn-lt",
     showTitle: true, title: "Accuracy of our recognizer, version by version (% correct, new signers)", titleFontSize: 13, titleColor: INK,
     titleFontFace: "+mn-lt", objectName: "accuracy chart" });
-T(s, "v1\u2013v4: Kaggle data \u00b7 v5: ASL Citizen \u00b7 fewer words is an easier test \u00b7 trained on Google Colab GPUs", { x: gx, y: 6.27, w: gw, h: 0.45,
+T(s, [{ text: "v1\u2013v4: Kaggle data \u00b7 v5: ASL Citizen \u00b7 fewer words is an easier test", options: { breakLine: true } }, { text: "Trained on one Google Colab L4 GPU: about 3 h for v4, 5 min for v5" }], { x: gx, y: 6.27, w: gw, h: 0.45,
   fontFace: MONO, fontSize: 11, color: MUTED });
-notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must read at least 75 percent of signs correctly for signers the model has never seen; our v5 model reads 86.6 percent correctly for the 11 Deaf test signers of the ASL Citizen dataset. It knows 134 service-counter words today; our goal is 250 or more. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio took about 0.7 seconds, measured on an ordinary 4-core computer processor without a GPU. Memory is an estimate: everything running together, including the operating system, should need about 4.4 of the Jetson’s 8 gigabytes; our own recognizer is only 7 megabytes of that. We have not run anything on the Jetson yet, so all four numbers will be measured again on the board, with our own camera. The recognizer was trained on Google Colab GPUs. The other requirements: three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
+notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must read at least 75 percent of signs correctly for signers the model has never seen; our v5 model reads 86.6 percent correctly for the 11 Deaf test signers of the ASL Citizen dataset. It knows 134 service-counter words today; our goal is 250 or more. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio took about 0.7 seconds, measured on an ordinary 4-core computer processor without a GPU. Memory is an estimate: everything running together, including the operating system, should need about 4.4 of the Jetson’s 8 gigabytes, which leaves about 3.6 gigabytes to spare; our own recognizer is only 7 megabytes of that. We have not run anything on the Jetson yet, so all four numbers will be measured again on the board, with our own camera. The recognizer was trained on one Google Colab L4 GPU: about 3 hours for v4 and 5 minutes for the v5 fine-tuning. The other requirements: three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 4 constraints
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });

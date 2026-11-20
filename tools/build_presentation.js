@@ -155,8 +155,8 @@ pres.addSection({ title: "Requirements" });
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });
 s.addText("03 / DESIGN OBJECTIVES & SPECIFICATIONS", { placeholder: "label" });
 s.addText("Four numbers that matter most", { placeholder: "title" });
-const big4 = [["86.6%", "Top-1 accuracy", "first guess is right (goal \u2265 75%)"],
-              ["98.2%", "Top-5 accuracy", "right word is in the top 5 (goal \u2265 90%)"],
+const big4 = [["86.6%", "Accuracy", "signs read correctly, new signers (goal \u2265 75%)"],
+              ["134", "Words it knows", "service-counter vocabulary (goal 100\u2013250)"],
               ["0.7 s", "From \u201cyes\u201d to speech", "time until it starts talking (goal < 1.2 s)"],
               ["4.4 GB", "Memory used", "all models, on the Jetson\u2019s 8 GB"]];
 const bw4 = 2.6;
@@ -173,20 +173,19 @@ T(s, "repeat these tests on the Jetson with our own camera", { x: X0 + 1.05, y: 
   fontFace: SANS, fontSize: 14, color: INK });
 const gx = 6.95, gw = X0 + CW - gx;
 s.addChart(pres.charts.BAR, [
-  { name: "Top-1", labels: ["v1", "v2", "v3", "v4", "v5"], values: [61.0, 62.3, 66.4, 67.2, 86.6] },
-  { name: "Top-5", labels: ["v1", "v2", "v3", "v4", "v5"], values: [77.6, 79.5, 83.0, 83.9, 98.2] }],
+  { name: "Accuracy", labels: ["v1", "v2", "v3", "v4", "v5"], values: [61.0, 62.3, 66.4, 67.2, 86.6] }],
   { x: gx, y: 1.95, w: gw, h: 4.3, barDir: "col", barGrouping: "clustered", barGapWidthPct: 60,
-    chartColors: [BLUE, MUTED_D], showValue: true, dataLabelPosition: "outEnd", dataLabelFontSize: 10, dataLabelColor: INK,
+    chartColors: [BLUE], showValue: true, dataLabelPosition: "outEnd", dataLabelFontSize: 10, dataLabelColor: INK,
     dataLabelFormatCode: "0.0", dataLabelFontFace: "+mn-lt",
     valAxisMinVal: 40, valAxisMaxVal: 100, valAxisMajorUnit: 20, valAxisLabelColor: MUTED, valAxisLabelFontSize: 10,
     valAxisLabelFontFace: "+mn-lt", catAxisLabelColor: INK, catAxisLabelFontSize: 12, catAxisLabelFontFace: "+mn-lt",
     valGridLine: { color: RULE, size: 0.5 }, catGridLine: { style: "none" },
-    showLegend: true, legendPos: "t", legendFontSize: 11, legendColor: INK, legendFontFace: "+mn-lt",
-    showTitle: true, title: "Our recognizer, version by version (% on unseen signers)", titleFontSize: 13, titleColor: INK,
+    showLegend: false, legendPos: "t", legendFontSize: 11, legendColor: INK, legendFontFace: "+mn-lt",
+    showTitle: true, title: "Accuracy of our recognizer, version by version (% correct, new signers)", titleFontSize: 13, titleColor: INK,
     titleFontFace: "+mn-lt", objectName: "accuracy chart" });
 T(s, "v1\u2013v4: Kaggle data, 250 signs \u00b7 v5: ASL Citizen, 134 words", { x: gx, y: 6.3, w: gw, h: 0.3,
   fontFace: MONO, fontSize: 11, color: MUTED });
-notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must reach at least 75 percent top-1 and 90 percent top-5 on signers the model has never seen; our v5 model reaches 86.6 and 98.2 percent on the 11 Deaf test signers of the ASL Citizen dataset. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio takes about 0.7 seconds on an ordinary CPU. All models together are estimated at 4.4 of the Jetson’s 8 gigabytes. The other requirements: a vocabulary of 100 to 250 signs (our draft has 134 words), three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). Next we repeat these tests on the Jetson and with our own camera. If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
+notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must read at least 75 percent of signs correctly for signers the model has never seen; our v5 model reads 86.6 percent correctly for the 11 Deaf test signers of the ASL Citizen dataset. Its vocabulary is 134 words for a service counter, inside our 100 to 250 word target. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio takes about 0.7 seconds on an ordinary CPU. All models together are estimated at 4.4 of the Jetson’s 8 gigabytes. The other requirements: three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). Next we repeat these tests on the Jetson and with our own camera. If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 4 constraints
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });
@@ -328,16 +327,16 @@ comp.forEach(([sys, need], i) => {
   T(s, need, { x: kx + 2.6, y, w: kw - 2.7, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, color: ours ? INK : MUTED });
 });
 const sx = 8.3, sw2 = X0 + CW - sx;
-const stats = [["63.1% → 86.6%", "accuracy: published baseline vs ours*"], ["$495–665", "parts, no per-use fees"],
+const stats = [["86.6%", "our accuracy on 134 words, new Deaf signers*"], ["$495–665", "parts, no per-use fees"],
                ["69%", "of Deaf users accept a stand-alone device"]];
 stats.forEach(([big, small], i) => {
-  const y = ky - 0.4 + i * 1.3;
+  const y = ky - 0.4 + i * 1.2;
   hline(s, sx, y, sw2, RULE, 0.75);
   T(s, big, { x: sx, y: y + 0.1, w: sw2, h: 0.6, fontFace: SERIF, fontSize: 30, bold: true, color: BLUE });
   T(s, small, { x: sx, y: y + 0.72, w: sw2, h: 0.4, fontFace: SANS, fontSize: 14, color: MUTED });
 });
-T(s, "* ASL Citizen: 2,731 signs vs our 134-word subset", { x: sx, y: 6.42, w: sw2, h: 0.3, fontFace: SANS, fontSize: 11, color: MUTED });
-notes(s, "How we compare. The four closest patents each need something extra: Sign-Speak, granted this year, uses one camera but needs a cloud server; Avodah needs several cameras and a depth sensor; Sorenson works on servers inside its video relay service; Bosch uses sensor gloves. Ours needs one ordinary webcam and runs fully offline, and it is the only one that decides by calibrated confidence when to answer and when to ask the user. The industry benchmark for accuracy is the ASL Citizen dataset: its published baseline is 63.1 percent; ours is 86.6, but on 134 words instead of 2,731, so it is not a direct comparison. Business side: about 500 to 665 dollars in parts and no per-use or cloud fees, aimed at service counters and front desks, where Deaf users in the Tran et al. survey were most willing to use such a device; 69 percent accept a stand-alone device, only 38 percent a wearable. Honest risks: our dataset and translation model are non-commercial only, and Sign-Speak’s granted patent would need a legal review before any product. (About 80 seconds.)");
+T(s, "* ASL Citizen paper: 63.1% on all 2,731 signs, a harder task, so not a direct comparison", { x: sx, y: 6.33, w: sw2, h: 0.45, fontFace: SANS, fontSize: 11, color: MUTED });
+notes(s, "How we compare. The four closest patents each need something extra: Sign-Speak, granted this year, uses one camera but needs a cloud server; Avodah needs several cameras and a depth sensor; Sorenson works on servers inside its video relay service; Bosch uses sensor gloves. Ours needs one ordinary webcam and runs fully offline, and it is the only one that decides by calibrated confidence when to answer and when to ask the user. The industry benchmark for accuracy is the ASL Citizen dataset: our model reads 86.6 percent of signs correctly on its 134 words. The dataset paper reports 63.1 percent, but on all 2,731 signs, a much harder task, so we do not claim to beat it. Business side: about 500 to 665 dollars in parts and no per-use or cloud fees, aimed at service counters and front desks, where Deaf users in the Tran et al. survey were most willing to use such a device; 69 percent accept a stand-alone device, only 38 percent a wearable. Honest risks: our dataset and translation model are non-commercial only, and Sign-Speak’s granted patent would need a legal review before any product. (About 80 seconds.)");
 
 // ---------------------------------------------------------------- 8 references
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Comparison" });

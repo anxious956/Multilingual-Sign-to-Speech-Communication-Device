@@ -327,7 +327,7 @@ comp.forEach(([sys, need], i) => {
   T(s, need, { x: kx + 2.6, y, w: kw - 2.7, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, color: ours ? INK : MUTED });
 });
 const sx = 8.3, sw2 = X0 + CW - sx;
-const stats = [["86.6%", "our accuracy on 134 words, new Deaf signers*"], ["$495–665", "parts, no per-use fees"],
+const stats = [["86.6%", "our accuracy on 134 words, new Deaf signers"], ["$495–665", "parts, no per-use fees"],
                ["69%", "of Deaf users accept a stand-alone device"]];
 stats.forEach(([big, small], i) => {
   const y = ky - 0.4 + i * 1.2;
@@ -335,8 +335,7 @@ stats.forEach(([big, small], i) => {
   T(s, big, { x: sx, y: y + 0.1, w: sw2, h: 0.6, fontFace: SERIF, fontSize: 30, bold: true, color: BLUE });
   T(s, small, { x: sx, y: y + 0.72, w: sw2, h: 0.4, fontFace: SANS, fontSize: 14, color: MUTED });
 });
-T(s, "* ASL Citizen paper: 63.1% on all 2,731 signs, a harder task, so not a direct comparison", { x: sx, y: 6.33, w: sw2, h: 0.45, fontFace: SANS, fontSize: 11, color: MUTED });
-notes(s, "How we compare. The four closest patents each need something extra: Sign-Speak, granted this year, uses one camera but needs a cloud server; Avodah needs several cameras and a depth sensor; Sorenson works on servers inside its video relay service; Bosch uses sensor gloves. Ours needs one ordinary webcam and runs fully offline, and it is the only one that decides by calibrated confidence when to answer and when to ask the user. The industry benchmark for accuracy is the ASL Citizen dataset: our model reads 86.6 percent of signs correctly on its 134 words. The dataset paper reports 63.1 percent, but on all 2,731 signs, a much harder task, so we do not claim to beat it. Business side: about 500 to 665 dollars in parts and no per-use or cloud fees, aimed at service counters and front desks, where Deaf users in the Tran et al. survey were most willing to use such a device; 69 percent accept a stand-alone device, only 38 percent a wearable. Honest risks: our dataset and translation model are non-commercial only, and Sign-Speak’s granted patent would need a legal review before any product. (About 80 seconds.)");
+notes(s, "How we compare. The four closest patents each need something extra: Sign-Speak, granted this year, uses one camera but needs a cloud server; Avodah needs several cameras and a depth sensor; Sorenson works on servers inside its video relay service; Bosch uses sensor gloves. Ours needs one ordinary webcam and runs fully offline, and it is the only one that decides by calibrated confidence when to answer and when to ask the user. For accuracy we test on the ASL Citizen dataset, recorded by Deaf signers: our model reads 86.6 percent of signs correctly on its 134 words, for signers it has never seen. Business side: about 500 to 665 dollars in parts and no per-use or cloud fees, aimed at service counters and front desks, where Deaf users in the Tran et al. survey were most willing to use such a device; 69 percent accept a stand-alone device, only 38 percent a wearable. Honest risks: our dataset and translation model are non-commercial only, and Sign-Speak’s granted patent would need a legal review before any product. (About 80 seconds.)");
 
 // ---------------------------------------------------------------- 8 references
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Comparison" });

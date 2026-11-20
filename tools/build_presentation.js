@@ -155,10 +155,10 @@ pres.addSection({ title: "Requirements" });
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });
 s.addText("03 / DESIGN OBJECTIVES & SPECIFICATIONS", { placeholder: "label" });
 s.addText("Four numbers that matter most", { placeholder: "title" });
-const big4 = [["86.6%", "Accuracy", "signs read correctly, new signers (goal \u2265 75%)"],
+const big4 = [["86.6%", "Accuracy", "recorded videos of new Deaf signers (goal \u2265 75%)"],
               ["134", "Words it knows now", "service-counter words (goal 250+)"],
-              ["0.7 s", "From \u201cyes\u201d to speech", "time until it starts talking (goal < 1.2 s)"],
-              ["4.4 GB", "Memory used", "all models, on the Jetson\u2019s 8 GB"]];
+              ["0.7 s", "From \u201cyes\u201d to speech", "measured on an ordinary 4-core CPU (goal < 1.2 s)"],
+              ["4.4 GB", "Estimated memory", "everything incl. the OS (Jetson has 8 GB)"]];
 const bw4 = 2.6;
 big4.forEach(([n, what, tgt], i) => {
   const x = X0 + (i % 2) * (bw4 + 0.35), y = 2.05 + Math.floor(i / 2) * 1.85;
@@ -169,7 +169,7 @@ big4.forEach(([n, what, tgt], i) => {
 });
 s.addShape(pres.shapes.RECTANGLE, { x: X0, y: 5.95, w: 0.9, h: 0.36, fill: { color: YEL }, line: { color: YEL } });
 T(s, "NEXT", { x: X0, y: 5.95, w: 0.9, h: 0.36, align: "center", valign: "middle", fontFace: MONO, fontSize: 13, bold: true, color: INK });
-T(s, "repeat these tests on the Jetson with our own camera", { x: X0 + 1.05, y: 5.95, w: 4.6, h: 0.36, valign: "middle",
+T(s, "nothing has run on the Jetson yet: measure all four on it, with our own camera", { x: X0 + 1.05, y: 5.95, w: 4.6, h: 0.36, valign: "middle",
   fontFace: SANS, fontSize: 14, color: INK });
 const gx = 6.95, gw = X0 + CW - gx;
 s.addChart(pres.charts.BAR, [
@@ -183,9 +183,9 @@ s.addChart(pres.charts.BAR, [
     showLegend: false, legendPos: "t", legendFontSize: 11, legendColor: INK, legendFontFace: "+mn-lt",
     showTitle: true, title: "Accuracy of our recognizer, version by version (% correct, new signers)", titleFontSize: 13, titleColor: INK,
     titleFontFace: "+mn-lt", objectName: "accuracy chart" });
-T(s, "v1\u2013v4: Kaggle data \u00b7 v5: ASL Citizen \u00b7 fewer words is an easier test", { x: gx, y: 6.3, w: gw, h: 0.3,
+T(s, "v1\u2013v4: Kaggle data \u00b7 v5: ASL Citizen \u00b7 fewer words is an easier test \u00b7 trained on Google Colab GPUs", { x: gx, y: 6.27, w: gw, h: 0.45,
   fontFace: MONO, fontSize: 11, color: MUTED });
-notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must read at least 75 percent of signs correctly for signers the model has never seen; our v5 model reads 86.6 percent correctly for the 11 Deaf test signers of the ASL Citizen dataset. It knows 134 service-counter words today; our goal is 250 or more. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio takes about 0.7 seconds on an ordinary CPU. All models together are estimated at 4.4 of the Jetson’s 8 gigabytes. The other requirements: three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). Next we repeat these tests on the Jetson and with our own camera. If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
+notes(s, "Our design objectives as measurable specifications; these four matter most. Recognition must read at least 75 percent of signs correctly for signers the model has never seen; our v5 model reads 86.6 percent correctly for the 11 Deaf test signers of the ASL Citizen dataset. It knows 134 service-counter words today; our goal is 250 or more. Speech must start within 1.2 seconds of the user’s confirmation; translation plus the first audio took about 0.7 seconds, measured on an ordinary 4-core computer processor without a GPU. Memory is an estimate: everything running together, including the operating system, should need about 4.4 of the Jetson’s 8 gigabytes; our own recognizer is only 7 megabytes of that. We have not run anything on the Jetson yet, so all four numbers will be measured again on the board, with our own camera. The recognizer was trained on Google Colab GPUs. The other requirements: three spoken languages, no network, and at least 15 frames per second (about 20 on a laptop so far). If asked: the 86.6 percent is on recorded videos, not yet live. (About 75 seconds.)");
 
 // ---------------------------------------------------------------- 4 constraints
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Requirements" });
@@ -288,25 +288,28 @@ box(s, mx, ry6[3], mw, rr, "Prototyping, testing, integration", null, { fill: YE
 arrow(s, mx + mw / 2, ry6[3] + rr, mx + mw / 2, ry6[4]);
 box(s, mx, ry6[4], mw, rr, "Prototype assembly", null, { fill: YEL, line: INK, ts: 14 });
 T(s, "COURSE DESIGN FLOW · OUR THREE GOALS IN BLUE", { x: mx, y: 6.33, w: 6, h: 0.28, fontFace: MONO, fontSize: 11, color: MUTED });
-const rx = 7.05, rw = X0 + CW - rx, rh = 0.52;
-const protos = [["P1", "Laptop demo", "BUILT"], ["P2", "Paper mock-up", "NEXT"], ["P3", "Jetson on the bench", "SOON"],
-  ["P4", "3D-printed case", "PLANNED"], ["P5", "Full device", "ECE 416"]];
-protos.forEach(([c, t, st], i) => {
+const rx = 7.05, rw = X0 + CW - rx, rh = 0.6;
+const protos = [["P1", "Proof of principle", "laptop demo (recognition)", "BUILT"],
+  ["P2", "User experience", "paper mock-up of the screen", "NEXT"], ["P3", "Functional", "Jetson on the bench", "SOON"],
+  ["P4", "Form study", "3D-printed case", "PLANNED"], ["P5", "Working prototype", "full device, assembled", "ECE 416"]];
+protos.forEach(([c, cat, t, st], i) => {
   const y = fy + i * rh;
   hline(s, rx, y, rw, i === 0 ? INK : RULE, i === 0 ? 1.5 : 0.75);
-  T(s, c, { x: rx, y: y + 0.12, w: 0.55, h: 0.32, fontFace: MONO, fontSize: 14, bold: true, color: INK });
-  T(s, t, { x: rx + 0.6, y: y + 0.11, w: rw - 2.1, h: 0.34, fontFace: SANS, fontSize: 17, color: INK });
-  if (i === 0) s.addShape(pres.shapes.RECTANGLE, { x: rx + rw - 1.4, y: y + 0.1, w: 1.4, h: 0.32, fill: { color: YEL }, line: { color: YEL } });
-  T(s, st, { x: rx + rw - 1.4, y: y + 0.1, w: 1.4, h: 0.32, valign: "middle", align: "center", fontFace: MONO, fontSize: 13,
+  T(s, c, { x: rx, y: y + 0.06, w: 0.55, h: 0.26, fontFace: MONO, fontSize: 14, bold: true, color: INK });
+  T(s, cat, { x: rx + 0.6, y: y + 0.06, w: rw - 2.05, h: 0.26, fontFace: SANS, fontSize: 14, bold: true, color: INK });
+  T(s, t, { x: rx + 0.6, y: y + 0.31, w: rw - 2.05, h: 0.24, fontFace: SANS, fontSize: 12, color: MUTED });
+  if (i === 0) s.addShape(pres.shapes.RECTANGLE, { x: rx + rw - 1.4, y: y + 0.14, w: 1.4, h: 0.32, fill: { color: YEL }, line: { color: YEL } });
+  T(s, st, { x: rx + rw - 1.4, y: y + 0.14, w: 1.4, h: 0.32, valign: "middle", align: "center", fontFace: MONO, fontSize: 13,
     color: i === 0 ? INK : BLUE });
 });
 hline(s, rx, fy + 5 * rh, rw, INK, 1.5);
-T(s, "85%", { x: rx, y: fy + 5 * rh + 0.2, w: 1.9, h: 0.85, fontFace: SERIF, fontSize: 50, color: BLUE });
-T(s, "of signs answered at 6.5% error; the user is asked about the rest", { x: rx + 2.0, y: fy + 5 * rh + 0.3, w: rw - 2.0,
-  h: 0.7, fontFace: SANS, fontSize: 15, color: INK });
-T(s, "Tests: each part → parts together → whole device → with Deaf users", { x: rx, y: fy + 5 * rh + 1.25, w: rw, h: 0.35,
-  fontFace: MONO, fontSize: 13, color: "3D3A35" });
-notes(s, "On the left is the course’s design flow chart, filled in for our project: our three goals are components X, Y and Z, and we added one loop back to the concept when a test misses its target. We prototype from cheap to expensive. P1, the proof of principle, is built: a laptop and webcam running the full recognizer live. P2 tests the confirmation screen with Deaf users on paper, with a teammate playing the computer, the Wizard of Oz method. P3 is the Jetson on the bench, P4 the 3D-printed enclosure, and P5 the assembled device in ECE 416. Validation so far is on recorded data from 11 unseen Deaf signers: at our confidence threshold the device answers 85 percent of signs at 6.5 percent error and asks the user about the rest. Testing goes from unit to integration to 15 system requirements, ending with Deaf users at a mock service counter. (About 80 seconds.)");
+T(s, "85%", { x: rx, y: fy + 5 * rh + 0.12, w: 1.9, h: 0.8, fontFace: SERIF, fontSize: 46, color: BLUE });
+T(s, "answered by the device itself, 93.5% of them correctly; for the other 15% it asks the user", { x: rx + 1.85, y: fy + 5 * rh + 0.18, w: rw - 1.85,
+  h: 0.7, fontFace: SANS, fontSize: 13, color: INK });
+T(s, [{ text: "Verification: ", options: { bold: true } }, { text: "each part → parts together → whole device", options: { breakLine: true } },
+  { text: "Validation: ", options: { bold: true } }, { text: "Deaf users at a mock service counter" }],
+  { x: rx, y: fy + 5 * rh + 0.98, w: rw, h: 0.55, fontFace: MONO, fontSize: 12, color: "404040", lineSpacingMultiple: 1.1 });
+notes(s, "On the left is the course’s design flow chart, filled in for our project: our three goals, in blue, are recognition, language and speech, and the embedded system. We prototype from cheap to expensive. P1, the proof of principle, is built: a laptop and webcam running the recognizer live; speech is not in it yet. P2 tests the confirmation screen with Deaf users on paper, with a teammate playing the computer, the Wizard of Oz method. P3 is the functional prototype, the Jetson on the bench; P4 a form study, the 3D-printed enclosure; and P5 the working prototype, assembled in ECE 416. Validation so far is on recorded data from 11 unseen Deaf signers: the device answers 85 percent of signs by itself and 93.5 percent of those are right; for the other 15 percent it is unsure and asks the user. Verification checks the design against our specifications, from each part to the whole device; validation checks that it meets real needs, with Deaf users at a mock service counter. (About 80 seconds.)");
 
 // ---------------------------------------------------------------- 7 benchmarking
 pres.addSection({ title: "Comparison" });
@@ -327,7 +330,7 @@ comp.forEach(([sys, need], i) => {
   T(s, need, { x: kx + 2.6, y, w: kw - 2.7, h: kh, valign: "middle", fontFace: SANS, fontSize: 17, color: ours ? INK : MUTED });
 });
 const sx = 8.3, sw2 = X0 + CW - sx;
-const stats = [["86.6%", "our accuracy on 134 words, new Deaf signers"], ["$495–665", "parts, no per-use fees"],
+const stats = [["86.6%", "on the ASL Citizen benchmark, 134 words"], ["$495–665", "parts, no per-use fees"],
                ["69%", "of Deaf users accept a stand-alone device"]];
 stats.forEach(([big, small], i) => {
   const y = ky - 0.4 + i * 1.2;
@@ -335,7 +338,7 @@ stats.forEach(([big, small], i) => {
   T(s, big, { x: sx, y: y + 0.1, w: sw2, h: 0.6, fontFace: SERIF, fontSize: 30, bold: true, color: BLUE });
   T(s, small, { x: sx, y: y + 0.72, w: sw2, h: 0.4, fontFace: SANS, fontSize: 14, color: MUTED });
 });
-notes(s, "How we compare. The four closest patents each need something extra: Sign-Speak, granted this year, uses one camera but needs a cloud server; Avodah needs several cameras and a depth sensor; Sorenson works on servers inside its video relay service; Bosch uses sensor gloves. Ours needs one ordinary webcam and runs fully offline, and it is the only one that decides by calibrated confidence when to answer and when to ask the user. For accuracy we test on the ASL Citizen dataset, recorded by Deaf signers: our model reads 86.6 percent of signs correctly on its 134 words, for signers it has never seen. Business side: about 500 to 665 dollars in parts and no per-use or cloud fees, aimed at service counters and front desks, where Deaf users in the Tran et al. survey were most willing to use such a device; 69 percent accept a stand-alone device, only 38 percent a wearable. Honest risks: our dataset and translation model are non-commercial only, and Sign-Speak’s granted patent would need a legal review before any product. (About 80 seconds.)");
+notes(s, "How we compare. The four closest patents each need something extra: Sign-Speak, granted this year, uses one camera but needs a cloud server; Avodah needs several cameras and a depth sensor; Sorenson works on servers inside its video relay service; Bosch uses sensor gloves. Ours needs one ordinary webcam and runs fully offline, and it is the only one that decides by calibrated confidence when to answer and when to ask the user. Our industry benchmark for accuracy is ASL Citizen, the public test set from Microsoft Research recorded by Deaf signers: our model reads 86.6 percent of signs correctly on its 134 words, for signers it has never seen. Business side: about 500 to 665 dollars in parts and no per-use or cloud fees, aimed at service counters and front desks, where Deaf users in the Tran et al. survey were most willing to use such a device; 69 percent accept a stand-alone device, only 38 percent a wearable. Honest risks: our dataset and translation model are non-commercial only, and Sign-Speak’s granted patent would need a legal review before any product. (About 80 seconds.)");
 
 // ---------------------------------------------------------------- 8 references
 s = pres.addSlide({ masterName: "LIGHT", sectionTitle: "Comparison" });

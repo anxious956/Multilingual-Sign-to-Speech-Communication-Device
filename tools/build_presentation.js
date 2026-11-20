@@ -1,6 +1,7 @@
 // Team 9 proposal presentation as .pptx (same content and look as the online deck).
 // npm install pptxgenjs react react-dom react-icons sharp; then NODE_PATH=<its node_modules> PPTX_SKILL=<pptx skill dir>
 // node tools/build_presentation.js . docs/presentation/njit_logo.png docs/presentation/Team9_Proposal_Presentation.pptx docs/presentation/setup_sketch.png 1078 568
+// add WITH_NOTES=1 to include the speaker notes
 const path = require("path");
 const pptxgen = require("pptxgenjs");
 const { applyTheme } = require(process.env.PPTX_SKILL + "/scripts/apply_theme.js");
@@ -48,7 +49,8 @@ pres.defineSlideMaster({ title: "COVER", background: { color: PAPER },
 const T = (s, text, o) => s.addText(text, Object.assign({ isTextBox: true, margin: 0, valign: "top" }, o));
 const hline = (s, x, y, w, color, pt) => s.addShape(pres.shapes.LINE, { x, y, w, h: 0, line: { color, width: pt } });
 const vline = (s, x, y, h, color, pt) => s.addShape(pres.shapes.LINE, { x, y, w: 0, h, line: { color, width: pt } });
-const notes = (s, t) => s.addNotes(t);
+// speaker notes are kept here but left out of the file unless WITH_NOTES=1
+const notes = (s, t) => { if (process.env.WITH_NOTES === "1") s.addNotes(t); };
 
 // table helper: rows of strings; first row is the header
 function table(s, rows, o) {
